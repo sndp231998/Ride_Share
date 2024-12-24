@@ -1,0 +1,14 @@
+package com.bus_ticket.repositories;
+
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.bus_ticket.entities.User;
+
+
+public interface UserRepo extends JpaRepository<User, Integer>{
+	
+Optional<User> findByMobileNo(String mobileNo);	
+Optional<User> findByEmail(String email);
+}
