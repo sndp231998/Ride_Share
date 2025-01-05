@@ -1,4 +1,5 @@
 package com.bus_ticket.entities;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -48,7 +49,15 @@ public class User implements UserDetails{
 	    private String imageName;
 	    
         private String otp;
+        //--------------------------------
+        
+        @Column(name = "date_of_registration")
+        private LocalDateTime dateOfRegistration;
 
+        private LocalDateTime date_Of_Role_Changed;
+        
+        private LocalDateTime otpValidUntil;
+        
 	    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 		@JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role", referencedColumnName = "id"))
 		private Set<Role> roles = new HashSet<>();

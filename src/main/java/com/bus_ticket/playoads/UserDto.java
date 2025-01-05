@@ -1,8 +1,10 @@
 package com.bus_ticket.playoads;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
@@ -39,8 +41,18 @@ public class UserDto {
 	private String imageName;
 	
 	private String  otp;
-	private Set<RoleDto> roles = new HashSet<>();
 	
+	//--------------------------
+	  @Column(name = "date_of_registration")
+      private LocalDateTime dateOfRegistration;
+
+      private LocalDateTime date_Of_Role_Changed;
+      
+      private LocalDateTime otpValidUntil;
+	
+	
+      
+	private Set<RoleDto> roles = new HashSet<>();
 	
 	@JsonIgnore
 	public String getPassword() {

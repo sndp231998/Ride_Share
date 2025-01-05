@@ -18,9 +18,8 @@ import com.bus_ticket.entities.OtpRequest;
 import com.bus_ticket.entities.User;
 import com.bus_ticket.repositories.OtpRequestRepo;
 import com.bus_ticket.repositories.UserRepo;
+import com.bus_ticket.service.OtpRequestService;
 
-
-public class OtpRequestServiceImpl {
 
 @Service
 public class OtpRequestServiceImpl implements OtpRequestService {

@@ -19,14 +19,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bus_ticket.entities.OtpRequest;
 import com.bus_ticket.entities.User;
 import com.bus_ticket.exceptions.ApiException;
+import com.bus_ticket.playoads.ForgetPasswordDto;
 import com.bus_ticket.playoads.JwtAuthRequest;
 import com.bus_ticket.playoads.JwtAuthResponse;
 import com.bus_ticket.playoads.UserDto;
 import com.bus_ticket.repositories.UserRepo;
 import com.bus_ticket.security.JwtTokenHelper;
+import com.bus_ticket.service.ForgetPasswordService;
+import com.bus_ticket.service.OtpRequestService;
 import com.bus_ticket.service.UserService;
+import com.bus_ticket.service.impl.RateLimitingService;
+
+import com.bus_ticket.entities.ForgetPassword;
+
+
+
 
 
 @RestController
@@ -43,6 +53,15 @@ public class AuthController {
 
 	@Autowired
 	private UserService userService;
+	
+	 @Autowired
+	   private OtpRequestService otpRequestService;
+	  
+	 @Autowired
+	 private RateLimitingService rateLimitingService;
+	 
+	 @Autowired
+	    private ForgetPasswordService forgetPasswordService;
 
 	@PostMapping("/login")
 	public ResponseEntity<JwtAuthResponse> createToken(@RequestBody JwtAuthRequest request) throws Exception {
@@ -91,5 +110,30 @@ public class AuthController {
 		User user = this.userRepo.findByEmail(principal.getName()).get();
 		return new ResponseEntity<UserDto>(this.mapper.map(user, UserDto.class), HttpStatus.OK);
 	}
+	
+	//otp for registration
+    @PostMapping("/get-phone-number")
+    public ResponseEntity<OtpRequest> createOtp(@RequestBody OtpRequest otpReq) {
+    	
+    	OtpRequest ph = otpRequestService.createOtp(otpReq);
+    	
+    			
+        return ResponseEntity.ok(ph);
+    }
+    @PostMapping("/forgetpw")
+    public ResponseEntity<ForgetPassword> createForgetPassword(@RequestBody ForgetPasswordDto forgetPasswordDto) {
+        ForgetPassword forgetPassword = forgetPasswordService.createForget(forgetPasswordDto);
+        rateLimitingService.checkRateLimit("test-api-key");
+        return ResponseEntity.ok(forgetPassword);
+    }
 
-}
+    @PostMapping("/update-password")
+    public ResponseEntity<String> updatePassword(@RequestBody ForgetPassword request) {
+        try {
+        	forgetPasswordService.updatePassword(request.getPhnum(), request.getOtp(), request.getNewPassword());
+            return ResponseEntity.ok("Password updated successfully");
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+
+}}

@@ -25,4 +25,20 @@ public interface UserService {
 		void deleteUser(Integer userId);
 		
 		
+		//--------------------role change------------------------
+		void addRoleToUser(String email, String roleName);
+		
+		//void updateUserRoles();
+		
+		//void sendSubscriptionExpiryWarnings();
+		
+	    UserDto getUserByEmail(String email);
+	    
+	    List<UserDto> getUsersByRole(String roleName);
+	    
+	   // List<UserDto>getUsersByPayment(String )
+		
+	//---------------forget password---------------
+	    UserDto updatePassword(UserDto user ,Integer userId);
+	    UserDto GetOtp(UserDto user,Integer userId);
 }

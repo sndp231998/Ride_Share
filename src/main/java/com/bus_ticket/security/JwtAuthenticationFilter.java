@@ -55,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		String token = null;
 
-		if (requestToken != null && requestToken.startsWith("Bearer")) {
+		if (requestToken != null && requestToken.startsWith("Sandip")) {
 
 			token = requestToken.substring(7);
 
@@ -71,7 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			}
 
 		} else {
-			System.out.println("Jwt token does not begin with Bearer");
+			System.out.println("Jwt token does not begin with Sandip");
 		}
 
 		// once we get the token , now validate

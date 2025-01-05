@@ -46,25 +46,25 @@ public class BusTicketBookingApplication implements CommandLineRunner{
 		        role1.setId(AppConstants.NORMAL_USER);
 		        role1.setName("ROLE_NORMAL");
 		        
-	        Role role = new Role();
-	        role.setId(AppConstants.ADMIN_USER);
-	        role.setName("ROLE_ADMIN");
+	        Role role2 = new Role();
+	        role2.setId(AppConstants.ADMIN_USER);
+	        role2.setName("ROLE_ADMIN");
 
 	      
-	        Role role2 = new Role();
-	        role2.setId(AppConstants.AGENT_USER);
-	        role2.setName("ROLE_AGENT");
+	        Role role3 = new Role();
+	        role3.setId(AppConstants.AGENT_USER);
+	        role3.setName("ROLE_AGENT");
 
 	        
-	        Role role3=new Role();
-	        role3.setId(AppConstants.STAFF_USER);
-	        role3.setName("Role_STAFF");
-	        
 	        Role role4=new Role();
-	        role4.setId(AppConstants.SUPER_ADMIN_USER);
-	        role4.setName("ROLE_SUPER_ADMIN");
+	        role4.setId(AppConstants.STAFF_USER);
+	        role4.setName("Role_STAFF");
 	        
-	        List<Role> roles = List.of(role, role1, role2 , role3,role4);
+	        Role role5=new Role();
+	        role5.setId(AppConstants.SUPER_ADMIN_USER);
+	        role5.setName("ROLE_SUPER_ADMIN");
+	        
+	        List<Role> roles = List.of(role1, role2, role3 , role4, role5);
 
 	        List<Role> result = this.roleRepo.saveAll(roles);
 
