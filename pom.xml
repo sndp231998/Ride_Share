@@ -9,9 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>A1_IT_Innovation</groupId>
-	<artifactId>Bus_Ticket_Booking</artifactId>
+	<artifactId>Ride_Share</artifactId>
+	<!--Bus_Ticket_Booking-->
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Bus_Ticket_Booking</name>
+	<name>Ride_Share</name>
 	<description>Project is done under the a1 it innovation pvt.ltd</description>
 	<url/>
 	<licenses>
