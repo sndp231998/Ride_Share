@@ -9,7 +9,10 @@ public class AppConstants {
 	public static final Integer SUPER_ADMIN_USER = 500;
 	public static final Integer ADMIN_USER=501;
 	public static final Integer NORMAL_USER = 502;
-	public static final Integer STAFF_USER=503;
-	public static final Integer AGENT_USER = 504;
+	public static final Integer BRANCH_MANAGER_USER=503;
+	public static final Integer RIDER_USER = 504;
+	
+	public static final Integer DAMAK_BRANCH=601;
+	public static final Integer KATHMANDU_BRANCH=602;
 	
 }

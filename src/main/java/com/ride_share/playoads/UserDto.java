@@ -42,6 +42,8 @@ public class UserDto {
 	
 	private String  otp;
 	
+	private String branch_Name;
+	
 	//--------------------------
 	  @Column(name = "date_of_registration")
       private LocalDateTime dateOfRegistration;
@@ -50,7 +52,9 @@ public class UserDto {
       
       private LocalDateTime otpValidUntil;
 	
-	
+      private String date_of_Birth;
+      
+      private String mode;
       
 	private Set<RoleDto> roles = new HashSet<>();
 	

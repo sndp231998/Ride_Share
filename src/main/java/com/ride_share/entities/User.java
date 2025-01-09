@@ -16,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,7 +32,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class User implements UserDetails{
 
-	 @Id
+	     @Id
 	    @GeneratedValue(strategy = GenerationType.AUTO)
 	    private int id;
 
@@ -48,7 +49,7 @@ public class User implements UserDetails{
 
 	    private String imageName;
 	    
-        private String otp;
+        
         //--------------------------------
         
         @Column(name = "date_of_registration")
@@ -57,10 +58,26 @@ public class User implements UserDetails{
         private LocalDateTime date_Of_Role_Changed;
         
         private LocalDateTime otpValidUntil;
+        private String otp;
         
 	    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 		@JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role", referencedColumnName = "id"))
 		private Set<Role> roles = new HashSet<>();
+	    
+	    //user lai [http://localhost:8085/api/v1/auth/branch] yo dine ui side ma
+	    private String branch_Name;
+	    
+	    
+	    
+	    private String mode; // PASSENGER or DRIVER
+        
+	   private String date_of_Birth;
+	   
+//	    @ManyToOne
+//	    @JoinColumn(name = "branch_id")
+//	    private Branch branch; // Association with branch.
+	    
+	    
 	    
 		@Override
 		public Collection<? extends GrantedAuthority> getAuthorities() {

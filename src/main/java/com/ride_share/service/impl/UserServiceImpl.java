@@ -14,11 +14,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ride_share.config.AppConstants;
+import com.ride_share.entities.Branch;
 import com.ride_share.entities.OtpRequest;
 import com.ride_share.entities.Role;
 import com.ride_share.entities.User;
+import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
 import com.ride_share.playoads.UserDto;
+import com.ride_share.repositories.BranchRepo;
 import com.ride_share.repositories.OtpRequestRepo;
 import com.ride_share.repositories.RoleRepo;
 import com.ride_share.repositories.UserRepo;
@@ -50,7 +53,8 @@ public class UserServiceImpl implements UserService {
 		   @Autowired
 		   private OtpRequestService sendmsg;
 		   
-		   
+		   @Autowired
+		   private BranchRepo branchRepo;
 //		   @Autowired
 //		    private NotificationService notificationService;
 		   
@@ -69,6 +73,16 @@ public class UserServiceImpl implements UserService {
 		    Role role = this.roleRepo.findById(AppConstants.NORMAL_USER).get();
 		    user.getRoles().add(role);
 
+		    user.setDate_of_Birth(userDto.getDate_of_Birth());
+		    
+		    // Validate and associate branch
+		    String branchName = userDto.getBranch_Name();
+		    Branch branch = this.branchRepo.findByName(branchName)
+		                    .orElseThrow(() -> new ApiException("Please select valid branch: " + branchName));
+		    
+		    user.setBranch_Name(branch.getName()); // Ensure it matches exactly
+		    
+		    user.setBranch_Name(userDto.getBranch_Name());
 		    String otp = userDto.getOtp();
 		    // Logging OTP from user
 	        logger.info("Otp from user: " + otp);

@@ -1,6 +1,7 @@
 package com.ride_share.controller;
 
 import java.security.Principal;
+import java.util.List;
 
 import javax.validation.Valid;
 
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ride_share.entities.Branch;
 import com.ride_share.entities.ForgetPassword;
 import com.ride_share.entities.OtpRequest;
 import com.ride_share.entities.User;
@@ -27,6 +29,7 @@ import com.ride_share.playoads.ForgetPasswordDto;
 import com.ride_share.playoads.JwtAuthRequest;
 import com.ride_share.playoads.JwtAuthResponse;
 import com.ride_share.playoads.UserDto;
+import com.ride_share.repositories.BranchRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.security.JwtTokenHelper;
 import com.ride_share.service.ForgetPasswordService;
@@ -61,6 +64,9 @@ public class AuthController {
 	 
 	 @Autowired
 	    private ForgetPasswordService forgetPasswordService;
+	 
+	 @Autowired
+	    private BranchRepo branchRepo;
 
 	@PostMapping("/login")
 	public ResponseEntity<JwtAuthResponse> createToken(@RequestBody JwtAuthRequest request) throws Exception {
@@ -135,4 +141,9 @@ public class AuthController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
 
-}}
+}
+    @GetMapping("/branch")
+    public List<Branch> getAllBranches() {
+        return branchRepo.findAll();
+    }    
+}
