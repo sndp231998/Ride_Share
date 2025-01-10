@@ -3,7 +3,6 @@ package com.ride_share.service;
 import com.ride_share.playoads.VehicleDto;
 
 public interface VehicleService {
-
 	
 	//create 
 

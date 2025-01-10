@@ -7,6 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 @Entity
@@ -32,11 +33,17 @@ public class Vehicle {
 	    private String production_Year;  ///
 	    
 	    
+//	    @ManyToOne
+//	    @JoinColumn(name = "rider_id")
+//	    private Rider rider;
+	    
+		@ManyToOne
+		private User user;
+	    
 	    @ManyToOne
-	    @JoinColumn(name = "rider_id")
-	    private Rider rider;
-	    
-	    
+		@JoinColumn(name = "category_id")
+		private Category category;
+
 //	    private String vehicleType; // Car, Rickshaw, Moto
 //	    private String vehicleNumber; // Vehicle Number
 //	    private String vehicleModel; // Vehicle Model
