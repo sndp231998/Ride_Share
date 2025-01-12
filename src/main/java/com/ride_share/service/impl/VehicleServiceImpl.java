@@ -1,7 +1,5 @@
 package com.ride_share.service.impl;
 
-
-
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,10 +13,6 @@ import com.ride_share.repositories.CategoryRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.repositories.VehicleRepo;
 import com.ride_share.service.VehicleService;
-
-
-
-
 
 @Service
 public class VehicleServiceImpl implements VehicleService{
@@ -64,7 +58,7 @@ public class VehicleServiceImpl implements VehicleService{
 	@Override
 	public VehicleDto updateVehicle(VehicleDto vehicleDto, Integer vehicleId) {
 		Vehicle vehicle = this.vehicleRepo.findById(vehicleId)
-                .orElseThrow(() -> new ResourceNotFoundException("Post ", "post id", vehicleId));
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicle ", "vehicle id", vehicleId));
 
         Category category = this.categoryRepo.findById(vehicleDto.getCategory().getCategoryId()).get();
 

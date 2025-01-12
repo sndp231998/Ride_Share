@@ -14,5 +14,7 @@ public class RiderDto {
 	    
 	    private String selfieWithIdCard; // Image path
 	    
+	    private String date_Of_Birth;
+	    
 	    private User user;
 }

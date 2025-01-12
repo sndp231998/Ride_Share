@@ -31,7 +31,7 @@ public class Rider {
 	    
 	    private String selfieWithIdCard; // Image path
 	    
-	    
+	    private String date_Of_Birth;
 	   
 	 
 }
