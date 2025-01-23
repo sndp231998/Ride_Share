@@ -1,5 +1,7 @@
 package com.ride_share.service;
 
+import java.util.List;
+
 import com.ride_share.playoads.RiderDto;
 
 
@@ -16,6 +18,11 @@ public interface RiderService {
 
 			// delete
 			void deleteRider(Integer riderId);
+
+			RiderDto getRiderById(Integer riderId);
 			
+			List<RiderDto> getRidersByUser(Integer userId);
+
+			List<RiderDto> getAllRiders();
 	
 }

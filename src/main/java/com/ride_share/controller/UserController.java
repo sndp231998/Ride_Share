@@ -116,26 +116,48 @@ public class UserController {
 	        UserDto updateduser = this.userService.updateUser(userDto, userId);
 	        return new ResponseEntity<>(updateduser, HttpStatus.OK);
 	    }
+	
+
 	    
 	    //method to serve files
-	    @GetMapping(value = "/image/{imageName}",produces = MediaType.IMAGE_JPEG_VALUE)
-	    public void downloadImage(
-	            @PathVariable("imageName") String imageName,
-	            HttpServletResponse response
-	    ) throws IOException {
-	    	String fileExtension = FilenameUtils.getExtension(imageName).toLowerCase();
-	        MediaType mediaType = MediaType.IMAGE_JPEG;  // Default
+		//---------------- Method to serve files of various types-------------------
+		@GetMapping(value = "/image/{fileName}")
+		public void downloadFile(
+		        @PathVariable("fileName") String fileName,
+		        HttpServletResponse response
+		) throws IOException {
+		    // Determine the file extension to set content type
+		    String fileExtension = FilenameUtils.getExtension(fileName).toLowerCase();
+		    MediaType mediaType;
 
-	        if (fileExtension.equals("png")) {
-	            mediaType = MediaType.IMAGE_PNG;
-	        } else if (fileExtension.equals("jpg") || fileExtension.equals("jpeg")) {
-	            mediaType = MediaType.IMAGE_JPEG;
-	        }
+		    switch (fileExtension) {
+		        case "png":
+		            mediaType = MediaType.IMAGE_PNG;
+		            break;
+		        case "jpg":
+		        case "jpeg":
+		            mediaType = MediaType.IMAGE_JPEG;
+		            break;
+		        case "pdf":
+		            mediaType = MediaType.APPLICATION_PDF;
+		            break;
+		        case "pptx":
+		            mediaType = MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.presentationml.presentation");
+		            break;
+		        default:
+		            mediaType = MediaType.APPLICATION_OCTET_STREAM;
+		    }
 
-	        response.setContentType(mediaType.toString());
-	        try (InputStream resource = this.fileService.getResource(path, imageName)) {
-	            StreamUtils.copy(resource, response.getOutputStream());
-	        }
-	    }
+		    // Set the content type
+		    response.setContentType(mediaType.toString());
+		    
+		    // Set the Content-Disposition header manually
+		    response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+
+		    // Serve the file
+		    try (InputStream resource = this.fileService.getResource(path, fileName)) {
+		        StreamUtils.copy(resource, response.getOutputStream());
+		    }
+		}
 
 }

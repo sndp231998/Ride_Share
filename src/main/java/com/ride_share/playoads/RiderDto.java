@@ -1,5 +1,10 @@
 package com.ride_share.playoads;
 
+
+import java.time.LocalDateTime;
+
+import javax.persistence.Column;
+
 import com.ride_share.entities.User;
 
 import lombok.Data;
@@ -15,6 +20,18 @@ public class RiderDto {
 	    private String selfieWithIdCard; // Image path
 	    
 	    private String date_Of_Birth;
+	    
+	    private LocalDateTime addedDate;
+	    @Column(name = "updated_date")
+	    private LocalDateTime updatedDate;
+
+	    private String statusMessage; // General message field for any status
+	    
+private RiderStatus status;
+	    
+	    public enum RiderStatus {
+	        PENDING, APPROVED, REJECTED
+	    }
 	    
 	    private User user;
 }

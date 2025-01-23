@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -58,6 +59,11 @@ public class GlobalExceptionHandler {
 	        ApiResponse apiResponse = new ApiResponse(message, true);
 			return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.BAD_REQUEST);
 	        
+	    }
+	 
+	 @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
+	    public ResponseEntity<String> handleMediaTypeException(HttpMediaTypeNotAcceptableException ex) {
+	        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Media type not acceptable: " + ex.getMessage());
 	    }
 }
 

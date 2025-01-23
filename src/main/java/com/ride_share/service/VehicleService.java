@@ -1,18 +1,28 @@
 package com.ride_share.service;
 
+import java.util.List;
+
 import com.ride_share.playoads.VehicleDto;
 
 public interface VehicleService {
+
+	VehicleDto createVehicle(VehicleDto vehicleDto,Integer userId,Integer categoryId);
 	
-	//create 
+	VehicleDto updateVehicle(VehicleDto vehicleDto, Integer vehicleId);
+	
+	
+	
+//	// delete
+	void deleteVehicle(Integer vehicleId);
 
-		VehicleDto createVehicle(VehicleDto vehicleDto,Integer userId,Integer categoryId);
+	VehicleDto getVehicleById(Integer vehicleId);
 
-		//update 
+	List<VehicleDto> getAllVehicles();
 
-		VehicleDto updateVehicle(VehicleDto vehicleDto, Integer vehicleId);
+	List<VehicleDto> getVehiclesByCategory(Integer categoryId);
 
-		// delete
-		void deleteVehicle(Integer vehicleId);
-		
+	List<VehicleDto> getVehiclesByUser(Integer userId);
+
+	List<VehicleDto> searchVehicles(String keyword);
+	
 }
