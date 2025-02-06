@@ -41,7 +41,7 @@ public class RideRequestServiceImpl implements RideRequestService{
 //        if (existingStatus!= Rider.RiderStatus.APPROVED) {
 //            throw new IllegalStateException("Cannot create Ride_Request.");
 //        }
-		
+		//
         RideRequest ride = this.modelMapper.map(rideRequestDto, RideRequest.class);
 		ride.setAddedDate(LocalDateTime.now());
 		ride.setActualPrice(rideRequestDto.getActualPrice());
