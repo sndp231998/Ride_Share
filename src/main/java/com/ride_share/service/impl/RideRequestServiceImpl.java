@@ -2,6 +2,7 @@ package com.ride_share.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,7 @@ public class RideRequestServiceImpl implements RideRequestService{
 		ride.setSource(rideRequestDto.getSource());
 		ride.setDestination(rideRequestDto.getDestination());
 		ride.setStatus(RideRequest.RideStatus.PENDING);
-        //ride.set(rideRequestDto.getActualPrice());
+      
 		RideRequest savedRideReq = this.rideRequestRepo.save(ride);
         return this.modelMapper.map(savedRideReq, RideRequestDto.class);
 	}
@@ -63,27 +64,51 @@ public class RideRequestServiceImpl implements RideRequestService{
 
 	@Override
 	public void deleteRideRequest(Integer rideRequestId) {
-		// TODO Auto-generated method stub
+		 RideRequest ride = this.rideRequestRepo.findById(rideRequestId)
+	                .orElseThrow(() -> new ResourceNotFoundException("RideRequest ", "rideRequest id", rideRequestId));
+
+	        this.rideRequestRepo.delete(ride);
 		
 	}
 
 	@Override
 	public RideRequestDto getRideRequestById(Integer rideRequestId) {
-		// TODO Auto-generated method stub
-		return null;
+		RideRequest ride = this.rideRequestRepo.findById(rideRequestId)
+                .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "rideRequest id", rideRequestId));
+        return this.modelMapper.map(ride, RideRequestDto.class);
 	}
 
 	@Override
 	public List<RideRequestDto> getRideRequestByUser(Integer userId) {
-		// TODO Auto-generated method stub
-		return null;
+		 User user = this.userRepo.findById(userId)
+	                .orElseThrow(() -> new ResourceNotFoundException("User ", "userId ", userId));
+	        List<RideRequest> rides = this.rideRequestRepo.findByUser(user);
+
+	        List<RideRequestDto> rideDtos = rides.stream().map((ride) -> this.modelMapper.map(ride, RideRequestDto.class))
+	                .collect(Collectors.toList());
+
+	        return rideDtos;
 	}
 
 	@Override
 	public List<RideRequestDto> getAllRideRequests() {
-		// TODO Auto-generated method stub
-		return null;
+	    List<RideRequest> ride = this.rideRequestRepo.findAll();
+	    List<RideRequestDto> riderDtos = ride.stream().map(this::rideRequestToDto).collect(Collectors.toList());
+
+	    return riderDtos;
 	}
+
+	public RideRequest dtoToRideRequest(RideRequestDto rideRequestDto) {
+	    RideRequest ride = this.modelMapper.map(rideRequestDto, RideRequest.class);
+	    return ride;
+	}
+
+	public RideRequestDto rideRequestToDto(RideRequest rideRequest) {
+	    RideRequestDto rideRequestDto = this.modelMapper.map(rideRequest, RideRequestDto.class);
+	    return rideRequestDto;
+	}
+
+	
 
 	@Override
 	public RideRequestDto rejectRideRequest(Integer rideRequestId) {
