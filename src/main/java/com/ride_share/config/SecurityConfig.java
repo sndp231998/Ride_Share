@@ -17,6 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -40,7 +42,8 @@ public class SecurityConfig {
             "/swagger-ui/**", 
             "/webjars/**",
             "/api/v1/auth/login/",
-            "api/v1/users/"
+            "api/v1/users/",
+            "/api/fonepay/**"
 
     };
 
@@ -143,6 +146,15 @@ public class SecurityConfig {
         return provider;
 
     }
+    
+    @Bean
+    public HttpFirewall allowDoubleSlashFirewall() {
+        StrictHttpFirewall firewall = new StrictHttpFirewall();
+        firewall.setAllowUrlEncodedSlash(true); 
+        firewall.setAllowSemicolon(true);
+        return firewall;
+    }
+
 
 
     @Bean

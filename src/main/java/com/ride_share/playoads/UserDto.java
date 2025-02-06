@@ -11,7 +11,7 @@ import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import com.ride_share.entities.User.UserMode;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -41,8 +41,14 @@ public class UserDto {
 	private String imageName;
 	
 	private String  otp;
-	
+	 private String balance;
 	private String branch_Name;
+	
+	 private UserMode modes;
+	    
+	    public enum UserMode {
+	        RIDER,PESSENGER
+	    }
 	
 	//--------------------------
 	  @Column(name = "date_of_registration")

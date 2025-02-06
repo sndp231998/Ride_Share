@@ -41,4 +41,6 @@ public interface UserService {
 	//---------------forget password---------------
 	    UserDto updatePassword(UserDto user ,Integer userId);
 	    UserDto GetOtp(UserDto user,Integer userId);
+
+		UserDto UserModeChanger(Integer userId);
 }

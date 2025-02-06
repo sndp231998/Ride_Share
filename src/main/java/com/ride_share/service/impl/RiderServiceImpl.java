@@ -32,79 +32,111 @@ public class RiderServiceImpl implements RiderService{
 	@Autowired
 	private UserRepo userRepo;
 	
-	@Override
-	public RiderDto createRider(RiderDto riderDto, Integer userId) {
-		 User user = this.userRepo.findById(userId)
-	                .orElseThrow(() -> new ResourceNotFoundException("User ", "User id", userId));
+	// Create a new Rider
+    @Override
+    public RiderDto createRider(RiderDto riderDto, Integer userId) {
+        User user = this.userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userId));
 
-		 Rider.RiderStatus existingStatus = this.riderRepo.findRiderStatusByUserId(userId);
-		 if (existingStatus == Rider.RiderStatus.PENDING) { 
-			 throw new IllegalStateException("Cannot create rider. User already has a rider application in PENDING status."); 
-			 }
-		 
-		    // Validate age based on date of birth
-		 int age = calculateAge(riderDto.getDate_Of_Birth());
-		 if (age < 18) { 
-			 throw new IllegalStateException("Cannot create rider. User must be at least 18 years old.");
-			 }
-		 
-	     Rider rider = this.modelMapper.map(riderDto, Rider.class);
-	     rider.setDriver_License(riderDto.getDriver_License());
-	     rider.setDate_Of_Birth(riderDto.getDate_Of_Birth());
-	     
-	     rider.setAddedDate(LocalDateTime.now());
-	     rider.setSelfieWithIdCard("");
-	     rider.setUser(user);
-	     
-	     if (existingStatus == null || existingStatus == Rider.RiderStatus.REJECTED) {
-	     rider.setStatus(Rider.RiderStatus.PENDING);
-	     }
-	      
-		Rider addrider = this.riderRepo.save(rider);
-		return this.modelMapper.map(addrider, RiderDto.class);
-	}
-	
-	private int calculateAge(String dateOfBirth) { 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		LocalDate birthDate = LocalDate.parse(dateOfBirth, formatter); 
-		return Period.between(birthDate, LocalDate.now()).getYears(); 
-		}
+        Rider.RiderStatus existingStatus = this.riderRepo.findRiderStatusByUserId(userId);
+        if (existingStatus == Rider.RiderStatus.PENDING) {
+            throw new IllegalStateException("Cannot create rider. User already has a rider application in PENDING status.");
+        }
 
-	@Override
-	public RiderDto updateRider(RiderDto riderDto, Integer riderId) {
-	    // Fetch the rider by ID or throw an exception if not found
-	    Rider rider = this.riderRepo.findById(riderId)
-	            .orElseThrow(() -> new ResourceNotFoundException("Rider", "Rider ID", riderId));
+        // Validate age based on date of birth
+        int age = calculateAge(riderDto.getDate_Of_Birth());
+        if (age < 18) {
+            throw new IllegalStateException("Cannot create rider. User must be at least 18 years old.");
+        }
 
-	    // Prevent updates if the status is PENDING
-	    if (rider.getStatus() == Rider.RiderStatus.PENDING) {
-	        throw new IllegalStateException("Cannot update rider. The application is in PENDING status.");
-	    }
+        Rider rider = this.modelMapper.map(riderDto, Rider.class);
+        rider.setDriver_License(riderDto.getDriver_License());
+        rider.setDate_Of_Birth(riderDto.getDate_Of_Birth());
+        rider.setAddedDate(LocalDateTime.now());
+        rider.setSelfieWithIdCard("");
+        rider.setUser(user);
 
-	    // Validate age if date of birth is being updated
-	    if (riderDto.getDate_Of_Birth() != null) {
-	        int age = calculateAge(riderDto.getDate_Of_Birth());
-	        if (age < 18) {
-	            throw new IllegalStateException("Cannot update rider. User must be at least 18 years old.");
-	        }
-	        rider.setDate_Of_Birth(riderDto.getDate_Of_Birth());
-	    }
+        // Set status to PENDING only if no prior application or rejected
+        rider.setStatus(Rider.RiderStatus.PENDING);
 
-	    // Update other fields if they are provided
-	    if(rider.getStatus()==Rider.RiderStatus.REJECTED) {
-	        rider.setDriver_License(riderDto.getDriver_License());
-	    }
-	    if (riderDto.getSelfieWithIdCard() != null) {
-	        rider.setSelfieWithIdCard(riderDto.getSelfieWithIdCard());
-	    }
+        Rider savedRider = this.riderRepo.save(rider);
+        return this.modelMapper.map(savedRider, RiderDto.class);
+    }
 
-	    // Set the updated date
-	    rider.setUpdatedDate(LocalDateTime.now());
+    // Update an existing Rider
+    @Override
+    public RiderDto updateRider(RiderDto riderDto, Integer riderId) {
+        Rider rider = this.riderRepo.findById(riderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Rider", "Rider ID", riderId));
 
-	    // Save the updated rider and return the updated DTO
-	    Rider updatedRider = this.riderRepo.save(rider);
-	    return this.modelMapper.map(updatedRider, RiderDto.class);
-	}
+        // Prevent updates if the application is already approved
+        if (rider.getStatus() == Rider.RiderStatus.APPROVED) {
+            throw new IllegalStateException("Cannot update rider. The application is already APPROVED.");
+        }
+
+        // Validate age if date of birth is being updated
+        if (riderDto.getDate_Of_Birth() != null) {
+            int age = calculateAge(riderDto.getDate_Of_Birth());
+            if (age < 18) {
+                throw new IllegalStateException("Cannot update rider. User must be at least 18 years old.");
+            }
+            rider.setDate_Of_Birth(riderDto.getDate_Of_Birth());
+        }
+
+        // Update other fields
+        rider.setDriver_License(riderDto.getDriver_License());
+        rider.setSelfieWithIdCard(riderDto.getSelfieWithIdCard());
+        rider.setUpdatedDate(LocalDateTime.now());
+
+        // After update, set status back to PENDING for admin review
+        rider.setStatus(Rider.RiderStatus.PENDING);
+
+        Rider updatedRider = this.riderRepo.save(rider);
+        return this.modelMapper.map(updatedRider, RiderDto.class);
+    }
+
+    // Approve Rider Application
+    @Override
+    public RiderDto approveRider(Integer riderId) {
+        Rider rider = this.riderRepo.findById(riderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Rider", "Rider ID", riderId));
+
+        // Only allow approval if status is PENDING
+        if (rider.getStatus() != Rider.RiderStatus.PENDING) {
+            throw new IllegalStateException("Cannot approve rider. The application is not in PENDING status.");
+        }
+
+        rider.setStatus(Rider.RiderStatus.APPROVED);
+        rider.setUpdatedDate(LocalDateTime.now());
+
+        Rider approvedRider = this.riderRepo.save(rider);
+        return this.modelMapper.map(approvedRider, RiderDto.class);
+    }
+
+    // Reject Rider Application
+    @Override
+    public RiderDto rejectRider(Integer riderId) {
+        Rider rider = this.riderRepo.findById(riderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Rider", "Rider ID", riderId));
+
+        // Only allow rejection if status is PENDING
+        if (rider.getStatus() != Rider.RiderStatus.PENDING) {
+            throw new IllegalStateException("Cannot reject rider. The application is not in PENDING status.");
+        }
+
+        rider.setStatus(Rider.RiderStatus.REJECTED);
+        rider.setUpdatedDate(LocalDateTime.now());
+
+        Rider rejectedRider = this.riderRepo.save(rider);
+        return this.modelMapper.map(rejectedRider, RiderDto.class);
+    }
+
+    // Helper method to calculate age
+    private int calculateAge(String dateOfBirth) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate birthDate = LocalDate.parse(dateOfBirth, formatter);
+        return Period.between(birthDate, LocalDate.now()).getYears();
+    }
 
 	@Override
 	public void deleteRider(Integer riderId) {

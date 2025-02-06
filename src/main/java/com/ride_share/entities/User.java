@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,13 +18,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
+
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.ride_share.entities.Role;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -49,7 +50,14 @@ public class User implements UserDetails{
 
 	    private String imageName;
 	    
-        
+	    private String balance;
+
+	    @Enumerated(EnumType.STRING)
+	    private UserMode modes;
+	    
+	    public enum UserMode {
+	        RIDER,PESSENGER
+	    }
         //--------------------------------
         
         @Column(name = "date_of_registration")

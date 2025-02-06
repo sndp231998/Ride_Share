@@ -24,5 +24,11 @@ public interface RiderService {
 			List<RiderDto> getRidersByUser(Integer userId);
 
 			List<RiderDto> getAllRiders();
+
+			
+
+			RiderDto rejectRider(Integer riderId);
+
+			RiderDto approveRider(Integer riderId);
 	
 }

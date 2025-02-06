@@ -53,6 +53,7 @@ public class UserController {
 		
 		
 		
+	 
 		@PostMapping("/")
 		public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
 			UserDto createUserDto = this.userService.createUser(userDto);
@@ -70,7 +71,7 @@ public class UserController {
 		@DeleteMapping("/{userId}")
 		public ResponseEntity<ApiResponse> deleteUser(@PathVariable("userId") Integer uid) {
 			this.userService.deleteUser(uid);
-			return new ResponseEntity<ApiResponse>(new ApiResponse("User deleted Successfully", true), HttpStatus.OK);
+			return new ResponseEntity<ApiResponse>(new ApiResponse("User deleted Successfully", true, uid), HttpStatus.OK);
 		}
 		
 		@PreAuthorize("hasRole('ADMIN')")
@@ -84,13 +85,13 @@ public class UserController {
 			return ResponseEntity.ok(this.userService.getUserById(userId));
 		}
 		//-----------------ROles change----------------
-		@PreAuthorize("hasRole('ADMIN')")
-		@PostMapping("/addRole/email/{email}/role/{roleName}")
-		public ResponseEntity<ApiResponse> addRoleToUser(@PathVariable String email, @PathVariable String roleName) {
-		    	    userService.addRoleToUser(email, roleName);
-		    ApiResponse response = new ApiResponse("Role added successfully", true);
-		    return ResponseEntity.status(HttpStatus.OK).body(response);
-		}
+		 @PreAuthorize("hasRole('ADMIN')")
+		    @PostMapping("/addRole/email/{email}/role/{roleName}")
+		    public ResponseEntity<ApiResponse<Void>> addRoleToUser(@PathVariable String email, @PathVariable String roleName) {
+		        userService.addRoleToUser(email, roleName);
+		        ApiResponse<Void> response = new ApiResponse<>("Role added successfully", true, null);
+		        return ResponseEntity.status(HttpStatus.OK).body(response);
+		    }
 
 		@GetMapping("/email/{email}")
 	    public ResponseEntity<UserDto> getUserByEmail(@PathVariable String email) {
@@ -160,4 +161,12 @@ public class UserController {
 		    }
 		}
 
+	    // modechange 
+	    @PutMapping("/usermodechanger/{userId}")
+	    public ResponseEntity<UserDto> userModeChanger(@PathVariable Integer userId) {
+	        UserDto modechange = userService.UserModeChanger(userId);
+	        		
+	        return new ResponseEntity<>(modechange, HttpStatus.OK);
+	    }
+		
 }

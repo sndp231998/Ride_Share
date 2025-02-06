@@ -13,11 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+
 import com.ride_share.config.AppConstants;
 import com.ride_share.entities.Branch;
 import com.ride_share.entities.OtpRequest;
 import com.ride_share.entities.Role;
 import com.ride_share.entities.User;
+import com.ride_share.entities.User.UserMode;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
 import com.ride_share.playoads.UserDto;
@@ -74,7 +76,7 @@ public class UserServiceImpl implements UserService {
 		    user.getRoles().add(role);
 
 		    user.setDate_of_Birth(userDto.getDate_of_Birth());
-		    
+		    user.setModes(UserMode.PESSENGER);
 		    // Validate and associate branch
 		    String branchName = userDto.getBranch_Name();
 		    Branch branch = this.branchRepo.findByName(branchName)
@@ -282,5 +284,19 @@ public class UserServiceImpl implements UserService {
 	        return modelMapper.map(userRepo.save(user), UserDto.class);
 	}
 	
+	@Override
+	public UserDto UserModeChanger(Integer userId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "User id", userId));
+
+        if (user.getModes() == UserMode.RIDER || user.getModes()==null) {
+            
+	user.setModes(UserMode.PESSENGER);
+        }else{
+	user.setModes(UserMode.RIDER);
+}
+        userRepo.save(user);
+        return modelMapper.map(user, UserDto.class);
+   }
 	
 }

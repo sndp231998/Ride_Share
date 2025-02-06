@@ -58,7 +58,7 @@ public class RiderController {
     @DeleteMapping("rider/{riderId}")
     public ResponseEntity<ApiResponse> deleteRider(@PathVariable Integer riderId) {
         this.riderService.deleteRider(riderId);
-        return new ResponseEntity<>(new ApiResponse("Rider deleted successfully", true), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse("Rider deleted successfully", true, riderId), HttpStatus.OK);
     }
     
     
