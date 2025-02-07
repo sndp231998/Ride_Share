@@ -2,6 +2,7 @@ package com.ride_share.service;
 
 import java.util.List;
 
+import com.ride_share.playoads.RideRequestDto;
 import com.ride_share.playoads.RiderDto;
 
 
@@ -30,5 +31,7 @@ public interface RiderService {
 			RiderDto rejectRider(Integer riderId);
 
 			RiderDto approveRider(Integer riderId);
+
+			
 	
 }

@@ -14,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import com.ride_share.entities.Rider.RiderStatus;
+import com.ride_share.playoads.UserDto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -41,7 +42,7 @@ public class RideRequest {
 	    private RideStatus status;
 	    
 	    public enum RideStatus {
-	        PENDING, APPROVED, REJECTED
+	        PENDING, RIDER_APPROVED,PESSENGER_PAPPROVED, REJECTED
 	    }
 
 }

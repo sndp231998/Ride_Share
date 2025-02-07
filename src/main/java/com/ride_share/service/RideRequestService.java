@@ -26,6 +26,11 @@ public interface RideRequestService {
 
 	RideRequestDto rejectRideRequest(Integer rideRequestId);
 
-	RideRequestDto approveRideRequest(Integer riderId);
+	//RideRequestDto approveRideRequest(Integer riderId);
+
+	RideRequestDto approveRideRequestByRider(RideRequestDto rideRequestDto, Integer userId, Integer rideRequestId);
+
+	RideRequestDto approveRideRequestByPassenger(Integer rideRequestId);
+	
 
 }

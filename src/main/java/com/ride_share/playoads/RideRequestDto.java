@@ -31,13 +31,13 @@ public class RideRequestDto {
 	private String destination;
 	
 	private LocalDateTime addedDate;
-    private User user;
+    private UserDto user;
     
     
     private RideStatus status;
     
     public enum RideStatus {
-        PENDING, APPROVED, REJECTED
+    	PENDING, RIDER_APPROVED,PESSENGER_PAPPROVED, REJECTED
     }
 
 }

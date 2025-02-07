@@ -33,5 +33,5 @@ private RiderStatus status;
 	        PENDING, APPROVED, REJECTED
 	    }
 	    
-	    private User user;
+	    private UserDto user;
 }

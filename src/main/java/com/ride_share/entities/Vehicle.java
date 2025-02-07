@@ -3,19 +3,18 @@ package com.ride_share.entities;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 
-import lombok.Getter;
+import lombok.Data;
+
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
 
 import javax.persistence.*;
-import javax.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+
+
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class Vehicle {
 
