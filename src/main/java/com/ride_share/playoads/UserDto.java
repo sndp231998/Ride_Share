@@ -63,6 +63,7 @@ public class UserDto {
       private String mode;
       
 	private Set<RoleDto> roles = new HashSet<>();
+	private Set<VehicleDto> vehicles; 
 	
 	@JsonIgnore
 	public String getPassword() {

@@ -2,17 +2,10 @@ package com.ride_share.playoads;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 
-import com.ride_share.entities.RideRequest;
-import com.ride_share.entities.User;
-import com.ride_share.entities.RideRequest.RideStatus;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,12 +25,20 @@ public class RideRequestDto {
 	
 	private LocalDateTime addedDate;
     private UserDto user;
-    
+   
+
+// // Users
+//    private UserDto requestedByUser; // The one who created the request
+//    private UserDto approvedByUser;  // The one who approved the request
+
+    //vehicle
+    //private VehicleDto vehicle;
     
     private RideStatus status;
     
     public enum RideStatus {
     	PENDING, RIDER_APPROVED,PESSENGER_PAPPROVED, REJECTED
     }
+    //private Set<User> Reqriders = new HashSet<>(); // Riders who have sent requests
 
 }

@@ -75,10 +75,7 @@ public class User implements UserDetails{
 	    //user lai [http://localhost:8085/api/v1/auth/branch] yo dine ui side ma
 	    private String branch_Name;
 	    
-	    
-	    
-	    private String mode; // PASSENGER or DRIVER
-        
+	
 	   private String date_of_Birth;
 	   
 //	    @ManyToOne

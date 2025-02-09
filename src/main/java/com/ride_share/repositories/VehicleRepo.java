@@ -25,4 +25,10 @@ public interface VehicleRepo extends JpaRepository<Vehicle, Integer> {
 	"v.user.mobileNo LIKE CONCAT('%', :keyword, '%') OR " + 
 	"LOWER(v.user.branch_Name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
 	List<Vehicle> searchVehicles(@Param("keyword") String keyword);
+	
+	
+	
+	// New method to fetch vehicle and user details by userId
+    @Query("SELECT v, u FROM Vehicle v JOIN v.user u WHERE u.id = :userId")
+    List<Object[]> findVehicleAndUserDetailsByUserId(@Param("userId") int userId);
 }

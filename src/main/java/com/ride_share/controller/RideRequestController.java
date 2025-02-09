@@ -3,11 +3,13 @@ package com.ride_share.controller;
 
 
 import com.ride_share.playoads.RideRequestDto;
+import com.ride_share.playoads.UserDto;
 import com.ride_share.service.RideRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/ride-requests")
@@ -34,7 +36,11 @@ public class RideRequestController {
         return ResponseEntity.ok(approvedRequest);
     }
 
-
+    @GetMapping("/{rideRequestId}/riders")
+    public ResponseEntity<Set<UserDto>> getRidersForRideRequest(@PathVariable Integer rideRequestId) {
+        Set<UserDto> riders = rideRequestService.getRidersForRideRequest(rideRequestId);
+        return ResponseEntity.ok(riders);
+    }
     // Approve a ride request by Passenger
     @PutMapping("/{rideRequestId}/approve-passenger")
     public ResponseEntity<RideRequestDto> approveRideByPassenger(@PathVariable Integer rideRequestId) {

@@ -1,8 +1,10 @@
 package com.ride_share.service;
 
 import java.util.List;
+import java.util.Set;
 
 import com.ride_share.playoads.RideRequestDto;
+import com.ride_share.playoads.UserDto;
 
 
 public interface RideRequestService {
@@ -31,6 +33,10 @@ public interface RideRequestService {
 	RideRequestDto approveRideRequestByRider(RideRequestDto rideRequestDto, Integer userId, Integer rideRequestId);
 
 	RideRequestDto approveRideRequestByPassenger(Integer rideRequestId);
+
+	//void sendRideRequest(Integer rideRequestId, Integer riderId);
+
+	Set<UserDto> getRidersForRideRequest(Integer rideRequestId);
 	
 
 }
