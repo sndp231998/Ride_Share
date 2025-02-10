@@ -22,5 +22,5 @@ public class VehicleDto {
 	
 	
 	
-	private UserDto user;
+	//private UserDto user;
 }

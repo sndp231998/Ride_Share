@@ -32,11 +32,14 @@ public interface RideRequestService {
 
 	RideRequestDto approveRideRequestByRider(RideRequestDto rideRequestDto, Integer userId, Integer rideRequestId);
 
-	RideRequestDto approveRideRequestByPassenger(Integer rideRequestId);
+	//RideRequestDto approveRideRequestByPassenger(Integer rideRequestId);
 
 	//void sendRideRequest(Integer rideRequestId, Integer riderId);
 
 	Set<UserDto> getRidersForRideRequest(Integer rideRequestId);
+
+	
+	RideRequestDto approveRideRequestByPassenger(Integer rideRequestId, Integer userId, Integer currentUserId);
 	
 
 }

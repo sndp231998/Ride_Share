@@ -42,9 +42,11 @@ public class RideRequestController {
         return ResponseEntity.ok(riders);
     }
     // Approve a ride request by Passenger
-    @PutMapping("/{rideRequestId}/approve-passenger")
-    public ResponseEntity<RideRequestDto> approveRideByPassenger(@PathVariable Integer rideRequestId) {
-        RideRequestDto approvedRequest = rideRequestService.approveRideRequestByPassenger(rideRequestId);
+    //rideRequestId; userId=riderId/who req for pessenger for ride and currentUserId
+    @PutMapping("/{rideRequestId}/approve-passenger/user/{userId}/currentuser/{currentUserId}")
+    public ResponseEntity<RideRequestDto> approveRideByPassenger(@PathVariable Integer rideRequestId, 
+    		@PathVariable Integer userId, @PathVariable Integer currentUserId) {
+        RideRequestDto approvedRequest = rideRequestService.approveRideRequestByPassenger(rideRequestId,userId,currentUserId);
         return ResponseEntity.ok(approvedRequest);
     }
 
@@ -74,5 +76,15 @@ public class RideRequestController {
     public ResponseEntity<String> deleteRideRequest(@PathVariable Integer rideRequestId) {
         rideRequestService.deleteRideRequest(rideRequestId);
         return ResponseEntity.ok("Ride request deleted successfully");
+    }
+    
+    // Update Ride Request (Only if Status is PENDING)
+    @PutMapping("/{rideRequestId}")
+    public ResponseEntity<RideRequestDto> updateRideRequest(
+            @PathVariable Integer rideRequestId,
+            @RequestBody RideRequestDto rideRequestDto) {
+
+        RideRequestDto updatedRide = rideRequestService.updateRideRequest(rideRequestDto, rideRequestId);
+        return ResponseEntity.ok(updatedRide);
     }
 }

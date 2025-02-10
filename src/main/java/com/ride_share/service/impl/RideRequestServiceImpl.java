@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 
 import com.ride_share.entities.RideRequest;
 import com.ride_share.entities.User;
+import com.ride_share.entities.User.UserMode;
 import com.ride_share.entities.Vehicle;
+import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
 import com.ride_share.playoads.RideRequestDto;
 import com.ride_share.playoads.UserDto;
@@ -38,12 +40,71 @@ public class RideRequestServiceImpl implements RideRequestService {
 
 
 
-    // Method to fetch the list of riders who have sent requests for a RideRequest
+    // Existing methods (create, update, delete, get, etc.)
+    @Override
+    public RideRequestDto createRideRequest(RideRequestDto rideRequestDto, Integer userId) {
+        // Fetch user details
+        User user = userRepo.findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userId));
+
+        // Ensure user is in PASSENGER mode
+        if (user.getModes() != User.UserMode.PESSENGER) {
+            throw new ApiException("User must be in PESSENGER mode to create a ride request.");
+        }
+
+        // Create a new RideRequest
+        RideRequest rideRequest = new RideRequest();
+        rideRequest.setActualPrice(rideRequestDto.getActualPrice());
+        rideRequest.setSource(rideRequestDto.getSource()); // Fixed: Use rideRequestDto
+        rideRequest.setDestination(rideRequestDto.getDestination()); // Fixed: Use rideRequestDto
+        rideRequest.setAddedDate(LocalDateTime.now());
+        rideRequest.setStatus(RideRequest.RideStatus.PENDING);
+        rideRequest.setUser(user); // Link the ride request to the user
+
+        // Save the ride request
+        RideRequest savedRideReq = rideRequestRepo.save(rideRequest);
+        return modelMapper.map(savedRideReq, RideRequestDto.class);
+    }
+
+
+    @Override
+    public RideRequestDto updateRideRequest(RideRequestDto rideRequestDto, Integer rideRequestId) {
+        RideRequest rideRequest = rideRequestRepo.findById(rideRequestId)
+            .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
+        
+        // Only allow updates if the ride status is PENDING
+        if (rideRequest.getStatus() != RideRequest.RideStatus.PENDING) {
+            throw new ApiException("Ride request can only be updated when the status is PENDING.");
+        }
+        
+     // Update fields only if provided
+        if (rideRequestDto.getActualPrice() != null) {
+            rideRequest.setActualPrice(rideRequestDto.getActualPrice());
+        }
+        if (rideRequestDto.getSource() != null) {
+            rideRequest.setSource(rideRequestDto.getSource());
+        }
+        if (rideRequestDto.getDestination() != null) {
+            rideRequest.setDestination(rideRequestDto.getDestination());
+        }
+        rideRequest.setStatus(RideRequest.RideStatus.PENDING);
+
+        RideRequest updatedRide = rideRequestRepo.save(rideRequest);
+        return modelMapper.map(updatedRide, RideRequestDto.class);
+    }
+    // Method to fetch the list of rides who have sent requests for a RideRequest
     @Override
     public Set<UserDto> getRidersForRideRequest(Integer rideRequestId) {
         RideRequest rideRequest = rideRequestRepo.findById(rideRequestId)
             .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
 
+        // Check if the ride request is already approved or rejected
+        if (rideRequest.getStatus() == RideRequest.RideStatus.PESSENGER_APPROVED|| 
+            rideRequest.getStatus() == RideRequest.RideStatus.REJECTED) {
+            throw new ApiException("This ride request is already approved or rejected. No more riders can be fetched.");
+        }
+
+       
         return rideRequest.getReqriders().stream()
             .map(rider -> {
                 UserDto userDto = modelMapper.map(rider, UserDto.class);
@@ -53,7 +114,7 @@ public class RideRequestServiceImpl implements RideRequestService {
                 Set<VehicleDto> vehicleDtos = vehicles.stream()
                     .map(vehicle -> {
                         VehicleDto vehicleDto = modelMapper.map(vehicle, VehicleDto.class);
-                        vehicleDto.setUser(null); // Remove user details to avoid duplication
+                       // vehicleDto.setUser(null); // Remove user details to avoid duplication
                         return vehicleDto;
                     })
                     .collect(Collectors.toSet());
@@ -77,92 +138,76 @@ public class RideRequestServiceImpl implements RideRequestService {
   	
 //
   	    if (user.getModes() != User.UserMode.RIDER) {  
-  	        throw new IllegalStateException("User must be in RIDER mode to approved a ride request.");
+  	        throw new ApiException("User must be in RIDER mode to approved a ride request.");
   	    }
   	    // Check if the ride has already been approved by another rider [arko rider le approved gari sakyako raixa vane
-  	    if (ride.getStatus() == RideRequest.RideStatus.RIDER_APPROVED) {
-  	        throw new IllegalStateException("This ride request has already been approved by another rider.");
+  	    if (ride.getStatus() == RideRequest.RideStatus.PESSENGER_APPROVED ||
+  	    		ride.getStatus() == RideRequest.RideStatus.REJECTED
+  	    		) {
+  	        throw new IllegalStateException("This ride request has already been approved/reject by another rider.");
   	    }
 
-  	    // Allow rider to update price during approval
-  	   // ride.setActualPrice(rideRequestDto.getActualPrice());
-  	    //ride.setStatus(RideRequest.RideStatus.RIDER_APPROVED);
+  	    
   	 // Update actual price only if provided
   	    if (rideRequestDto.getActualPrice() != null && !rideRequestDto.getActualPrice().isEmpty()) {
   	        ride.setActualPrice(rideRequestDto.getActualPrice());
   	    }
   	    
-  	  ride.getReqriders().add(user);
+  	  ride.getReqriders().add(user);// main point
   	    RideRequest approvedRide = this.rideRequestRepo.save(ride);
   	    return this.modelMapper.map(approvedRide, RideRequestDto.class);
   	}
-//    @Override
-//    public RideRequestDto approveRideRequestByRider(RideRequestDto rideRequestDto, Integer userId, Integer rideRequestId) {
-//        // Fetch the ride request
-//        RideRequest ride = rideRequestRepo.findById(rideRequestId)
-//            .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
-//
-//
-//        if (rideRequestDto.getActualPrice() != null && !rideRequestDto.getActualPrice().isEmpty()) {
-//            ride.setActualPrice(rideRequestDto.getActualPrice());
-//        }
-//        // Fetch the rider (approving user)
-//        User riderUser = userRepo.findById(userId)
-//            .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userId));
-//
-//        // Validate if the user is a rider
-//        if (riderUser.getModes() != User.UserMode.RIDER) {
-//            throw new IllegalStateException("User must be in RIDER mode to approve a ride request.");
-//        }
-//
-//       
-//        ride.getReqriders().add(riderUser);
-//
-//
-//        // Save the updated ride request
-//        RideRequest approvedRide = rideRequestRepo.save(ride);
-//
-//        // Map the ride request to DTO
-//        RideRequestDto responseDto = modelMapper.map(approvedRide, RideRequestDto.class);
-//
-////        // Set both users and vehicle
-////        responseDto.setRequestedByUser(modelMapper.map(requesterUser, UserDto.class)); // The requester
-////        responseDto.setApprovedByUser(modelMapper.map(riderUser, UserDto.class)); // The rider
-////        responseDto.setVehicle(vehicleDto);
-//
-//        return responseDto;
-//    }
+  	
+  	
+  	//userId= jo rider ho; 
+  	//riderRequestID= PESSENGER le garako req ko id
+  	//currentuserid= jasle yo api hit gardai xa
+  	@Override
+  	public RideRequestDto approveRideRequestByPassenger(Integer rideRequestId, Integer userId, Integer currentUserId) {
+  	    // Fetch the ride request using the rideRequestId
+  	    RideRequest rideRequest = rideRequestRepo.findById(rideRequestId)
+  	        .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
 
-    // Existing methods (create, update, delete, get, etc.)
-    @Override
-    public RideRequestDto createRideRequest(RideRequestDto rideRequestDto, Integer userId) {
-        User user = userRepo.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userId));
+  	    // ✅ Ensures that the user hitting the API (currentUserId) is the same passenger who created this ride request
+  	    if (rideRequest.getUser().getId() != currentUserId) {
+  	        throw new ApiException("You can only approve riders for your own ride requests.");
+  	    }
 
-        // Ensure user is in PASSENGER mode
-        if (user.getModes() != User.UserMode.PESSENGER) {
-            throw new IllegalStateException("User must be in PESSENGER mode to create a ride request.");
-        }
+  	    // Fetch the rider (userId) who is being approved
+  	    User rider = userRepo.findById(userId)
+  	        .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userId));
 
-        RideRequest ride = modelMapper.map(rideRequestDto, RideRequest.class);
-        ride.setAddedDate(LocalDateTime.now());
-        ride.setStatus(RideRequest.RideStatus.PENDING);
-        ride.setUser(user); // Link the ride request to the user
+  	    // ✅ Ensures that the selected rider is actually in the list of users who requested this ride
+  	    if (!rideRequest.getReqriders().contains(rider)) {
+  	        throw new ApiException("This rider has not requested to join this ride.");
+  	    }
 
-        RideRequest savedRideReq = rideRequestRepo.save(ride);
-        return modelMapper.map(savedRideReq, RideRequestDto.class);
-    }
+  	    // ✅ Ensures that the selected user is in "RIDER" mode
+  	    if (rider.getModes() != UserMode.RIDER) {
+  	        throw new ApiException("Requested User is not in RIDE mode.");
+  	    }
 
-    @Override
-    public RideRequestDto updateRideRequest(RideRequestDto rideRequestDto, Integer rideRequestId) {
-        RideRequest req = rideRequestRepo.findById(rideRequestId)
-            .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
-        req.setDestination(rideRequestDto.getDestination());
-        req.setSource(rideRequestDto.getSource());
-        req.setActualPrice(rideRequestDto.getActualPrice());
-        RideRequest updatedRide = rideRequestRepo.save(req);
-        return modelMapper.map(updatedRide, RideRequestDto.class);
-    }
+  	    // Fetch the current user (the one hitting this API) again to check their mode
+  	    User currentUser = userRepo.findById(currentUserId)
+  	        .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", currentUserId));
+
+  	    // ✅ Ensures that the current user is in "PESSENGER" mode
+  	    if (currentUser.getModes() != UserMode.PESSENGER) {
+  	        throw new ApiException("You Have To Be In Passenger Mode.");
+  	    }
+
+  	    // ✅ Updates the ride request with the approved rider's ID and changes status to PESSENGER_APPROVED
+  	    rideRequest.setRidebookedId(String.valueOf(rider.getId()));
+  	    rideRequest.setStatus(RideRequest.RideStatus.PESSENGER_APPROVED);
+
+  	    // Save the updated ride request and return it as a DTO
+  	    RideRequest approvedRide = rideRequestRepo.save(rideRequest);
+  	    return modelMapper.map(approvedRide, RideRequestDto.class);
+  	}
+
+  	
+ 
+
 
     @Override
     public void deleteRideRequest(Integer rideRequestId) {
@@ -205,20 +250,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         return modelMapper.map(rejectedRide, RideRequestDto.class);
     }
 
-    @Override
-    public RideRequestDto approveRideRequestByPassenger(Integer rideRequestId) {
-        RideRequest ride = rideRequestRepo.findById(rideRequestId)
-            .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
-
-        // Passenger can approve only if the ride is already approved by a rider
-        if (ride.getStatus() != RideRequest.RideStatus.RIDER_APPROVED) {
-            throw new IllegalStateException("The ride request must be approved by a rider before passenger approval.");
-        }
-
-        ride.setStatus(RideRequest.RideStatus.PESSENGER_PAPPROVED);
-        RideRequest approvedRide = rideRequestRepo.save(ride);
-        return modelMapper.map(approvedRide, RideRequestDto.class);
-    }
+   
 //  // Method to allow riders to send requests for a RideRequest
 //  @Override
 //  public void sendRideRequest(Integer rideRequestId, Integer riderId) {

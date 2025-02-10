@@ -2,6 +2,7 @@ package com.ride_share.playoads;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -37,8 +38,13 @@ public class RideRequestDto {
     private RideStatus status;
     
     public enum RideStatus {
-    	PENDING, RIDER_APPROVED,PESSENGER_PAPPROVED, REJECTED
+    	PENDING,PESSENGER_APPROVED, REJECTED
     }
     //private Set<User> Reqriders = new HashSet<>(); // Riders who have sent requests
+  //------------------------------------------------------
+  	
+  	private String ridebookedId;
+  	
+  	
 
 }

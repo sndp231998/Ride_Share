@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService {
 	        logger.info("Otp from user: " + otp);
 	        
 	        if (otp == null) {
-	            throw new IllegalArgumentException("OTP must be provided");
+	            throw new ApiException("OTP must be provided");
 	        }
 	        
 	        // Get OTP requests from the repository

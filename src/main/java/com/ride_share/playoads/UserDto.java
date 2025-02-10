@@ -51,12 +51,12 @@ public class UserDto {
 	    }
 	
 	//--------------------------
-	  @Column(name = "date_of_registration")
-      private LocalDateTime dateOfRegistration;
+	  //@Column(name = "date_of_registration")
+     // private LocalDateTime dateOfRegistration;
 
-      private LocalDateTime date_Of_Role_Changed;
+      //private LocalDateTime date_Of_Role_Changed;
       
-      private LocalDateTime otpValidUntil;
+     // private LocalDateTime otpValidUntil;
 	
       private String date_of_Birth;
       
