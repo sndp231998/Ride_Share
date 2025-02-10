@@ -200,6 +200,10 @@ public class RideRequestServiceImpl implements RideRequestService {
   	    rideRequest.setRidebookedId(String.valueOf(rider.getId()));
   	    rideRequest.setStatus(RideRequest.RideStatus.PESSENGER_APPROVED);
 
+  	// ✅ Removes only the approved rider from the ride_request_riders table (for this rideRequestId)
+  	  rideRequest.getReqriders().removeIf(r -> r.getId() == userId);
+
+
   	    // Save the updated ride request and return it as a DTO
   	    RideRequest approvedRide = rideRequestRepo.save(rideRequest);
   	    return modelMapper.map(approvedRide, RideRequestDto.class);
@@ -251,22 +255,5 @@ public class RideRequestServiceImpl implements RideRequestService {
     }
 
    
-//  // Method to allow riders to send requests for a RideRequest
-//  @Override
-//  public void sendRideRequest(Integer rideRequestId, Integer riderId) {
-//      RideRequest rideRequest = rideRequestRepo.findById(rideRequestId)
-//          .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
-//
-//      User rider = userRepo.findById(riderId)
-//          .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", riderId));
-//
-//      // Ensure the user is a rider
-//      if (rider.getModes() != User.UserMode.RIDER) {
-//          throw new IllegalStateException("Only users in RIDER mode can send ride requests.");
-//      }
-//
-//      // Add the rider to the ride request
-//      rideRequest.getReqriders().add(rider);
-//      rideRequestRepo.save(rideRequest);
-//  }
+
 }
