@@ -17,11 +17,12 @@ public class RideRequestController {
 
     @Autowired
     private RideRequestService rideRequestService;
-
+  //  /category/{categoryId}/posts
     // Create a new ride request
-    @PostMapping("/user/{userId}")
-    public ResponseEntity<RideRequestDto> createRideRequest(@RequestBody RideRequestDto rideRequestDto, @PathVariable Integer userId) {
-        RideRequestDto createdRequest = rideRequestService.createRideRequest(rideRequestDto, userId);
+    @PostMapping("/user/{userId}/category/{categoryId}")
+    public ResponseEntity<RideRequestDto> createRideRequest(@RequestBody RideRequestDto rideRequestDto, 
+    		@PathVariable Integer userId, @PathVariable Integer categoryId) {
+        RideRequestDto createdRequest = rideRequestService.createRideRequest(rideRequestDto, userId,categoryId);
         return ResponseEntity.ok(createdRequest);
     }
 

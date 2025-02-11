@@ -9,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ride_share.entities.Category;
 import com.ride_share.entities.RideRequest;
 import com.ride_share.entities.User;
 import com.ride_share.entities.User.UserMode;
@@ -18,6 +19,7 @@ import com.ride_share.exceptions.ResourceNotFoundException;
 import com.ride_share.playoads.RideRequestDto;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.playoads.VehicleDto;
+import com.ride_share.repositories.CategoryRepo;
 import com.ride_share.repositories.RideRequestRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.repositories.VehicleRepo;
@@ -38,14 +40,18 @@ public class RideRequestServiceImpl implements RideRequestService {
     @Autowired
     private VehicleRepo vehicleRepo;
 
-
+    @Autowired
+    private CategoryRepo categoryRepo;
 
     // Existing methods (create, update, delete, get, etc.)
     @Override
-    public RideRequestDto createRideRequest(RideRequestDto rideRequestDto, Integer userId) {
+    public RideRequestDto createRideRequest(RideRequestDto rideRequestDto, Integer userId,Integer categoryId) {
         // Fetch user details
         User user = userRepo.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userId));
+
+        Category category = this.categoryRepo.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "category id ", categoryId));
 
         // Ensure user is in PASSENGER mode
         if (user.getModes() != User.UserMode.PESSENGER) {
@@ -60,7 +66,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         rideRequest.setAddedDate(LocalDateTime.now());
         rideRequest.setStatus(RideRequest.RideStatus.PENDING);
         rideRequest.setUser(user); // Link the ride request to the user
-
+        rideRequest.setCategory(category);
         // Save the ride request
         RideRequest savedRideReq = rideRequestRepo.save(rideRequest);
         return modelMapper.map(savedRideReq, RideRequestDto.class);

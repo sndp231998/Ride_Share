@@ -2,7 +2,7 @@ package com.ride_share.playoads;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.Column;
+
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -45,6 +45,6 @@ public class RideRequestDto {
   	
   	private String ridebookedId;
   	
-  	
+  	private CategoryDto category;
 
 }

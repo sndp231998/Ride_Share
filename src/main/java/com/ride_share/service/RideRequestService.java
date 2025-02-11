@@ -9,7 +9,8 @@ import com.ride_share.playoads.UserDto;
 
 public interface RideRequestService {
 
-	RideRequestDto createRideRequest(RideRequestDto rideRequestDto,Integer userId);
+	
+	RideRequestDto createRideRequest(RideRequestDto rideRequestDto, Integer userId, Integer categoryId);
 
 	//update 
 
@@ -40,6 +41,8 @@ public interface RideRequestService {
 
 	
 	RideRequestDto approveRideRequestByPassenger(Integer rideRequestId, Integer userId, Integer currentUserId);
+
+	
 	
 
 }

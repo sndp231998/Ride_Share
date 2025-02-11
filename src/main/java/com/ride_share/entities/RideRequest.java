@@ -43,6 +43,9 @@ public class RideRequest {
     @JoinColumn(name = "user_id")// The passenger who created the request pessenger Id
     private User user;
 	
+	 @ManyToOne
+	    @JoinColumn(name = "category_id")
+	    private Category category;
 	
 	@ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
