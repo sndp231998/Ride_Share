@@ -9,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ride_share.controller.RideRequestWebSocketController;
 import com.ride_share.entities.Category;
 import com.ride_share.entities.RideRequest;
 import com.ride_share.entities.User;
@@ -42,6 +43,10 @@ public class RideRequestServiceImpl implements RideRequestService {
 
     @Autowired
     private CategoryRepo categoryRepo;
+    
+    @Autowired
+    private RideRequestWebSocketController webSocketController;
+
 
     // Existing methods (create, update, delete, get, etc.)
     @Override
@@ -69,6 +74,10 @@ public class RideRequestServiceImpl implements RideRequestService {
         rideRequest.setCategory(category);
         // Save the ride request
         RideRequest savedRideReq = rideRequestRepo.save(rideRequest);
+        
+        // Send WebSocket notification
+        webSocketController.sendRideStatusUpdate(savedRideReq);
+
         return modelMapper.map(savedRideReq, RideRequestDto.class);
     }
 
@@ -96,6 +105,10 @@ public class RideRequestServiceImpl implements RideRequestService {
         rideRequest.setStatus(RideRequest.RideStatus.PENDING);
 
         RideRequest updatedRide = rideRequestRepo.save(rideRequest);
+        
+        // ✅ Notify WebSocket clients
+        webSocketController.sendRideStatusUpdate(updatedRide);
+
         return modelMapper.map(updatedRide, RideRequestDto.class);
     }
     // Method to fetch the list of rides who have sent requests for a RideRequest
@@ -161,6 +174,8 @@ public class RideRequestServiceImpl implements RideRequestService {
   	    
   	  ride.getReqriders().add(user);// main point
   	    RideRequest approvedRide = this.rideRequestRepo.save(ride);
+  	    
+  	    
   	    return this.modelMapper.map(approvedRide, RideRequestDto.class);
   	}
   	
@@ -212,6 +227,8 @@ public class RideRequestServiceImpl implements RideRequestService {
 
   	    // Save the updated ride request and return it as a DTO
   	    RideRequest approvedRide = rideRequestRepo.save(rideRequest);
+  	// Notify WebSocket clients
+  	  webSocketController.sendRideStatusUpdate(rideRequest);
   	    return modelMapper.map(approvedRide, RideRequestDto.class);
   	}
 
@@ -224,6 +241,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         RideRequest ride = rideRequestRepo.findById(rideRequestId)
             .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
         rideRequestRepo.delete(ride);
+        webSocketController.sendRideStatusUpdate(ride);
     }
 
     @Override
@@ -257,6 +275,9 @@ public class RideRequestServiceImpl implements RideRequestService {
             .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
         ride.setStatus(RideRequest.RideStatus.REJECTED);
         RideRequest rejectedRide = rideRequestRepo.save(ride);
+     // ✅ Notify WebSocket clients
+        webSocketController.sendRideStatusUpdate(rejectedRide);
+
         return modelMapper.map(rejectedRide, RideRequestDto.class);
     }
 
