@@ -30,9 +30,9 @@ public class IMEPayServiceImpl implements IMEPayService {
     private final RestTemplate restTemplate;
     private final String API_URL = "https://stg.imepay.com.np:8555/api/Web/GetToken";
     private final String VERIFY_URL = "https://stg.imepay.com.np:8555/api/Web/Confirm";
-    private final String API_USER = "your_api_user";
-    private final String API_PASSWORD = "your_api_password";
-    private final String MODULE = "your_module";
+    private final String API_USER = "demoimepay";
+    private final String API_PASSWORD = "IMEPay@123";
+    private final String MODULE = "DEMOIMEP";
 
     @Override
     public PaymentResponseDTO initiatePayment(PaymentRequestDTO requestDTO) {
