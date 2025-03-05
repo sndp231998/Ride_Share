@@ -112,6 +112,30 @@ public class RiderServiceImpl implements RiderService{
         Rider approvedRider = this.riderRepo.save(rider);
         return this.modelMapper.map(approvedRider, RiderDto.class);
     }
+    
+    @Override
+    public RiderDto addBalanceOfRider(RiderDto riderDto, Integer riderId) {
+        // Find the rider by ID or throw an exception if not found
+        Rider rider = this.riderRepo.findById(riderId)
+            .orElseThrow(() -> new ResourceNotFoundException("Rider", "Rider ID", riderId));
+        
+        // Get the current balance and requested balance
+        int currentBalance = Integer.parseInt(rider.getBalance());
+        int reqBalance = Integer.parseInt(riderDto.getBalance());
+        
+        // Add the requested balance to the current balance
+        int newBalance = currentBalance + reqBalance;
+        
+        // Update the rider's balance
+        rider.setBalance(String.valueOf(newBalance));
+        riderRepo.save(rider);
+        
+        // Update the RiderDto with the new balance
+        riderDto.setBalance(String.valueOf(newBalance));
+        
+        return riderDto;
+    }
+
 
     // Reject Rider Application
     @Override

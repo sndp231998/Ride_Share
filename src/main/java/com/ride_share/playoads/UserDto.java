@@ -11,6 +11,7 @@ import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ride_share.entities.Location;
 import com.ride_share.entities.User.UserMode;
 
 import lombok.Data;
@@ -49,7 +50,7 @@ public class UserDto {
 	    public enum UserMode {
 	        RIDER,PESSENGER
 	    }
-	
+	    private Location currentLocation;
 	//--------------------------
 	  //@Column(name = "date_of_registration")
      // private LocalDateTime dateOfRegistration;

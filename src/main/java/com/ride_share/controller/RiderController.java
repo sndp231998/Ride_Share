@@ -54,6 +54,11 @@ public class RiderController {
         return new ResponseEntity<>(updatedRider, HttpStatus.OK);
     }
 
+    @PutMapping("rider/{riderId}/balance")
+    public ResponseEntity<RiderDto> addBalance(@PathVariable Integer riderId, @RequestBody RiderDto riderDto) {
+        RiderDto updatedRider = riderService.addBalanceOfRider(riderDto, riderId);
+        return ResponseEntity.ok(updatedRider);
+    }
     // Delete Rider--------------------------
     @DeleteMapping("rider/{riderId}")
     public ResponseEntity<ApiResponse> deleteRider(@PathVariable Integer riderId) {

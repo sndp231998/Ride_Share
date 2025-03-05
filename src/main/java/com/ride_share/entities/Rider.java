@@ -41,6 +41,8 @@ public class Rider {
 	    
 	    private String date_Of_Birth;
 	    
+	    private String balance;
+	    
 	    //additional
 	    private LocalDateTime addedDate;
 	    @Column(name = "updated_date")

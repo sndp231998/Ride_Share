@@ -21,6 +21,8 @@ public class RiderDto {
 	    
 	    private String date_Of_Birth;
 	    
+	    private String balance;
+	    
 	    private LocalDateTime addedDate;
 	    @Column(name = "updated_date")
 	    private LocalDateTime updatedDate;

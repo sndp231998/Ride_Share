@@ -66,8 +66,10 @@ public class RideRequestServiceImpl implements RideRequestService {
         // Create a new RideRequest
         RideRequest rideRequest = new RideRequest();
         rideRequest.setActualPrice(rideRequestDto.getActualPrice());
+        
         rideRequest.setSource(rideRequestDto.getSource()); // Fixed: Use rideRequestDto
         rideRequest.setDestination(rideRequestDto.getDestination()); // Fixed: Use rideRequestDto
+        
         rideRequest.setAddedDate(LocalDateTime.now());
         rideRequest.setStatus(RideRequest.RideStatus.PENDING);
         rideRequest.setUser(user); // Link the ride request to the user

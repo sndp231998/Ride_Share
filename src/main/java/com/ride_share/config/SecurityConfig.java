@@ -43,7 +43,9 @@ public class SecurityConfig {
             "/webjars/**",
             "/api/v1/auth/login/",
             "api/v1/users/",
-            "/api/fonepay/**"
+            "/api/imepay/**",
+            "/api/v1/locations/**"
+            
 
     };
 

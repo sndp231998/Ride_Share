@@ -37,7 +37,9 @@ public class RideRequest {
 	private String actualPrice;
 	
 	private String source;
+	
 	private String destination;
+	
 	private LocalDateTime addedDate;
 	@ManyToOne
     @JoinColumn(name = "user_id")// The passenger who created the request pessenger Id

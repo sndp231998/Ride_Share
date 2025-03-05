@@ -18,7 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-
+import javax.persistence.OneToOne;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -50,7 +50,9 @@ public class User implements UserDetails{
 
 	    private String imageName;
 	    
-	    private String balance;
+	    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	    private Location currentLocation;
+	   // private String balance;
 
 	    @Enumerated(EnumType.STRING)
 	    private UserMode modes;

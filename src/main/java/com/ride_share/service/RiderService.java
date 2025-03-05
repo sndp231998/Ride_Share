@@ -33,5 +33,8 @@ public interface RiderService {
 			RiderDto approveRider(Integer riderId);
 
 			
+			RiderDto addBalanceOfRider(RiderDto riderDto, Integer riderId);
+
+			
 	
 }
