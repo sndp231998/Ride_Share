@@ -64,9 +64,7 @@ public class User implements UserDetails{
         
         @Column(name = "date_of_registration")
         private LocalDateTime dateOfRegistration;
-
         private LocalDateTime date_Of_Role_Changed;
-        
         private LocalDateTime otpValidUntil;
         private String otp;
         

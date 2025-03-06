@@ -22,8 +22,9 @@ public class RideRequestDto {
 	private String actualPrice;
 	
 	private String source;
-	private String destination;
-	
+	//private String destination;
+	private String destination_long;
+	private String destination_lati;
 	private LocalDateTime addedDate;
     private UserDto user;
    

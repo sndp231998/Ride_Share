@@ -67,8 +67,13 @@ public class RideRequestServiceImpl implements RideRequestService {
         RideRequest rideRequest = new RideRequest();
         rideRequest.setActualPrice(rideRequestDto.getActualPrice());
         
-        rideRequest.setSource(rideRequestDto.getSource()); // Fixed: Use rideRequestDto
-        rideRequest.setDestination(rideRequestDto.getDestination()); // Fixed: Use rideRequestDto
+        //----------yo destination---------
+        rideRequest.setDestination_long(rideRequestDto.getDestination_long());
+        rideRequest.setDestination_lati(rideRequestDto.getDestination_lati());
+        
+        //------------yo source-----------------------
+        rideRequest.setSource(rideRequestDto.getSource()); 
+       
         
         rideRequest.setAddedDate(LocalDateTime.now());
         rideRequest.setStatus(RideRequest.RideStatus.PENDING);
@@ -101,9 +106,11 @@ public class RideRequestServiceImpl implements RideRequestService {
         if (rideRequestDto.getSource() != null) {
             rideRequest.setSource(rideRequestDto.getSource());
         }
-        if (rideRequestDto.getDestination() != null) {
-            rideRequest.setDestination(rideRequestDto.getDestination());
+        if (rideRequestDto.getDestination_long() != null && rideRequestDto.getDestination_lati() != null) {
+            rideRequest.setDestination_long(rideRequestDto.getDestination_long());
+            rideRequest.setDestination_lati(rideRequestDto.getDestination_lati());
         }
+
         rideRequest.setStatus(RideRequest.RideStatus.PENDING);
 
         RideRequest updatedRide = rideRequestRepo.save(rideRequest);

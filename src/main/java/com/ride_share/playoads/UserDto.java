@@ -31,6 +31,8 @@ public class UserDto {
 	@Email(message = "Email address is not valid !!")
 	@NotEmpty(message = "Email is required !!")
 	private String email;
+	
+	 private Location currentLocation;
 
 	@NotEmpty(message="Mobile num is required !!")
 	 private String mobileNo;
@@ -50,7 +52,7 @@ public class UserDto {
 	    public enum UserMode {
 	        RIDER,PESSENGER
 	    }
-	    private Location currentLocation;
+	   
 	//--------------------------
 	  //@Column(name = "date_of_registration")
      // private LocalDateTime dateOfRegistration;
