@@ -65,7 +65,7 @@ public class LocationServiceImpl implements LocationService {
         throw new RuntimeException("Failed to get coordinates from address");
     }
 
-
+//continusly location ui bata update garai ranaa
     @Override
     public void updateLocation(Integer userId, LocationDTO locationDTO) {
     	  User user = userRepo.findById(userId)

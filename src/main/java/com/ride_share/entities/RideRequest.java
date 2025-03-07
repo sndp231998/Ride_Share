@@ -39,8 +39,8 @@ public class RideRequest {
 	private String source;
 	
 	//ui bata malai destination of long ra lati chinxa
-	private String destination_long;
-	private String destination_lati;
+	private Double destination_long;
+	private Double destination_lati;
 	
 	private LocalDateTime addedDate;
 	@ManyToOne

@@ -23,8 +23,8 @@ public class RideRequestDto {
 	
 	private String source;
 	//private String destination;
-	private String destination_long;
-	private String destination_lati;
+	private Double destination_long;
+	private Double destination_lati;
 	private LocalDateTime addedDate;
     private UserDto user;
    

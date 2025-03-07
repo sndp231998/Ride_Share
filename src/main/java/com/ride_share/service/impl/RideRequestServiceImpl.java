@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ride_share.controller.RideRequestWebSocketController;
 import com.ride_share.entities.Category;
+import com.ride_share.entities.Location;
 import com.ride_share.entities.RideRequest;
 import com.ride_share.entities.User;
 import com.ride_share.entities.User.UserMode;
@@ -24,6 +26,7 @@ import com.ride_share.repositories.CategoryRepo;
 import com.ride_share.repositories.RideRequestRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.repositories.VehicleRepo;
+import com.ride_share.service.MapService;
 import com.ride_share.service.RideRequestService;
 
 @Service
@@ -45,6 +48,9 @@ public class RideRequestServiceImpl implements RideRequestService {
     private CategoryRepo categoryRepo;
     
     @Autowired
+    private MapService mapService;
+    
+    @Autowired
     private RideRequestWebSocketController webSocketController;
 
 
@@ -58,10 +64,45 @@ public class RideRequestServiceImpl implements RideRequestService {
         Category category = this.categoryRepo.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "category id ", categoryId));
 
+        
         // Ensure user is in PASSENGER mode
         if (user.getModes() != User.UserMode.PESSENGER) {
             throw new ApiException("User must be in PESSENGER mode to create a ride request.");
         }
+     // Check if the user has a current location
+        Location currentLocation = user.getCurrentLocation();
+        if (currentLocation == null) {
+            throw new ApiException("User's current location is not set.");
+        }
+     // Validate if the location is recent (within 4-5 minutes)
+        LocalDateTime locationTime = currentLocation.getTimestamp();
+        LocalDateTime currentTime = LocalDateTime.now();
+
+        // Check if the location is stale
+        if (locationTime == null || locationTime.isBefore(currentTime.minusMinutes(5))) {
+            throw new ApiException(" Please update your current location.");
+        }
+        
+     // Fetch distance and time using MapService
+        String response = mapService.getDistanceAndTime(
+        		currentLocation.getLatitude(), 
+                currentLocation.getLongitude(), 
+                rideRequestDto.getDestination_lati(), 
+                rideRequestDto.getDestination_long()
+        		);
+        		
+        JSONObject jsonResponse = new JSONObject(response);
+        int distanceInMeters = jsonResponse.getJSONArray("rows")
+        	    .getJSONObject(0).getJSONArray("elements")
+        	    .getJSONObject(0).getJSONObject("distance")
+        	    .getInt("value");
+
+        	// Convert the distance from meters to kilometers
+        	double distanceInKm = distanceInMeters / 1000.0;
+        	// Calculate the actual price using the distance in kilometers
+        	double baseFare = 50; // Example base fare
+        	double perKmRate = 10; // Rate per kilometer
+        	double actualPrice = baseFare + (perKmRate * distanceInKm);
 
         // Create a new RideRequest
         RideRequest rideRequest = new RideRequest();
@@ -72,8 +113,10 @@ public class RideRequestServiceImpl implements RideRequestService {
         rideRequest.setDestination_lati(rideRequestDto.getDestination_lati());
         
         //------------yo source-----------------------
-        rideRequest.setSource(rideRequestDto.getSource()); 
-       
+       // rideRequest.setSource(rideRequestDto.getSource()); 
+        // Set source using current location
+        String source = "Lat: " + currentLocation.getLatitude() + ", Long: " + currentLocation.getLongitude();
+        rideRequest.setSource(source);
         
         rideRequest.setAddedDate(LocalDateTime.now());
         rideRequest.setStatus(RideRequest.RideStatus.PENDING);
