@@ -34,7 +34,7 @@ public class RideRequest {
     private int rideRequestId;
 	
 	
-	private String actualPrice;
+	private double actualPrice=0;
 	
 	private String source;
 	

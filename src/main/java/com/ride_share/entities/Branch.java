@@ -15,9 +15,21 @@ public class Branch {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-
+    
+    private String branchCode;
     @Column(nullable = false, unique = true)
     private String name;
+    
+ // Address Information
+    private String province;
+    private String district;
+    private String localLevel;
+    private int wardNumber;
+
+    // Manager Information
+    private String managerName;
+    private String managerPhone;
+    private String managerEmail;
 
    // private String location; // Optional: Can include address details if needed.
 

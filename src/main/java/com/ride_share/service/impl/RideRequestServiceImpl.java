@@ -37,6 +37,9 @@ public class RideRequestServiceImpl implements RideRequestService {
 
     @Autowired
     private RideRequestRepo rideRequestRepo;
+    
+    @Autowired
+   private MapServiceImpl mapServiceImpl;
 
     @Autowired
     private UserRepo userRepo;
@@ -100,14 +103,49 @@ public class RideRequestServiceImpl implements RideRequestService {
         	// Convert the distance from meters to kilometers
         	double distanceInKm = distanceInMeters / 1000.0;
         	// Calculate the actual price using the distance in kilometers
-        	double baseFare = 50; // Example base fare
-        	double perKmRate = 10; // Rate per kilometer
+        	
+        	String city;
+        	try {
+        	city= mapServiceImpl.getCityName(currentLocation.getLatitude(), currentLocation.getLongitude());
+        	}catch(Exception e) {
+        		throw new ApiException("Error determining city.");
+        	}
+        	  // Calculate the actual price using the distance in kilometers and city-specific rates
+            double baseFare;
+            double perKmRate;
+            switch (city) {
+                case "Chitwan":
+                    baseFare = 50;
+                    perKmRate = 8;
+                    break;
+                case "Jhapa":
+                    baseFare = 40;
+                    perKmRate = 9;
+                    break;
+                case "Kathmandu":
+                    baseFare = 60;
+                    perKmRate = 10;
+                    break;
+                default:
+                    throw new ApiException("Unsupported city for pricing.");
+            }
         	double actualPrice = baseFare + (perKmRate * distanceInKm);
-
-        // Create a new RideRequest
-        RideRequest rideRequest = new RideRequest();
+        	// Ensure the price falls within the acceptable range
+            
+        	double givenPrice;
+        	try {
+        	givenPrice= rideRequestDto.getActualPrice();
+        	}catch(NumberFormatException e) {
+        		throw new ApiException("Invalid price format.");
+        	}
+            
+            if (givenPrice < actualPrice || givenPrice > actualPrice + 50) {
+                throw new ApiException("Invalid price.");
+            }
+             // Create a new RideRequest
+         RideRequest rideRequest = new RideRequest();
         rideRequest.setActualPrice(rideRequestDto.getActualPrice());
-        
+      //  rideRequest.setActualPrice(givenPrice);
         //----------yo destination---------
         rideRequest.setDestination_long(rideRequestDto.getDestination_long());
         rideRequest.setDestination_lati(rideRequestDto.getDestination_lati());
@@ -130,6 +168,7 @@ public class RideRequestServiceImpl implements RideRequestService {
 
         return modelMapper.map(savedRideReq, RideRequestDto.class);
     }
+    
 
 
     @Override
@@ -143,7 +182,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         }
         
      // Update fields only if provided
-        if (rideRequestDto.getActualPrice() != null) {
+        if (rideRequestDto.getActualPrice() != 0) {
             rideRequest.setActualPrice(rideRequestDto.getActualPrice());
         }
         if (rideRequestDto.getSource() != null) {
@@ -218,12 +257,11 @@ public class RideRequestServiceImpl implements RideRequestService {
   	        throw new IllegalStateException("This ride request has already been approved/reject by another rider.");
   	    }
 
-  	    
   	 // Update actual price only if provided
-  	    if (rideRequestDto.getActualPrice() != null && !rideRequestDto.getActualPrice().isEmpty()) {
-  	        ride.setActualPrice(rideRequestDto.getActualPrice());
-  	    }
-  	    
+  	//(rideRequestDto.getActualPrice() =yo current giving value ho hai
+  	  if (rideRequestDto.getActualPrice() != 0) {
+  	      ride.setActualPrice(rideRequestDto.getActualPrice());
+  	  }    
   	  ride.getReqriders().add(user);// main point
   	    RideRequest approvedRide = this.rideRequestRepo.save(ride);
   	    
