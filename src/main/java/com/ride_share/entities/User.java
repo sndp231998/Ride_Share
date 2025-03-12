@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -24,6 +25,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.ride_share.playoads.ManagerAddress;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -50,6 +52,11 @@ public class User implements UserDetails{
 
 	    private String imageName;
 	    
+	    
+		   @Embedded
+		    private ManagerAddress managerAddress;
+	    
+	    
 	    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	    private Location currentLocation;
 	   // private String balance;
@@ -60,6 +67,7 @@ public class User implements UserDetails{
 	    public enum UserMode {
 	        RIDER,PESSENGER
 	    }
+	    
         //--------------------------------
         
         @Column(name = "date_of_registration")
@@ -73,16 +81,13 @@ public class User implements UserDetails{
 		private Set<Role> roles = new HashSet<>();
 	    
 	    //user lai [http://localhost:8085/api/v1/auth/branch] yo dine ui side ma
+	    //let to choose branch
 	    private String branch_Name;
 	    
-	
 	   private String date_of_Birth;
 	   
-//	    @ManyToOne
-//	    @JoinColumn(name = "branch_id")
-//	    private Branch branch; // Association with branch.
-	    
-	    
+
+	 
 	    
 		@Override
 		public Collection<? extends GrantedAuthority> getAuthorities() {

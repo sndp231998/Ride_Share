@@ -22,6 +22,7 @@ import com.ride_share.entities.User;
 import com.ride_share.entities.User.UserMode;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
+import com.ride_share.playoads.ManagerAddress;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.repositories.BranchRepo;
 import com.ride_share.repositories.OtpRequestRepo;
@@ -57,10 +58,45 @@ public class UserServiceImpl implements UserService {
 		   
 		   @Autowired
 		   private BranchRepo branchRepo;
-//		   @Autowired
-//		    private NotificationService notificationService;
+		   @Override
+		   public UserDto updateManager(UserDto userDto, Integer userId, Integer branchId) {
+		       User user = this.userRepo.findById(userId)
+		               .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
+
+		       Branch branch = this.branchRepo.findById(branchId)
+		               .orElseThrow(() -> new ResourceNotFoundException("Branch", "Id", branchId));
+
+		       ManagerAddress managerAddress = new ManagerAddress();
+		       managerAddress.setManagerProvision(userDto.getManagerAddress().getManagerProvision());
+		       managerAddress.setManagerLocalLevel(userDto.getManagerAddress().getManagerLocalLevel());
+		       managerAddress.setManagerDistrict(userDto.getManagerAddress().getManagerDistrict());
+		       managerAddress.setManager_wardnumber(userDto.getManagerAddress().getManager_wardnumber());
+		       managerAddress.setBranch(branch); // Set the fetched Branch object directly
+
+		       user.setManagerAddress(managerAddress);
+
+		       User updatedUser = this.userRepo.save(user);
+		       return this.userToDto(updatedUser);
+		   }
+
 		   
-//-------------------------------------user------------------------------------------------------------
+
+			public User dtoToUser(UserDto userDto) {
+				User user = this.modelMapper.map(userDto, User.class);
+
+				return user;
+			}
+
+			public UserDto userToDto(User user) {
+				UserDto userDto = this.modelMapper.map(user, UserDto.class);
+				return userDto;
+			}
+			
+		   
+		   
+		   
+		   
+		   
 		@Override
 		public UserDto registerNewUser(UserDto userDto) {
 		    User user = this.modelMapper.map(userDto, User.class);
@@ -160,6 +196,7 @@ public class UserServiceImpl implements UserService {
         
 	}
 
+
 	@Override
 	public UserDto getUserById(Integer userId) {
 		 User user = this.userRepo.findById(userId)
@@ -184,16 +221,7 @@ public class UserServiceImpl implements UserService {
 	
 	//----------------------------------------------------------------------------------
 
-	public User dtoToUser(UserDto userDto) {
-		User user = this.modelMapper.map(userDto, User.class);
 
-		return user;
-	}
-
-	public UserDto userToDto(User user) {
-		UserDto userDto = this.modelMapper.map(user, UserDto.class);
-		return userDto;
-	}
 	
 	
 	//---------------------------------------
@@ -218,6 +246,7 @@ public class UserServiceImpl implements UserService {
         System.out.println("User role changed to " + roleName + ".");
 	}
 
+	
 	@Override
     public UserDto getUserByEmail(String email) {
         User user = userRepo.findByEmail(email)

@@ -1,14 +1,16 @@
-package com.ride_share.entities;
+package com.ride_share.playoads;
 
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
-import javax.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Data
 @NoArgsConstructor
-public class Branch {
+public class BranchDto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,9 +31,4 @@ public class Branch {
    private String email;
 
     
-    
-   // private String location; // Optional: Can include address details if needed.
-
-//   @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//   private List<User> users = new ArrayList<>();
 }

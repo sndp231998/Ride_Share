@@ -60,6 +60,16 @@ public class UserController {
 			return new ResponseEntity<>(createUserDto, HttpStatus.CREATED);
 		}
 
+		
+		@PutMapping("/{userId}/manager")
+	    public ResponseEntity<UserDto> updateManager(
+	            @PathVariable Integer userId,
+	            @RequestParam Integer branchId,
+	            @RequestBody UserDto userDto) {
+	        
+	        UserDto updatedUser = userService.updateManager(userDto, userId, branchId);
+	        return ResponseEntity.ok(updatedUser);
+	    }
 		//@Valid annotation lauda user ko body ko sabai halnu parne hunxa, so nahalako
 		@PutMapping("/{userId}")
 		public ResponseEntity<UserDto> updateUser( @RequestBody UserDto userDto, @PathVariable("userId") Integer uid) {

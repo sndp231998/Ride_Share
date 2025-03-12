@@ -43,4 +43,8 @@ public interface UserService {
 	    UserDto GetOtp(UserDto user,Integer userId);
 
 		UserDto UserModeChanger(Integer userId);
+
+		
+
+		UserDto updateManager(UserDto userDto, Integer userId, Integer branchId);
 }

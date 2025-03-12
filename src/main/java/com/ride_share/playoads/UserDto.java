@@ -33,7 +33,8 @@ public class UserDto {
 	private String email;
 	
 	 private Location currentLocation;
-
+	 private ManagerAddress managerAddress;
+	 
 	@NotEmpty(message="Mobile num is required !!")
 	 private String mobileNo;
 	
@@ -67,6 +68,7 @@ public class UserDto {
       
 	private Set<RoleDto> roles = new HashSet<>();
 	private Set<VehicleDto> vehicles; 
+	
 	
 	@JsonIgnore
 	public String getPassword() {
