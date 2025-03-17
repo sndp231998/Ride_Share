@@ -1,15 +1,20 @@
 package com.ride_share.service.impl;
 
 import java.util.List;
+
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.ride_share.entities.Branch;
 import com.ride_share.exceptions.ResourceNotFoundException;
 import com.ride_share.playoads.BranchDto;
 import com.ride_share.repositories.BranchRepo;
 import com.ride_share.service.BranchService;
+
+@Service
 public class BranchServiceImpl implements BranchService{
 
 	@Autowired

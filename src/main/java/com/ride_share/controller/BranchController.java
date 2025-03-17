@@ -12,7 +12,7 @@ import com.ride_share.playoads.BranchDto;
 import com.ride_share.service.BranchService;
 
 @RestController
-@RequestMapping("/api/branches")
+@RequestMapping("/api/v1/branches")
 public class BranchController {
 
     @Autowired

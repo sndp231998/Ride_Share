@@ -13,6 +13,7 @@ import com.ride_share.config.AppConfig;
 import com.ride_share.entities.Location;
 import com.ride_share.entities.User;
 import com.ride_share.exceptions.ResourceNotFoundException;
+import com.ride_share.playoads.ApiResponse;
 import com.ride_share.playoads.LocationDTO;
 import com.ride_share.repositories.LocationRepo;
 import com.ride_share.repositories.UserRepo;
@@ -67,9 +68,9 @@ public class LocationServiceImpl implements LocationService {
 
 //continusly location ui bata update garai ranaa
     @Override
-    public void updateLocation(Integer userId, LocationDTO locationDTO) {
-    	  User user = userRepo.findById(userId)
-    	            .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userId));
+    public ApiResponse updateSourceLocation(Integer userId, LocationDTO locationDTO) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userId));
 
         Location location = new Location();
         location.setLatitude(locationDTO.getLatitude());
@@ -78,10 +79,26 @@ public class LocationServiceImpl implements LocationService {
         location.setUser(user);
 
         locationRepo.save(location);
-        
+
         // Update user's current location
         user.setCurrentLocation(location);
         userRepo.save(user);
+
+        return new ApiResponse( "Location updated successfully.",true);
+    }
+
+    @Override
+    public ApiResponse updateDestinationLocation(Integer userId, LocationDTO locationDto) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userId));
+
+        Location location = new Location();
+        location.setDestinationLatitude(locationDto.getDestinationLatitude());
+        location.setDestinationLongitude(locationDto.getDestinationLongitude());
+        location.setUser(user);
+        locationRepo.save(location);
+
+        return new ApiResponse( "Destination location updated successfully.",true);
     }
 
 

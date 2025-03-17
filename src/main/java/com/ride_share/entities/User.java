@@ -34,6 +34,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class User implements UserDetails{
+	private static final long serialVersionUID = 1L;
 
 	     @Id
 	    @GeneratedValue(strategy = GenerationType.AUTO)
@@ -42,6 +43,7 @@ public class User implements UserDetails{
 	    @Column(name = "name", nullable = false, length = 100)
 	    private String name;
 
+	   
 	    @Column(unique = true)
 	    private String email;
        
@@ -53,8 +55,7 @@ public class User implements UserDetails{
 	    private String imageName;
 	    
 	    
-		   @Embedded
-		    private ManagerAddress managerAddress;
+		   
 	    
 	    
 	    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -88,6 +89,8 @@ public class User implements UserDetails{
 	   
 
 	 
+	   @Embedded
+	    private ManagerAddress managerAddress;
 	    
 		@Override
 		public Collection<? extends GrantedAuthority> getAuthorities() {

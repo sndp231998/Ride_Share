@@ -61,15 +61,7 @@ public class UserController {
 		}
 
 		
-		@PutMapping("/{userId}/manager")
-	    public ResponseEntity<UserDto> updateManager(
-	            @PathVariable Integer userId,
-	            @RequestParam Integer branchId,
-	            @RequestBody UserDto userDto) {
-	        
-	        UserDto updatedUser = userService.updateManager(userDto, userId, branchId);
-	        return ResponseEntity.ok(updatedUser);
-	    }
+		
 		//@Valid annotation lauda user ko body ko sabai halnu parne hunxa, so nahalako
 		@PutMapping("/{userId}")
 		public ResponseEntity<UserDto> updateUser( @RequestBody UserDto userDto, @PathVariable("userId") Integer uid) {
@@ -81,8 +73,10 @@ public class UserController {
 		@DeleteMapping("/{userId}")
 		public ResponseEntity<ApiResponse> deleteUser(@PathVariable("userId") Integer uid) {
 			this.userService.deleteUser(uid);
-			return new ResponseEntity<ApiResponse>(new ApiResponse("User deleted Successfully", true, uid), HttpStatus.OK);
+			return new ResponseEntity<ApiResponse>(new ApiResponse("User deleted Successfully", true), HttpStatus.OK);
 		}
+
+		
 		
 		@PreAuthorize("hasRole('ADMIN')")
 		@GetMapping("/")
@@ -97,12 +91,17 @@ public class UserController {
 		//-----------------ROles change----------------
 		 @PreAuthorize("hasRole('ADMIN')")
 		    @PostMapping("/addRole/email/{email}/role/{roleName}")
-		    public ResponseEntity<ApiResponse<Void>> addRoleToUser(@PathVariable String email, @PathVariable String roleName) {
+		    public ResponseEntity<ApiResponse> addRoleToUser(@PathVariable String email, @PathVariable String roleName) {
 		        userService.addRoleToUser(email, roleName);
-		        ApiResponse<Void> response = new ApiResponse<>("Role added successfully", true, null);
+		        ApiResponse response = new ApiResponse("Role added successfully", true);
 		        return ResponseEntity.status(HttpStatus.OK).body(response);
 		    }
 
+		 
+		 
+		 
+
+		 
 		@GetMapping("/email/{email}")
 	    public ResponseEntity<UserDto> getUserByEmail(@PathVariable String email) {
 	        UserDto user = userService.getUserByEmail(email);
@@ -177,6 +176,16 @@ public class UserController {
 	        UserDto modechange = userService.UserModeChanger(userId);
 	        		
 	        return new ResponseEntity<>(modechange, HttpStatus.OK);
+	    }
+	    
+	    @PutMapping("/{userId}/manager/branch/{branchId}")
+	    public ResponseEntity<UserDto> updateManager(
+	            @PathVariable Integer userId,
+	            @PathVariable Integer branchId,
+	            @RequestBody UserDto userDto) {
+	        
+	        UserDto updatedUser = userService.updateManager(userDto, userId, branchId);
+	        return ResponseEntity.ok(updatedUser);
 	    }
 		
 }

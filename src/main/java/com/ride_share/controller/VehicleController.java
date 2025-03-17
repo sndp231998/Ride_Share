@@ -57,7 +57,7 @@ public class VehicleController {
 @DeleteMapping("/{vehicleId}")
 public ResponseEntity<ApiResponse> deleteVehicle(@PathVariable Integer vehicleId) {
   this.vehicleService.deleteVehicle(vehicleId);
-  return new ResponseEntity<>(new ApiResponse("Vehicle deleted successfully", true, vehicleId), HttpStatus.OK);
+  return new ResponseEntity<>(new ApiResponse("Vehicle deleted successfully", true), HttpStatus.OK);
 }
 
 

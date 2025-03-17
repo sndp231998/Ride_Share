@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ride_share.playoads.ApiResponse;
 import com.ride_share.playoads.LocationDTO;
 import com.ride_share.service.LocationService;
-
 @RestController
 @RequestMapping("/api/v1/locations")
 public class LocationController {
@@ -19,10 +19,18 @@ public class LocationController {
     @Autowired
     private LocationService locationService;
 
-    @PutMapping("/user/{userId}/update")
-    public ResponseEntity<String> updateLocation(@PathVariable Integer userId, @RequestBody LocationDTO locationDTO) {
-        locationService.updateLocation(userId, locationDTO);
-        return ResponseEntity.ok("Location updated successfully");
+    @PutMapping("/user/{userId}/update/source")
+    public ResponseEntity<ApiResponse> updateSourceLocation(@PathVariable Integer userId, @RequestBody LocationDTO locationDTO) {
+        ApiResponse response = locationService.updateSourceLocation(userId, locationDTO);
+        return ResponseEntity.ok(response);
+    }
+    
+    @PutMapping("/user/{userId}/update/destination")
+    public ResponseEntity<ApiResponse> updateDestinationLocation(@PathVariable Integer userId, @RequestBody LocationDTO locationDTO) {
+        ApiResponse response = locationService.updateDestinationLocation(userId, locationDTO);
+        return ResponseEntity.ok(response);
     }
 }
+
+
 

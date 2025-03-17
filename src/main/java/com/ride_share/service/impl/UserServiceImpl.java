@@ -66,18 +66,43 @@ public class UserServiceImpl implements UserService {
 		       Branch branch = this.branchRepo.findById(branchId)
 		               .orElseThrow(() -> new ResourceNotFoundException("Branch", "Id", branchId));
 
-		       ManagerAddress managerAddress = new ManagerAddress();
-		       managerAddress.setManagerProvision(userDto.getManagerAddress().getManagerProvision());
-		       managerAddress.setManagerLocalLevel(userDto.getManagerAddress().getManagerLocalLevel());
-		       managerAddress.setManagerDistrict(userDto.getManagerAddress().getManagerDistrict());
-		       managerAddress.setManager_wardnumber(userDto.getManagerAddress().getManager_wardnumber());
-		       managerAddress.setBranch(branch); // Set the fetched Branch object directly
+		       // Initialize or get existing managerAddress
+		       ManagerAddress managerAddress = user.getManagerAddress();
+		       if (managerAddress == null) {
+		           managerAddress = new ManagerAddress();
+		       }
 
-		       user.setManagerAddress(managerAddress);
+		       ManagerAddress managerAddressDto = userDto.getManagerAddress();
+		       if (managerAddressDto != null) {
+		           if (managerAddressDto.getManagerProvision() != null &&
+		               !managerAddressDto.getManagerProvision().equals(managerAddress.getManagerProvision())) {
+		               managerAddress.setManagerProvision(managerAddressDto.getManagerProvision());
+		           }
+
+		           if (managerAddressDto.getManagerLocalLevel() != null &&
+		               !managerAddressDto.getManagerLocalLevel().equals(managerAddress.getManagerLocalLevel())) {
+		               managerAddress.setManagerLocalLevel(managerAddressDto.getManagerLocalLevel());
+		           }
+
+		           if (managerAddressDto.getManagerDistrict() != null &&
+		               !managerAddressDto.getManagerDistrict().equals(managerAddress.getManagerDistrict())) {
+		               managerAddress.setManagerDistrict(managerAddressDto.getManagerDistrict());
+		           }
+
+		           if (managerAddressDto.getManager_wardnumber() != null &&
+		               !managerAddressDto.getManager_wardnumber().equals(managerAddress.getManager_wardnumber())) {
+		               managerAddress.setManager_wardnumber(managerAddressDto.getManager_wardnumber());
+		           }
+
+		           managerAddress.setBranch(branch);
+		           user.setManagerAddress(managerAddress);
+		       }
 
 		       User updatedUser = this.userRepo.save(user);
 		       return this.userToDto(updatedUser);
 		   }
+
+
 
 		   
 

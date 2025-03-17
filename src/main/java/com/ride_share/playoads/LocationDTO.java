@@ -20,6 +20,11 @@ public class LocationDTO {
 	    private Double longitude;
 	    private LocalDateTime timestamp;
 
+	    // Destination Coordinates (Drop-off Location)
+	    private Double destinationLatitude;
+	    private Double destinationLongitude;
+	    
+	   
 	   
 	    private User user;
 }
