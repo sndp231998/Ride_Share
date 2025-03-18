@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.ride_share.config.AppConstants;
 import com.ride_share.entities.Branch;
 import com.ride_share.entities.OtpRequest;
+import com.ride_share.entities.Rider;
 import com.ride_share.entities.Role;
 import com.ride_share.entities.User;
 import com.ride_share.entities.User.UserMode;
@@ -26,6 +27,7 @@ import com.ride_share.playoads.ManagerAddress;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.repositories.BranchRepo;
 import com.ride_share.repositories.OtpRequestRepo;
+import com.ride_share.repositories.RiderRepo;
 import com.ride_share.repositories.RoleRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.service.OtpRequestService;
@@ -49,6 +51,9 @@ public class UserServiceImpl implements UserService {
 
 		@Autowired
 		private RoleRepo roleRepo;
+		
+		@Autowired
+		private RiderRepo riderRepo;
 	    
 		@Autowired
 	    private OtpRequestRepo otpRepo;
@@ -352,5 +357,16 @@ public class UserServiceImpl implements UserService {
         userRepo.save(user);
         return modelMapper.map(user, UserDto.class);
    }
+//	public UserDto UserBlanceUpdate(UserDto userDto,Integer userId) {
+//		User user = userRepo.findById(userId)
+//                .orElseThrow(() -> new ResourceNotFoundException("User", "User id", userId));
+//		Rider.RiderStatus existingStatus = this.riderRepo.findRiderStatusByUserId(userId);
+//        if (existingStatus == Rider.RiderStatus.PENDING || existingStatus == Rider.RiderStatus.REJECTED) {
+//            throw new IllegalStateException("Cannot create rider. User already has a rider application in PENDING status.");
+//        }
+//        
+//        user.setBalance(userDto.getBalance());
+//
+//	}
 	
 }
