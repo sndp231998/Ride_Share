@@ -2,6 +2,7 @@ package com.ride_share.service;
 
 import java.util.List;
 
+import com.ride_share.playoads.Location;
 import com.ride_share.playoads.UserDto;
 
 
@@ -47,4 +48,8 @@ public interface UserService {
 		
 
 		UserDto updateManager(UserDto userDto, Integer userId, Integer branchId);
+
+		UserDto updateCurrentLocation(UserDto userDto, Integer userId);
+
+		Location getLocationByUserId(Integer userId);
 }

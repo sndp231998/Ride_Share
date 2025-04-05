@@ -1,18 +1,16 @@
 package com.ride_share.playoads;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Column;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ride_share.entities.Location;
-import com.ride_share.entities.User.UserMode;
+
+
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,6 +31,7 @@ public class UserDto {
 	private String email;
 	
 	 private Location currentLocation;
+	 
 	 private ManagerAddress managerAddress;
 	 
 	@NotEmpty(message="Mobile num is required !!")

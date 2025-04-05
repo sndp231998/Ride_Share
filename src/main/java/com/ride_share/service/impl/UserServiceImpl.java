@@ -23,6 +23,7 @@ import com.ride_share.entities.User;
 import com.ride_share.entities.User.UserMode;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
+import com.ride_share.playoads.Location;
 import com.ride_share.playoads.ManagerAddress;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.repositories.BranchRepo;
@@ -63,6 +64,30 @@ public class UserServiceImpl implements UserService {
 		   
 		   @Autowired
 		   private BranchRepo branchRepo;
+		   
+		   
+		   
+		   @Override
+		   public UserDto updateCurrentLocation(UserDto userDto, Integer userId) {
+			    User user = this.userRepo.findById(userId)
+			            .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
+
+			    // Update the currentLocation field with the new values from userDto
+			    Location newLocation = userDto.getCurrentLocation(); // Get Location object
+			    newLocation.setTimestamp(LocalDateTime.now());
+			    user.setCurrentLocation(newLocation); // Update the entire Location object
+
+			    // Save the updated user back to the repository
+			    User updatedUser = this.userRepo.save(user);
+
+			    // Convert the updated User to UserDto and return it
+			    return this.userToDto(updatedUser);
+			}
+
+
+		   
+		   
+		   
 		   @Override
 		   public UserDto updateManager(UserDto userDto, Integer userId, Integer branchId) {
 		       User user = this.userRepo.findById(userId)
@@ -225,6 +250,8 @@ public class UserServiceImpl implements UserService {
         return this.userToDto(updatedUser);
         
 	}
+	
+	
 
 
 	@Override
@@ -343,6 +370,14 @@ public class UserServiceImpl implements UserService {
 	        return modelMapper.map(userRepo.save(user), UserDto.class);
 	}
 	
+	@Override
+	 public Location getLocationByUserId(Integer userId) {
+	        Location location = userRepo.findLocationByUserId(userId);
+	        if (location == null) {
+	            throw new ResourceNotFoundException("User", "Id", userId);
+	        }
+	        return location;
+	    }
 	@Override
 	public UserDto UserModeChanger(Integer userId) {
         User user = userRepo.findById(userId)

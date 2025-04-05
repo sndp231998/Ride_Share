@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -25,6 +26,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.ride_share.playoads.Location;
 import com.ride_share.playoads.ManagerAddress;
 
 import lombok.Data;
@@ -39,6 +41,11 @@ public class User implements UserDetails{
 	     @Id
 	    @GeneratedValue(strategy = GenerationType.AUTO)
 	    private int id;
+	     
+	     
+		   // @Embeddable
+		    private Location currentLocation;
+		  
 
 	    @Column(name = "name", nullable = false, length = 100)
 	    private String name;
@@ -54,13 +61,8 @@ public class User implements UserDetails{
 
 	    private String imageName;
 	    
-	    
-		   
-	    
-	    
-	    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	    private Location currentLocation;
-	   // private String balance;
+	    //@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	
 
 	    @Enumerated(EnumType.STRING)
 	    private UserMode modes;

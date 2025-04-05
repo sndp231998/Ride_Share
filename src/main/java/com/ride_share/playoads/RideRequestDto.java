@@ -21,14 +21,14 @@ public class RideRequestDto {
 	
 	private double actualPrice=0;
 	
-	private String source;
+	//private String source;
 	//private String destination;
-	private Double destination_long;
-	private Double destination_lati;
+	 private Destination_Coordinates destination;
+	 private Source_Coordinates source;
 	private LocalDateTime addedDate;
     private UserDto user;
-   
-
+    private double replacePessengerPrice=0;
+    private double generatedPrice;
 // // Users
 //    private UserDto requestedByUser; // The one who created the request
 //    private UserDto approvedByUser;  // The one who approved the request

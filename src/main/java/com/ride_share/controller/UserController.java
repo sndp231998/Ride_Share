@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ride_share.playoads.ApiResponse;
+import com.ride_share.playoads.Location;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.service.FileService;
 import com.ride_share.service.UserService;
@@ -52,7 +53,13 @@ public class UserController {
 		    private RateLimitingService rateLimitingService;
 		
 		
-		
+	 @PutMapping("/{userId}/currentLocationn")
+	    public ResponseEntity<UserDto> updateCurrentLocation(
+	            @RequestBody UserDto userDto,
+	            @PathVariable Integer userId) {
+	        UserDto updatedUser = userService.updateCurrentLocation(userDto, userId);
+	        return ResponseEntity.ok(updatedUser);
+	    }
 	 
 		@PostMapping("/")
 		public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
@@ -60,7 +67,11 @@ public class UserController {
 			return new ResponseEntity<>(createUserDto, HttpStatus.CREATED);
 		}
 
-		
+		 @GetMapping("/{userId}/location")
+		    public ResponseEntity<Location> getLocation(@PathVariable Integer userId) {
+		        Location location = userService.getLocationByUserId(userId);
+		        return ResponseEntity.ok(location);
+		    }
 		
 		//@Valid annotation lauda user ko body ko sabai halnu parne hunxa, so nahalako
 		@PutMapping("/{userId}")

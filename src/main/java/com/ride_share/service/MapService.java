@@ -4,6 +4,8 @@ public interface MapService {
 
 	String getDistanceAndTime(double sourceLat, double sourceLng, double destLat, double destLng);
 
+	int getDistance(double sourceLat, double sourceLng, double destLat, double destLng);
+
 	//String getCityName(double latitude, double longitude) throws Exception;
 
 }

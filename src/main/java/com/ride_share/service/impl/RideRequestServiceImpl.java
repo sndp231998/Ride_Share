@@ -12,14 +12,16 @@ import org.springframework.stereotype.Service;
 
 import com.ride_share.controller.RideRequestWebSocketController;
 import com.ride_share.entities.Category;
-import com.ride_share.entities.Location;
+
 import com.ride_share.entities.RideRequest;
 import com.ride_share.entities.User;
 import com.ride_share.entities.User.UserMode;
 import com.ride_share.entities.Vehicle;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
+import com.ride_share.playoads.Destination_Coordinates;
 import com.ride_share.playoads.RideRequestDto;
+import com.ride_share.playoads.Source_Coordinates;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.playoads.VehicleDto;
 import com.ride_share.repositories.CategoryRepo;
@@ -73,12 +75,12 @@ public class RideRequestServiceImpl implements RideRequestService {
             throw new ApiException("User must be in PESSENGER mode to create a ride request.");
         }
      // Check if the user has a current location
-        Location currentLocation = user.getCurrentLocation();
-        if (currentLocation == null) {
+       // Location currentLocation = user.getCurrentLocation();
+        if (user.getCurrentLocation() == null) {
             throw new ApiException("User's current location is not set.");
-        }
+        }//27.713503556041676, 85.37814745828736
      // Validate if the location is recent (within 4-5 minutes)
-        LocalDateTime locationTime = currentLocation.getTimestamp();
+        LocalDateTime locationTime=user.getCurrentLocation().getTimestamp();
         LocalDateTime currentTime = LocalDateTime.now();
 
         // Check if the location is stale
@@ -86,77 +88,83 @@ public class RideRequestServiceImpl implements RideRequestService {
             throw new ApiException(" Please update your current location.");
         }
         
-     // Fetch distance and time using MapService
-        String response = mapService.getDistanceAndTime(
-        		currentLocation.getLatitude(), 
-                currentLocation.getLongitude(), 
-                rideRequestDto.getDestination_lati(), 
-                rideRequestDto.getDestination_long()
-        		);
-        		
-        JSONObject jsonResponse = new JSONObject(response);
-        int distanceInMeters = jsonResponse.getJSONArray("rows")
-        	    .getJSONObject(0).getJSONArray("elements")
-        	    .getJSONObject(0).getJSONObject("distance")
-        	    .getInt("value");
+     // Fetch distance using MapService
+        int distanceKm = mapService.getDistance(
+                user.getCurrentLocation().getLatitude(),
+                user.getCurrentLocation().getLongitude(),
+                rideRequestDto.getDestination().getD_latitude(),
+                rideRequestDto.getDestination().getD_longitude()
+                
+        );
 
-        	// Convert the distance from meters to kilometers
-        	double distanceInKm = distanceInMeters / 1000.0;
-        	// Calculate the actual price using the distance in kilometers
+        System.out.println("The distance is " + distanceKm + " km");
+
+       // int pickupkm=mapService.getDistance();
+     
         	
-        	String city;
+        	String state;
         	try {
-        	city= mapServiceImpl.getCityName(currentLocation.getLatitude(), currentLocation.getLongitude());
+        	state= mapServiceImpl.getState(user.getCurrentLocation().getLongitude(),user.getCurrentLocation().getLatitude());
         	}catch(Exception e) {
         		throw new ApiException("Error determining city.");
         	}
         	  // Calculate the actual price using the distance in kilometers and city-specific rates
             double baseFare;
             double perKmRate;
-            switch (city) {
-                case "Chitwan":
+            switch (state) {
+                case "Koshi Province":
                     baseFare = 50;
                     perKmRate = 8;
                     break;
-                case "Jhapa":
+                case "Madhesh Province":
                     baseFare = 40;
                     perKmRate = 9;
                     break;
-                case "Kathmandu":
+                case "Bagmati Province":
                     baseFare = 60;
                     perKmRate = 10;
                     break;
                 default:
                     throw new ApiException("Unsupported city for pricing.");
             }
-        	double actualPrice = baseFare + (perKmRate * distanceInKm);
+        	double generatedPrice = baseFare + (perKmRate * distanceKm);
+        	rideRequestDto.setGeneratedPrice(generatedPrice);
+
         	// Ensure the price falls within the acceptable range
             
-        	double givenPrice;
-        	try {
+        	//user bata pani price line
+        	double givenPrice=0.0;
+        		//usser bata user ko pn price same attribute me line
         	givenPrice= rideRequestDto.getActualPrice();
-        	}catch(NumberFormatException e) {
-        		throw new ApiException("Invalid price format.");
-        	}
-            
-            if (givenPrice < actualPrice || givenPrice > actualPrice + 50) {
-                throw new ApiException("Invalid price.");
+        	if (givenPrice == 0.0) {
+        		//do nothing
+        	    // If user did not give price, set actualPrice = generatedPrice
+        	    //rideRequestDto.setActualPrice(generatedPrice);
+        		rideRequestDto.setActualPrice(generatedPrice); 
+        	}else if (givenPrice < generatedPrice || givenPrice > generatedPrice + 50) {
+                throw new ApiException("Recommend price:"+generatedPrice);
+            } else {
+                rideRequestDto.setActualPrice(givenPrice); // use user-given price
             }
              // Create a new RideRequest
          RideRequest rideRequest = new RideRequest();
-        rideRequest.setActualPrice(rideRequestDto.getActualPrice());
-      //  rideRequest.setActualPrice(givenPrice);
-        //----------yo destination---------
-        rideRequest.setDestination_long(rideRequestDto.getDestination_long());
-        rideRequest.setDestination_lati(rideRequestDto.getDestination_lati());
-        
+
+         Destination_Coordinates destination = new Destination_Coordinates();
+         destination.setD_latitude(rideRequestDto.getDestination().getD_latitude());
+         destination.setD_longitude(rideRequestDto.getDestination().getD_longitude());
+         //destination.setTimestamp(LocalDateTime.now()); 
+      
         //------------yo source-----------------------
        // rideRequest.setSource(rideRequestDto.getSource()); 
         // Set source using current location
-        String source = "Lat: " + currentLocation.getLatitude() + ", Long: " + currentLocation.getLongitude();
-        rideRequest.setSource(source);
+//        String source = "Lat: " + currentLocation.getLatitude() + ", Long: " + currentLocation.getLongitude();
+//        rideRequest.setSource(source);
+        Source_Coordinates source = new Source_Coordinates();
+        source.setS_latitude(rideRequestDto.getSource().getS_latitude());
+        source.setS_longitude(rideRequestDto.getSource().getS_longitude());
+        //source.setTimestamp(LocalDateTime.now());
         
-        rideRequest.setAddedDate(LocalDateTime.now());
+       rideRequest.setAddedDate(LocalDateTime.now());
         rideRequest.setStatus(RideRequest.RideStatus.PENDING);
         rideRequest.setUser(user); // Link the ride request to the user
         rideRequest.setCategory(category);
@@ -188,10 +196,10 @@ public class RideRequestServiceImpl implements RideRequestService {
         if (rideRequestDto.getSource() != null) {
             rideRequest.setSource(rideRequestDto.getSource());
         }
-        if (rideRequestDto.getDestination_long() != null && rideRequestDto.getDestination_lati() != null) {
-            rideRequest.setDestination_long(rideRequestDto.getDestination_long());
-            rideRequest.setDestination_lati(rideRequestDto.getDestination_lati());
-        }
+//        if (rideRequestDto.getDestination().getD_longitude() != null && rideRequestDto.getDestination().getD_latitude() != null) {
+//            rideRequest.setDestination_long(rideRequestDto.getDestination_long());
+//            rideRequest.setDestination_lati(rideRequestDto.getDestination_lati());
+//        }
 
         rideRequest.setStatus(RideRequest.RideStatus.PENDING);
 
@@ -254,14 +262,28 @@ public class RideRequestServiceImpl implements RideRequestService {
   	    if (ride.getStatus() == RideRequest.RideStatus.PESSENGER_APPROVED ||
   	    		ride.getStatus() == RideRequest.RideStatus.REJECTED
   	    		) {
-  	        throw new IllegalStateException("This ride request has already been approved/reject by another rider.");
+  	        throw new IllegalStateException("This ride request has already been approved/rejected.");
   	    }
 
-  	 // Update actual price only if provided
-  	//(rideRequestDto.getActualPrice() =yo current giving value ho hai
-  	  if (rideRequestDto.getActualPrice() != 0) {
-  	      ride.setActualPrice(rideRequestDto.getActualPrice());
-  	  }    
+  	  double reqpriceByrider=rideRequestDto.getReplacePessengerPrice();
+  	  
+  	double reqpriceBypessenger=ride.getActualPrice();
+  	
+  	
+ // If rider's price is null or zero, set it to passenger's price
+    if (reqpriceByrider == 0) {
+        reqpriceByrider = reqpriceBypessenger;
+        
+        ride.setReplacePessengerPrice(ride.getActualPrice());
+    }
+
+    // Ensure rider's price is not less than passenger's price
+    if (reqpriceByrider < reqpriceBypessenger) {
+        throw new ApiException("The price offered by the rider cannot be less than the passenger's price.");
+    }
+    ride.setReplacePessengerPrice(reqpriceByrider);
+    
+        
   	  ride.getReqriders().add(user);// main point
   	    RideRequest approvedRide = this.rideRequestRepo.save(ride);
   	    

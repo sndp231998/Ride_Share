@@ -3,6 +3,7 @@ package com.ride_share.entities;
 import java.time.LocalDateTime;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -12,8 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-
-
+import com.ride_share.playoads.Destination_Coordinates;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -42,7 +42,7 @@ public class Rider {
 	    private String date_Of_Birth;
 	    
 	    private String balance;
-	    
+	  
 	    //additional
 	    private LocalDateTime addedDate;
 	    @Column(name = "updated_date")

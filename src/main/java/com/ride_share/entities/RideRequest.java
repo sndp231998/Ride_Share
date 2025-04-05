@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -19,7 +20,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
-
+import com.ride_share.playoads.Destination_Coordinates;
+import com.ride_share.playoads.Source_Coordinates;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,13 +36,16 @@ public class RideRequest {
     private int rideRequestId;
 	
 	
-	private double actualPrice=0;
+	private double actualPrice=0.0;
 	
-	private String source;
 	
-	//ui bata malai destination of long ra lati chinxa
-	private Double destination_long;
-	private Double destination_lati;
+	 @Embedded
+	    private Destination_Coordinates destination;
+	 
+	 @Embedded
+	 private Source_Coordinates source;
+	    
+	private double replacePessengerPrice;
 	
 	private LocalDateTime addedDate;
 	@ManyToOne
