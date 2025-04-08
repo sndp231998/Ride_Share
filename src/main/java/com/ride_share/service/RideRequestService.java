@@ -3,6 +3,7 @@ package com.ride_share.service;
 import java.util.List;
 import java.util.Set;
 
+import com.ride_share.playoads.PriceInfoDto;
 import com.ride_share.playoads.RideRequestDto;
 import com.ride_share.playoads.UserDto;
 
@@ -41,6 +42,8 @@ public interface RideRequestService {
 
 	
 	RideRequestDto approveRideRequestByPassenger(Integer rideRequestId, Integer userId, Integer currentUserId);
+
+	PriceInfoDto determinePrice(RideRequestDto rideRequestDto, Integer userId, Integer categoryId);
 
 	
 	

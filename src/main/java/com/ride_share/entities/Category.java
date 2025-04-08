@@ -13,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import lombok.Data;
 
 import lombok.NoArgsConstructor;
@@ -22,8 +24,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class Category {
-
-	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer categoryId;
@@ -33,5 +33,10 @@ public class Category {
 	
 	
 	@OneToMany(mappedBy = "category",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+	@JsonManagedReference
 	private List<Vehicle> vehicles=new ArrayList<>();
+	
+//	
+//	@OneToMany(mappedBy = "category",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+//	private List<Post> posts=new ArrayList<>();
 }

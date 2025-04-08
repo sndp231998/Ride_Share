@@ -53,7 +53,7 @@ public class UserController {
 		    private RateLimitingService rateLimitingService;
 		
 		
-	 @PutMapping("/{userId}/currentLocationn")
+	 @PutMapping("/{userId}/currentLocation")
 	    public ResponseEntity<UserDto> updateCurrentLocation(
 	            @RequestBody UserDto userDto,
 	            @PathVariable Integer userId) {

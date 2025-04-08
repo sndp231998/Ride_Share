@@ -5,10 +5,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class PaymentRequestDTO { 
-    private String merchantCode;
-    private Double amount;
-    private String refId;
+@NoArgsConstructor
+public class PriceInfoDto {
+    private int totalKm;
+    private double generatedPrice;
+    private String state;
 }
+

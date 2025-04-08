@@ -38,7 +38,8 @@ public class CategoryServiceImpl implements CategoryService{
 				.orElseThrow(() -> new ResourceNotFoundException("Category ", "Category Id", categoryId));
 
 		cat.setCategoryTitle(categoryDto.getCategoryTitle());
-		
+		//cat.setBaseFare(categoryDto.getBaseFare());
+		//cat.setPerKmRate(categoryDto.getPerKmRate());
 		Category updatedcat = this.categoryRepo.save(cat);
 
 		return this.modelMapper.map(updatedcat, CategoryDto.class);

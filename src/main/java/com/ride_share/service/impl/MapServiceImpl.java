@@ -61,7 +61,8 @@ public class MapServiceImpl implements MapService{
 	    
 
 	    public String getCityName(double latitude, double longitude) throws Exception {
-	        String urlStr = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + latitude + "," + longitude + "&key=" + GOOGLE_API_KEY;
+	        String urlStr = "https://maps.googleapis.com/maps/api/geocode/json?latlng=en" + latitude + "," + longitude + "&key=" + GOOGLE_API_KEY;
+	      
 	        URL url = new URL(urlStr);
 	        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 	        conn.setRequestMethod("GET");
@@ -97,13 +98,14 @@ public class MapServiceImpl implements MapService{
 	    
 	    
 	    public String getState(double latitude, double longitude) throws Exception {
-	        // Build URL for Nominatim API call
-	        String urlStr = "https://nominatim.openstreetmap.org/reverse?format=json&lat=" + latitude + "&lon=" + longitude;
+	       // String urlStr = "https://nominatim.openstreetmap.org/reverse?format=json&lat=" + latitude + "&lon=" + longitude;
+	        String urlStr = "https://nominatim.openstreetmap.org/reverse?format=json&accept-language=en&lat=" + latitude + "&lon=" + longitude;
+
 	        URL url = new URL(urlStr);
 	        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 	        conn.setRequestMethod("GET");
+	        conn.setRequestProperty("User-Agent", "Mozilla/5.0"); // Important for Nominatim
 
-	        // Read response from API
 	        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 	        StringBuilder response = new StringBuilder();
 	        String inputLine;
@@ -112,17 +114,20 @@ public class MapServiceImpl implements MapService{
 	        }
 	        in.close();
 
-	        // Parse JSON response
 	        JSONObject jsonResponse = new JSONObject(response.toString());
+
 	        if (jsonResponse.has("address")) {
 	            JSONObject address = jsonResponse.getJSONObject("address");
+
 	            if (address.has("state")) {
-	                return address.getString("state"); // Extract and return the state
+	                return address.getString("state");
 	            }
 	        }
 
 	        throw new Exception("State not found in the response.");
 	    }
+
+
 	    
 	    
 }

@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +21,9 @@ import com.ride_share.entities.User.UserMode;
 import com.ride_share.entities.Vehicle;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
-import com.ride_share.playoads.Destination_Coordinates;
+import com.ride_share.playoads.PriceInfoDto;
 import com.ride_share.playoads.RideRequestDto;
-import com.ride_share.playoads.Source_Coordinates;
+
 import com.ride_share.playoads.UserDto;
 import com.ride_share.playoads.VehicleDto;
 import com.ride_share.repositories.CategoryRepo;
@@ -58,8 +60,70 @@ public class RideRequestServiceImpl implements RideRequestService {
     @Autowired
     private RideRequestWebSocketController webSocketController;
 
-
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     // Existing methods (create, update, delete, get, etc.)
+    
+    @Override
+    public PriceInfoDto determinePrice(RideRequestDto rideRequestDto, Integer userId, Integer categoryId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userId));
+        Category category = categoryRepo.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "Category ID", categoryId));
+
+        if (user.getCurrentLocation() == null) {
+            throw new ApiException("User's current location is not set.");
+        }
+
+        LocalDateTime locationTime = user.getCurrentLocation().getTimestamp();
+        if (locationTime == null || locationTime.isBefore(LocalDateTime.now().minusMinutes(59))) {
+            throw new ApiException("Please update your current location.");
+        }
+
+        int distanceKm = mapService.getDistance(
+                user.getCurrentLocation().getLatitude(),
+                user.getCurrentLocation().getLongitude(),
+                rideRequestDto.getD_latitude(),
+                rideRequestDto.getD_longitude()
+        );
+
+        String state;
+        try {
+            state = mapServiceImpl.getState(
+                    user.getCurrentLocation().getLatitude(),
+                    user.getCurrentLocation().getLongitude()
+            );
+        } catch (Exception e) {
+            throw new ApiException("Error determining city.");
+        }
+
+        double baseFare = 0;
+        double perKmRate = 0;
+
+        // 🚦 Province + Category Based Pricing
+        switch (state) {
+            case "Koshi Province":
+                if (categoryId == 1) { baseFare = 50; perKmRate = 8; }         // Bike
+                else if (categoryId == 2) { baseFare = 80; perKmRate = 12; }   // Car/Taxi
+                break;
+            case "Madhesh Province":
+                if (categoryId == 1) { baseFare = 40; perKmRate = 9; }
+                else if (categoryId == 2) { baseFare = 70; perKmRate = 13; }
+                break;
+            case "Bagamati Province":
+                if (categoryId == 1) { baseFare = 60; perKmRate = 10; }
+                else if (categoryId == 2) { baseFare = 90; perKmRate = 14; }
+                break;
+            default:
+                throw new ApiException("Unsupported province for pricing.");
+        }
+
+        double generatedPrice = baseFare + (perKmRate * distanceKm);
+
+        return new PriceInfoDto(distanceKm, generatedPrice,state);
+    }
+
+//    
+//    
     @Override
     public RideRequestDto createRideRequest(RideRequestDto rideRequestDto, Integer userId,Integer categoryId) {
         // Fetch user details
@@ -78,13 +142,12 @@ public class RideRequestServiceImpl implements RideRequestService {
        // Location currentLocation = user.getCurrentLocation();
         if (user.getCurrentLocation() == null) {
             throw new ApiException("User's current location is not set.");
-        }//27.713503556041676, 85.37814745828736
-     // Validate if the location is recent (within 4-5 minutes)
+        }
         LocalDateTime locationTime=user.getCurrentLocation().getTimestamp();
         LocalDateTime currentTime = LocalDateTime.now();
 
         // Check if the location is stale
-        if (locationTime == null || locationTime.isBefore(currentTime.minusMinutes(5))) {
+        if (locationTime == null || locationTime.isBefore(currentTime.minusMinutes(59))) {
             throw new ApiException(" Please update your current location.");
         }
         
@@ -92,8 +155,8 @@ public class RideRequestServiceImpl implements RideRequestService {
         int distanceKm = mapService.getDistance(
                 user.getCurrentLocation().getLatitude(),
                 user.getCurrentLocation().getLongitude(),
-                rideRequestDto.getDestination().getD_latitude(),
-                rideRequestDto.getDestination().getD_longitude()
+                rideRequestDto.getD_latitude(),
+                rideRequestDto.getD_longitude()
                 
         );
 
@@ -102,11 +165,14 @@ public class RideRequestServiceImpl implements RideRequestService {
        // int pickupkm=mapService.getDistance();
      
         	
-        	String state;
+        	String state=null;
         	try {
-        	state= mapServiceImpl.getState(user.getCurrentLocation().getLongitude(),user.getCurrentLocation().getLatitude());
+        		String stat = mapServiceImpl.getState(27.7136915, 85.3781392);
+            	System.out.println(stat);
+        	state= mapServiceImpl.getState(user.getCurrentLocation().getLatitude(),user.getCurrentLocation().getLongitude());
+        
         	}catch(Exception e) {
-        		throw new ApiException("Error determining city.");
+        		throw new ApiException("Error determining city. State: " + (state == null ? "Unknown" : state));
         	}
         	  // Calculate the actual price using the distance in kilometers and city-specific rates
             double baseFare;
@@ -120,7 +186,8 @@ public class RideRequestServiceImpl implements RideRequestService {
                     baseFare = 40;
                     perKmRate = 9;
                     break;
-                case "Bagmati Province":
+                    
+                case "Bagamati Province":
                     baseFare = 60;
                     perKmRate = 10;
                     break;
@@ -149,19 +216,19 @@ public class RideRequestServiceImpl implements RideRequestService {
              // Create a new RideRequest
          RideRequest rideRequest = new RideRequest();
 
-         Destination_Coordinates destination = new Destination_Coordinates();
-         destination.setD_latitude(rideRequestDto.getDestination().getD_latitude());
-         destination.setD_longitude(rideRequestDto.getDestination().getD_longitude());
-         //destination.setTimestamp(LocalDateTime.now()); 
+         logger.debug("Setting Destination Coordinates: Latitude={}, Longitude={}", 
+                 rideRequestDto.getD_latitude(), 
+                 rideRequestDto.getD_longitude());
+
       
+         rideRequest.setD_latitude(rideRequestDto.getD_latitude());
+         rideRequest.setD_longitude(rideRequestDto.getD_longitude());
+        
+    
         //------------yo source-----------------------
-       // rideRequest.setSource(rideRequestDto.getSource()); 
-        // Set source using current location
-//        String source = "Lat: " + currentLocation.getLatitude() + ", Long: " + currentLocation.getLongitude();
-//        rideRequest.setSource(source);
-        Source_Coordinates source = new Source_Coordinates();
-        source.setS_latitude(rideRequestDto.getSource().getS_latitude());
-        source.setS_longitude(rideRequestDto.getSource().getS_longitude());
+       
+        rideRequest.setS_latitude(user.getCurrentLocation().getLatitude());
+        rideRequest.setS_longitude(user.getCurrentLocation().getLongitude());
         //source.setTimestamp(LocalDateTime.now());
         
        rideRequest.setAddedDate(LocalDateTime.now());
@@ -193,9 +260,11 @@ public class RideRequestServiceImpl implements RideRequestService {
         if (rideRequestDto.getActualPrice() != 0) {
             rideRequest.setActualPrice(rideRequestDto.getActualPrice());
         }
-        if (rideRequestDto.getSource() != null) {
-            rideRequest.setSource(rideRequestDto.getSource());
+        if (rideRequestDto.getS_latitude() != 0 && rideRequestDto.getS_longitude() != 0) {
+            rideRequest.setS_latitude(rideRequestDto.getS_latitude());
+            rideRequest.setS_longitude(rideRequestDto.getS_longitude());
         }
+
 //        if (rideRequestDto.getDestination().getD_longitude() != null && rideRequestDto.getDestination().getD_latitude() != null) {
 //            rideRequest.setDestination_long(rideRequestDto.getDestination_long());
 //            rideRequest.setDestination_lati(rideRequestDto.getDestination_lati());

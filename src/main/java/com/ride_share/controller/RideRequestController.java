@@ -2,9 +2,14 @@ package com.ride_share.controller;
 
 
 
+import com.ride_share.playoads.PriceInfoDto;
 import com.ride_share.playoads.RideRequestDto;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.service.RideRequestService;
+import com.ride_share.service.impl.UserServiceImpl;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,17 +19,27 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api/v1/ride-requests")
 public class RideRequestController {
-
+	  private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     @Autowired
     private RideRequestService rideRequestService;
-  //  /category/{categoryId}/posts
+    
     // Create a new ride request
     @PostMapping("/user/{userId}/category/{categoryId}")
     public ResponseEntity<RideRequestDto> createRideRequest(@RequestBody RideRequestDto rideRequestDto, 
-    		@PathVariable Integer userId, @PathVariable Integer categoryId) {
-        RideRequestDto createdRequest = rideRequestService.createRideRequest(rideRequestDto, userId,categoryId);
+            @PathVariable Integer userId, @PathVariable Integer categoryId) {
+
+        // Log the full RideRequestDto object for debugging
+        logger.debug("Received RideRequestDto: {}", rideRequestDto);
+        logger.debug("Received userId: {}, categoryId: {}", userId, categoryId);
+
+        // Alternatively, print it directly to console (not recommended for production)
+        System.out.println("Received RideRequestDto: " + rideRequestDto);
+
+        // Process the ride request
+        RideRequestDto createdRequest = rideRequestService.createRideRequest(rideRequestDto, userId, categoryId);
         return ResponseEntity.ok(createdRequest);
     }
+
 
     // Approve a ride request by Rider
  // Approve a ride request by Rider (userId is passed as a path variable)

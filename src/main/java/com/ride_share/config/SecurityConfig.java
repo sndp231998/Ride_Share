@@ -41,10 +41,9 @@ public class SecurityConfig {
             "/swagger-resources/**",
             "/swagger-ui/**", 
             "/webjars/**",
-            "/api/v1/auth/login/",
-            "api/v1/users/",
-            "/api/imepay/**",
-            "/api/v1/locations/**"
+            "/api/v1/auth/login/"
+           
+            
             
 
     };

@@ -21,6 +21,8 @@ public class UserDto {
 
 	
 	private int id;
+	
+	private Location currentLocation;
 
 	@NotEmpty
 	@Size(min = 4, message = "Username must be min of 4 characters !!")
@@ -30,7 +32,7 @@ public class UserDto {
 	@NotEmpty(message = "Email is required !!")
 	private String email;
 	
-	 private Location currentLocation;
+	 
 	 
 	 private ManagerAddress managerAddress;
 	 

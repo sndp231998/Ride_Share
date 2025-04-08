@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ride_share.entities.Branch;
@@ -28,12 +29,15 @@ import com.ride_share.exceptions.ApiException;
 import com.ride_share.playoads.ForgetPasswordDto;
 import com.ride_share.playoads.JwtAuthRequest;
 import com.ride_share.playoads.JwtAuthResponse;
+import com.ride_share.playoads.PriceInfoDto;
+import com.ride_share.playoads.RideRequestDto;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.repositories.BranchRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.security.JwtTokenHelper;
 import com.ride_share.service.ForgetPasswordService;
 import com.ride_share.service.OtpRequestService;
+import com.ride_share.service.RideRequestService;
 import com.ride_share.service.UserService;
 import com.ride_share.service.impl.RateLimitingService;
 
@@ -55,6 +59,9 @@ public class AuthController {
 
 	@Autowired
 	private UserService userService;
+	
+	 @Autowired
+	    private RideRequestService rideRequestService;
 	
 	 @Autowired
 	   private OtpRequestService otpRequestService;
@@ -145,5 +152,14 @@ public class AuthController {
     @GetMapping("/branch")
     public List<Branch> getAllBranches() {
         return branchRepo.findAll();
-    }    
+    }  
+    @GetMapping("/ride/price")
+    public ResponseEntity<PriceInfoDto> getPriceInfo(
+            @RequestBody RideRequestDto rideRequestDto,
+            @RequestParam Integer userId,
+            @RequestParam Integer categoryId
+    ) {
+        PriceInfoDto priceInfo = rideRequestService.determinePrice(rideRequestDto, userId, categoryId);
+        return ResponseEntity.ok(priceInfo);
+    }
 }

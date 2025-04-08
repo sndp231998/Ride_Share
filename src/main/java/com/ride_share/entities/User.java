@@ -41,11 +41,9 @@ public class User implements UserDetails{
 	     @Id
 	    @GeneratedValue(strategy = GenerationType.AUTO)
 	    private int id;
-	     
-	     
-		   // @Embeddable
-		    private Location currentLocation;
-		  
+	     @Embedded
+	     private Location currentLocation;
+
 
 	    @Column(name = "name", nullable = false, length = 100)
 	    private String name;

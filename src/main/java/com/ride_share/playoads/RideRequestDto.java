@@ -21,10 +21,13 @@ public class RideRequestDto {
 	
 	private double actualPrice=0;
 	
-	//private String source;
-	//private String destination;
-	 private Destination_Coordinates destination;
-	 private Source_Coordinates source;
+	private double d_latitude;
+    private double d_longitude;
+    
+    private double s_latitude;
+    private double s_longitude;
+    private double total_Km;
+    
 	private LocalDateTime addedDate;
     private UserDto user;
     private double replacePessengerPrice=0;
@@ -34,7 +37,7 @@ public class RideRequestDto {
 //    private UserDto approvedByUser;  // The one who approved the request
 
     //vehicle
-    //private VehicleDto vehicle;
+   // private VehicleDto vehicle;
     
     private RideStatus status;
     

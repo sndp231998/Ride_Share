@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
-import javax.persistence.Embedded;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -20,8 +20,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
-import com.ride_share.playoads.Destination_Coordinates;
-import com.ride_share.playoads.Source_Coordinates;
+
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,14 +38,16 @@ public class RideRequest {
 	private double actualPrice=0.0;
 	
 	
-	 @Embedded
-	    private Destination_Coordinates destination;
+//	 @Embedded
+//	    private Destination_Coordinates destination;
+	private double d_latitude;
+    private double d_longitude;
 	 
-	 @Embedded
-	 private Source_Coordinates source;
+    private double s_latitude;
+    private double s_longitude;
 	    
-	private double replacePessengerPrice;
-	
+	private double replacePessengerPrice=0;
+	private double total_Km;
 	private LocalDateTime addedDate;
 	@ManyToOne
     @JoinColumn(name = "user_id")// The passenger who created the request pessenger Id

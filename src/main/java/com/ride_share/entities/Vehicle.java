@@ -3,6 +3,8 @@ package com.ride_share.entities;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import lombok.Data;
 
 import lombok.NoArgsConstructor;
@@ -38,5 +40,6 @@ public class Vehicle {
 
     @ManyToOne
     @JoinColumn(name = "category_id")
+    @JsonBackReference
     private Category category;
 }
