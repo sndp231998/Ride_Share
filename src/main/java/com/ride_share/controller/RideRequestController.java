@@ -3,6 +3,7 @@ package com.ride_share.controller;
 
 
 import com.ride_share.playoads.PriceInfoDto;
+import com.ride_share.playoads.RideInfoDto;
 import com.ride_share.playoads.RideRequestDto;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.service.RideRequestService;
@@ -87,6 +88,7 @@ public class RideRequestController {
         return ResponseEntity.ok(rideRequests);
     }
 
+    
     // Delete a ride request
     @DeleteMapping("/{rideRequestId}")
     public ResponseEntity<String> deleteRideRequest(@PathVariable Integer rideRequestId) {
@@ -102,5 +104,17 @@ public class RideRequestController {
 
         RideRequestDto updatedRide = rideRequestService.updateRideRequest(rideRequestDto, rideRequestId);
         return ResponseEntity.ok(updatedRide);
+    }
+    
+    // detail view before approved ride by rider [so only rider can hit req
+    @GetMapping("/{rideRequestId}/user/{userId}")
+    public ResponseEntity<RideInfoDto> getRideInfo(
+            @RequestBody RideRequestDto rideRequestDto,
+            @PathVariable Integer rideRequestId,
+            @PathVariable Integer userId
+            
+    ) {
+        RideInfoDto detailInfo = rideRequestService.detailrideViewByRider(rideRequestDto, rideRequestId, userId);  		
+        return ResponseEntity.ok(detailInfo);
     }
 }

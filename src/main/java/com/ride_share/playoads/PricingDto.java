@@ -21,16 +21,11 @@ public class PricingDto {
     @Column(nullable = false)
     private String province;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    private CategoryDto category;
 
-    @Column(nullable = false)
     private double baseFare;
-
-    @Column(nullable = false)
+ 
     private double perKmRate;
     
-    @Column(nullable = false)
     private boolean isActive = true;
 }

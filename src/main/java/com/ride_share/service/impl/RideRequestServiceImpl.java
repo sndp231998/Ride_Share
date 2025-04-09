@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.ride_share.controller.RideRequestWebSocketController;
 import com.ride_share.entities.Category;
-
+import com.ride_share.entities.Pricing;
 import com.ride_share.entities.RideRequest;
 import com.ride_share.entities.User;
 import com.ride_share.entities.User.UserMode;
@@ -22,11 +22,13 @@ import com.ride_share.entities.Vehicle;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
 import com.ride_share.playoads.PriceInfoDto;
+import com.ride_share.playoads.RideInfoDto;
 import com.ride_share.playoads.RideRequestDto;
 
 import com.ride_share.playoads.UserDto;
 import com.ride_share.playoads.VehicleDto;
 import com.ride_share.repositories.CategoryRepo;
+import com.ride_share.repositories.PricingRepo;
 import com.ride_share.repositories.RideRequestRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.repositories.VehicleRepo;
@@ -58,6 +60,9 @@ public class RideRequestServiceImpl implements RideRequestService {
     private MapService mapService;
     
     @Autowired
+    private PricingRepo pricingRepo;
+    
+    @Autowired
     private RideRequestWebSocketController webSocketController;
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
@@ -85,10 +90,10 @@ public class RideRequestServiceImpl implements RideRequestService {
                 rideRequestDto.getD_latitude(),
                 rideRequestDto.getD_longitude()
         );
-
-        String state;
+     // Determine the state (province) based on user's current location
+        String province;
         try {
-            state = mapServiceImpl.getState(
+            province = mapServiceImpl.getState(
                     user.getCurrentLocation().getLatitude(),
                     user.getCurrentLocation().getLongitude()
             );
@@ -96,32 +101,68 @@ public class RideRequestServiceImpl implements RideRequestService {
             throw new ApiException("Error determining city.");
         }
 
-        double baseFare = 0;
-        double perKmRate = 0;
+        logger.info("Fetching pricing data for province: {} and category ID: {}", province, category.getCategoryId());
+        // Fetch pricing data based on province and category
+        Pricing pricing = pricingRepo.findByProvinceAndCategory_CategoryId(province, category.getCategoryId())
+                .orElseThrow(() -> new ApiException("Pricing not available for the given province and category."));
 
-        // 🚦 Province + Category Based Pricing
-        switch (state) {
-            case "Koshi Province":
-                if (categoryId == 1) { baseFare = 50; perKmRate = 8; }         // Bike
-                else if (categoryId == 2) { baseFare = 80; perKmRate = 12; }   // Car/Taxi
-                break;
-            case "Madhesh Province":
-                if (categoryId == 1) { baseFare = 40; perKmRate = 9; }
-                else if (categoryId == 2) { baseFare = 70; perKmRate = 13; }
-                break;
-            case "Bagamati Province":
-                if (categoryId == 1) { baseFare = 60; perKmRate = 10; }
-                else if (categoryId == 2) { baseFare = 90; perKmRate = 14; }
-                break;
-            default:
-                throw new ApiException("Unsupported province for pricing.");
-        }
+        logger.info("Pricing data fetched successfully: {}", pricing);
+        
+        double generatedPrice = pricing.getBaseFare() + (pricing.getPerKmRate() * distanceKm);
 
-        double generatedPrice = baseFare + (perKmRate * distanceKm);
-
-        return new PriceInfoDto(distanceKm, generatedPrice,state);
+        return new PriceInfoDto(distanceKm, generatedPrice,province);
     }
 
+    
+    //rider le check garne full zoom , rider le ridereq accept garnu aaagi 
+    @Override
+    public RideInfoDto detailrideViewByRider(RideRequestDto rideRequestDto, Integer rideRequestId,Integer userId) {
+    	
+   	 User user = userRepo.findById(userId)
+   	            .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userId));
+      
+   	RideRequest rideRequest = rideRequestRepo.findById(rideRequestId)
+               .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
+         
+   	
+   	
+   	if (user.getModes() != User.UserMode.RIDER) {  
+	        throw new ApiException("User must be in RIDER mode to approved a ride request.");
+	    }
+	    // Check if the ride has already been approved by another rider [arko rider le approved gari sakyako raixa vane
+	    if (rideRequest.getStatus() == RideRequest.RideStatus.PESSENGER_APPROVED ||
+	    		rideRequest.getStatus() == RideRequest.RideStatus.REJECTED
+	    		) {
+	        throw new IllegalStateException("This ride request has already been approved/rejected.");
+	    }
+   	
+    if (user.getCurrentLocation() == null) {
+        throw new ApiException("User's current location is not set.");
+    }
+
+    LocalDateTime locationTime = user.getCurrentLocation().getTimestamp();
+    if (locationTime == null || locationTime.isBefore(LocalDateTime.now().minusMinutes(59))) {
+        throw new ApiException("Please update your current location.");
+    }
+
+    int pickupDistance = mapService.getDistance(
+            user.getCurrentLocation().getLatitude(),
+            user.getCurrentLocation().getLongitude(),
+            rideRequest.getD_latitude(),
+            rideRequest.getD_longitude()
+    );
+        
+    int dropDistance=mapService.getDistance(
+    		rideRequest.getS_latitude(),
+    		rideRequest.getS_longitude(), 
+    		rideRequest.getD_latitude(),
+    		rideRequest.getD_longitude());
+    
+    
+   	return new RideInfoDto(pickupDistance,dropDistance);
+   	
+   	
+   }
 //    
 //    
     @Override
@@ -162,40 +203,28 @@ public class RideRequestServiceImpl implements RideRequestService {
 
         System.out.println("The distance is " + distanceKm + " km");
 
-       // int pickupkm=mapService.getDistance();
-     
-        	
-        	String state=null;
-        	try {
-        		String stat = mapServiceImpl.getState(27.7136915, 85.3781392);
-            	System.out.println(stat);
-        	state= mapServiceImpl.getState(user.getCurrentLocation().getLatitude(),user.getCurrentLocation().getLongitude());
+        // Determine the state (province) based on user's current location
+        String province;
+        try {
+            province = mapServiceImpl.getState(
+                    user.getCurrentLocation().getLatitude(),
+                    user.getCurrentLocation().getLongitude()
+            );
+        } catch (Exception e) {
+            throw new ApiException("Error determining city.");
+        }
+
+       // logger.info("Fetching pricing data for province: {} and category ID: {}", province, categoryId);
+        // Fetch pricing data based on province and category
+        Pricing pricing = pricingRepo.findByProvinceAndCategory_CategoryId(province, categoryId)
+                .orElseThrow(() -> new ApiException("Pricing not available for the given province and category."));
+
+        //logger.info("Pricing data fetched successfully: {}", pricing);
+        double perkm=pricing.getPerKmRate();
+        double basefare=pricing.getBaseFare();
         
-        	}catch(Exception e) {
-        		throw new ApiException("Error determining city. State: " + (state == null ? "Unknown" : state));
-        	}
-        	  // Calculate the actual price using the distance in kilometers and city-specific rates
-            double baseFare;
-            double perKmRate;
-            switch (state) {
-                case "Koshi Province":
-                    baseFare = 50;
-                    perKmRate = 8;
-                    break;
-                case "Madhesh Province":
-                    baseFare = 40;
-                    perKmRate = 9;
-                    break;
-                    
-                case "Bagamati Province":
-                    baseFare = 60;
-                    perKmRate = 10;
-                    break;
-                default:
-                    throw new ApiException("Unsupported city for pricing.");
-            }
-        	double generatedPrice = baseFare + (perKmRate * distanceKm);
-        	rideRequestDto.setGeneratedPrice(generatedPrice);
+        double generatedPrice = basefare + (perkm * distanceKm);
+        	//rideRequestDto.setGeneratedPrice(generatedPrice);
 
         	// Ensure the price falls within the acceptable range
             
@@ -220,12 +249,12 @@ public class RideRequestServiceImpl implements RideRequestService {
                  rideRequestDto.getD_latitude(), 
                  rideRequestDto.getD_longitude());
 
-      
+      // destination --saved
          rideRequest.setD_latitude(rideRequestDto.getD_latitude());
          rideRequest.setD_longitude(rideRequestDto.getD_longitude());
-        
-    
-        //------------yo source-----------------------
+        rideRequest.setActualPrice(givenPrice);
+    rideRequest.setTotal_Km(distanceKm);
+        //------------yo source-saved----------------------
        
         rideRequest.setS_latitude(user.getCurrentLocation().getLatitude());
         rideRequest.setS_longitude(user.getCurrentLocation().getLongitude());

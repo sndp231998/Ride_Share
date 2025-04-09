@@ -12,5 +12,6 @@ public interface PricingService {
    
     PricingDto getPricingById(Integer pricingId);
 	PricingDto createPricing(PricingDto pricingDto, Integer userId, Integer categoryId);
-	PricingDto updatePricing(PricingDto pricingDto, Integer pricingId, Integer categoryId);
+	//PricingDto updatePricing(PricingDto pricingDto, Integer pricingId, Integer categoryId);
+	PricingDto updatePricing(PricingDto pricingDto, Integer pricingId);
 }

@@ -1,5 +1,8 @@
 package com.ride_share.config;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class AppConstants {
 
 	public static final String PAGE_NUMBER = "0";
@@ -14,5 +17,15 @@ public class AppConstants {
 	
 	public static final Integer DAMAK_BRANCH=601;
 	public static final Integer KATHMANDU_BRANCH=602;
+	
+	public static final List<String> VALID_PROVINCES = Arrays.asList(
+	        "Koshi Province",
+	        "Madhesh Province",
+	        "Bagamati Province",
+	        "Gandaki Province",
+	        "Lumbini Province",
+	        "Karnali Province",
+	        "Sudurpashchim Province"
+	    );
 	
 }

@@ -1,12 +1,14 @@
 package com.ride_share.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ride_share.config.AppConstants;
 import com.ride_share.entities.Category;
 import com.ride_share.entities.Pricing;
 import com.ride_share.entities.User;
@@ -23,10 +25,13 @@ import com.ride_share.service.PricingService;
 
 @Service
 public class PricingServiceImpl implements PricingService {
-
+    @Autowired
     private  ModelMapper modelMapper;
+    @Autowired
     private  PricingRepo pricingRepo;
+    @Autowired
     private  CategoryRepo categoryRepo;
+    @Autowired
     private  UserRepo userRepo;
 
     //Integer userId, Integer categoryId
@@ -43,7 +48,19 @@ public class PricingServiceImpl implements PricingService {
         Pricing p = modelMapper.map(pricingDto, Pricing.class);
         p.setBaseFare(pricingDto.getBaseFare());
         p.setPerKmRate(pricingDto.getPerKmRate());
-        p.setProvince(pricingDto.getProvince());
+        //p.setProvince(pricingDto.getProvince());
+        
+     // Normalize and Validate Province
+        String userProvince = pricingDto.getProvince().trim().toLowerCase();
+        Optional<String> validProvince = AppConstants.VALID_PROVINCES.stream()
+                .filter(province -> province.toLowerCase().startsWith(userProvince))
+                .findFirst();
+
+        if (validProvince.isEmpty()) {
+            throw new IllegalArgumentException("Invalid province: " + userProvince);
+        }
+
+        p.setProvince(validProvince.get());  // Save the valid province
         p.setCategory(category);
         Pricing savedp = pricingRepo.save(p);
         return modelMapper.map(savedp, PricingDto.class);
@@ -67,23 +84,39 @@ public class PricingServiceImpl implements PricingService {
     }
 
     @Override
-    public PricingDto updatePricing(PricingDto pricingDto, Integer pricingId, Integer categoryId) {
+    public PricingDto updatePricing(PricingDto pricingDto, Integer pricingId) {
         Pricing existingPricing = pricingRepo.findById(pricingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pricing", "id", pricingId));
 
-        Category category = categoryRepo.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+        Category category = categoryRepo.findById(pricingDto.getCategory().getCategoryId())
+				.orElseThrow(() -> new ResourceNotFoundException("Category", "category id", pricingDto.getCategory().getCategoryId()));
+	
+        // Normalize and Validate Province
+        String userProvince = pricingDto.getProvince().trim().toLowerCase();
+        Optional<String> validProvince = AppConstants.VALID_PROVINCES.stream()
+                .filter(province -> province.toLowerCase().startsWith(userProvince))
+                .findFirst();
+
+        if (validProvince.isEmpty()) {
+            throw new IllegalArgumentException("Invalid province: " + userProvince);
+        }
 
         // Update fields
-        existingPricing.setProvince(pricingDto.getProvince());
+        existingPricing.setProvince(validProvince.get());  // Save the standardized province
         existingPricing.setCategory(category);
         existingPricing.setBaseFare(pricingDto.getBaseFare());
         existingPricing.setPerKmRate(pricingDto.getPerKmRate());
-        existingPricing.setActive(pricingDto.isActive());
+
+     // Handle isActive attribute (default value is true)
+        Boolean isActive = pricingDto.isActive(); // ✅ must use getIsActive() for Boolean
+        existingPricing.setActive(isActive != null ? isActive : true); // default true if null
+
+
 
         Pricing updatedPricing = pricingRepo.save(existingPricing);
         return modelMapper.map(updatedPricing, PricingDto.class);
     }
+
 
     @Override
     public PricingDto getPricingById(Integer pricingId) {

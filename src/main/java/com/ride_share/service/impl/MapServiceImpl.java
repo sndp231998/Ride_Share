@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -60,41 +63,41 @@ public class MapServiceImpl implements MapService{
 	    }
 	    
 
-	    public String getCityName(double latitude, double longitude) throws Exception {
-	        String urlStr = "https://maps.googleapis.com/maps/api/geocode/json?latlng=en" + latitude + "," + longitude + "&key=" + GOOGLE_API_KEY;
-	      
-	        URL url = new URL(urlStr);
-	        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-	        conn.setRequestMethod("GET");
-	        
-	        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-	        String inputLine;
-	        StringBuilder response = new StringBuilder();
-	        
-	        while ((inputLine = in.readLine()) != null) {
-	            response.append(inputLine);
-	        }
-	        in.close();
-	        
-	        JSONObject jsonResponse = new JSONObject(response.toString());
-	        if ("OK".equals(jsonResponse.getString("status"))) {
-	            JSONArray results = jsonResponse.getJSONArray("results");
-	            if (results.length() > 0) {
-	                JSONObject addressComponents = results.getJSONObject(0);
-	                JSONArray components = addressComponents.getJSONArray("address_components");
-	                for (int i = 0; i < components.length(); i++) {
-	                    JSONObject component = components.getJSONObject(i);
-	                    JSONArray types = component.getJSONArray("types");
-	                    for (int j = 0; j < types.length(); j++) {
-	                        if ("locality".equals(types.getString(j))) {
-	                            return component.getString("long_name");
-	                        }
-	                    }
-	                }
-	            }
-	        }
-	        throw new Exception("City not found");
-	    }
+//	    public String getCityName(double latitude, double longitude) throws Exception {
+//	        String urlStr = "https://maps.googleapis.com/maps/api/geocode/json?latlng=en" + latitude + "," + longitude + "&key=" + GOOGLE_API_KEY;
+//	      
+//	        URL url = new URL(urlStr);
+//	        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//	        conn.setRequestMethod("GET");
+//	        
+//	        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+//	        String inputLine;
+//	        StringBuilder response = new StringBuilder();
+//	        
+//	        while ((inputLine = in.readLine()) != null) {
+//	            response.append(inputLine);
+//	        }
+//	        in.close();
+//	        
+//	        JSONObject jsonResponse = new JSONObject(response.toString());
+//	        if ("OK".equals(jsonResponse.getString("status"))) {
+//	            JSONArray results = jsonResponse.getJSONArray("results");
+//	            if (results.length() > 0) {
+//	                JSONObject addressComponents = results.getJSONObject(0);
+//	                JSONArray components = addressComponents.getJSONArray("address_components");
+//	                for (int i = 0; i < components.length(); i++) {
+//	                    JSONObject component = components.getJSONObject(i);
+//	                    JSONArray types = component.getJSONArray("types");
+//	                    for (int j = 0; j < types.length(); j++) {
+//	                        if ("locality".equals(types.getString(j))) {
+//	                            return component.getString("long_name");
+//	                        }
+//	                    }
+//	                }
+//	            }
+//	        }
+//	        throw new Exception("City not found");
+//	    }
 	    
 	    
 	    public String getState(double latitude, double longitude) throws Exception {
@@ -126,8 +129,58 @@ public class MapServiceImpl implements MapService{
 
 	        throw new Exception("State not found in the response.");
 	    }
-
-
 	    
-	    
-}
+	    public Map<String, String> getDistanceMatrixData(double sourceLat, double sourceLng, double destLat, double destLng) throws Exception {
+	        String origins = sourceLat + "," + sourceLng;
+	        String destinations = destLat + "," + destLng;
+	        String apiKey = "kasarw9wCZdbbpi9Trj7SZrwwSvxwczDiO2NUPtDGlwdvFiFyc32kzjhDfo5CeY8";
+	        
+	        String urlStr = "https://api.distancematrix.ai/maps/api/distancematrix/json?origins=" + URLEncoder.encode(origins, "UTF-8")
+	                + "&destinations=" + URLEncoder.encode(destinations, "UTF-8")
+	                + "&key=" + apiKey;
+
+	        URL url = new URL(urlStr);
+	        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+	        conn.setRequestMethod("GET");
+	        conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+
+	        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+	        StringBuilder response = new StringBuilder();
+	        String inputLine;
+	        while ((inputLine = in.readLine()) != null) {
+	            response.append(inputLine);
+	        }
+	        in.close();
+
+	        JSONObject jsonResponse = new JSONObject(response.toString());
+
+	        Map<String, String> resultMap = new HashMap<>();
+
+	        resultMap.put("originAddress", jsonResponse.getJSONArray("origin_addresses").getString(0));
+	        resultMap.put("destinationAddress", jsonResponse.getJSONArray("destination_addresses").getString(0));
+
+	        JSONObject element = jsonResponse.getJSONArray("rows")
+	                .getJSONObject(0)
+	                .getJSONArray("elements")
+	                .getJSONObject(0);
+
+	        resultMap.put("origin", element.getString("origin"));
+	        resultMap.put("destination", element.getString("destination"));
+	        resultMap.put("distanceText", element.getJSONObject("distance").getString("text"));
+	        resultMap.put("distanceValue", String.valueOf(element.getJSONObject("distance").getInt("value")));
+	        resultMap.put("durationText", element.getJSONObject("duration").getString("text"));
+	        resultMap.put("durationValue", String.valueOf(element.getJSONObject("duration").getInt("value")));
+
+	        return resultMap;
+	    }}
+//call garne tarika
+//Map<String, String> data = getDistanceMatrixData(
+//	    27.686284293110297, 85.41387816149667, // source lat, lng
+//	    27.715993329218495, 85.37965796635491  // destination lat, lng
+//	);
+//
+//	System.out.println("From: " + data.get("originAddress"));
+//	System.out.println("To: " + data.get("destinationAddress"));
+//	System.out.println("Distance: " + data.get("distanceText"));
+//	System.out.println("Duration: " + data.get("durationText"));
+
