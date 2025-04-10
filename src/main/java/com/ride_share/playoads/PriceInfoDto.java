@@ -8,8 +8,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PriceInfoDto {
-    private int totalKm;
+    private double totalKm;
     private double generatedPrice;
     private String state;
+    private double time;
 }
 

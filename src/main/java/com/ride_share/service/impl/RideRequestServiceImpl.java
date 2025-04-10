@@ -2,6 +2,7 @@ package com.ride_share.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,6 +22,7 @@ import com.ride_share.entities.User.UserMode;
 import com.ride_share.entities.Vehicle;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
+import com.ride_share.playoads.DistanceMatrixResponse;
 import com.ride_share.playoads.PriceInfoDto;
 import com.ride_share.playoads.RideInfoDto;
 import com.ride_share.playoads.RideRequestDto;
@@ -84,6 +86,33 @@ public class RideRequestServiceImpl implements RideRequestService {
             throw new ApiException("Please update your current location.");
         }
 
+      //Map<String, String> data = getDistanceMatrixData(
+//	    27.686284293110297, 85.41387816149667, // source lat, lng
+//	    27.715993329218495, 85.37965796635491  // destination lat, lng
+//	);
+        double distance = 0.0;
+        double duration = 0.0;
+
+        try {
+            DistanceMatrixResponse response = mapService.getDistanceMatrixData(
+                user.getCurrentLocation().getLatitude(),
+                user.getCurrentLocation().getLongitude(),
+                rideRequestDto.getD_latitude(),
+                rideRequestDto.getD_longitude()
+            );
+
+            distance = response.getDistance(); // already in km
+            duration = response.getDuration(); // already in minutes
+
+            System.out.println("Distance: " + distance + " km");
+            System.out.println("Duration: " + duration + " mins");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+       
+
         int distanceKm = mapService.getDistance(
                 user.getCurrentLocation().getLatitude(),
                 user.getCurrentLocation().getLongitude(),
@@ -108,9 +137,11 @@ public class RideRequestServiceImpl implements RideRequestService {
 
         logger.info("Pricing data fetched successfully: {}", pricing);
         
-        double generatedPrice = pricing.getBaseFare() + (pricing.getPerKmRate() * distanceKm);
+        logger.info("New Distance: {}", distance);
+        
+        double generatedPrice = pricing.getBaseFare() + (pricing.getPerKmRate() * distance);
 
-        return new PriceInfoDto(distanceKm, generatedPrice,province);
+        return new PriceInfoDto(distance, generatedPrice,province,duration);
     }
 
     

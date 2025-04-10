@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.ride_share.playoads.DistanceMatrixResponse;
 import com.ride_share.service.MapService;
 
 @Service
@@ -129,12 +130,14 @@ public class MapServiceImpl implements MapService{
 
 	        throw new Exception("State not found in the response.");
 	    }
-	    
-	    public Map<String, String> getDistanceMatrixData(double sourceLat, double sourceLng, double destLat, double destLng) throws Exception {
+	    //DistanceMatrixResponse getDistanceMatrixData(double sourceLat, double sourceLng, double destLat, double destLng) throws Exception;
+
+	    @Override
+	    public DistanceMatrixResponse getDistanceMatrixData(double sourceLat, double sourceLng, double destLat, double destLng) throws Exception {
 	        String origins = sourceLat + "," + sourceLng;
 	        String destinations = destLat + "," + destLng;
 	        String apiKey = "kasarw9wCZdbbpi9Trj7SZrwwSvxwczDiO2NUPtDGlwdvFiFyc32kzjhDfo5CeY8";
-	        
+
 	        String urlStr = "https://api.distancematrix.ai/maps/api/distancematrix/json?origins=" + URLEncoder.encode(origins, "UTF-8")
 	                + "&destinations=" + URLEncoder.encode(destinations, "UTF-8")
 	                + "&key=" + apiKey;
@@ -154,25 +157,30 @@ public class MapServiceImpl implements MapService{
 
 	        JSONObject jsonResponse = new JSONObject(response.toString());
 
-	        Map<String, String> resultMap = new HashMap<>();
-
-	        resultMap.put("originAddress", jsonResponse.getJSONArray("origin_addresses").getString(0));
-	        resultMap.put("destinationAddress", jsonResponse.getJSONArray("destination_addresses").getString(0));
+	        String originAddress = jsonResponse.getJSONArray("origin_addresses").getString(0);
+	        String destinationAddress = jsonResponse.getJSONArray("destination_addresses").getString(0);
 
 	        JSONObject element = jsonResponse.getJSONArray("rows")
 	                .getJSONObject(0)
 	                .getJSONArray("elements")
 	                .getJSONObject(0);
 
-	        resultMap.put("origin", element.getString("origin"));
-	        resultMap.put("destination", element.getString("destination"));
-	        resultMap.put("distanceText", element.getJSONObject("distance").getString("text"));
-	        resultMap.put("distanceValue", String.valueOf(element.getJSONObject("distance").getInt("value")));
-	        resultMap.put("durationText", element.getJSONObject("duration").getString("text"));
-	        resultMap.put("durationValue", String.valueOf(element.getJSONObject("duration").getInt("value")));
+	        String origin = originAddress;  // or element.getString("origin") if present
+	        String destination = destinationAddress; // or element.getString("destination") if present
 
-	        return resultMap;
-	    }}
+	        double distance = element.getJSONObject("distance").getDouble("value") / 1000.0;  // meters to km
+	        double duration = element.getJSONObject("duration").getDouble("value") / 60.0;    // seconds to minutes
+
+	        return new DistanceMatrixResponse(
+	                originAddress,
+	                destinationAddress,
+	                origin,
+	                destination,
+	                distance,
+	                duration
+	        );
+	    }
+}
 //call garne tarika
 //Map<String, String> data = getDistanceMatrixData(
 //	    27.686284293110297, 85.41387816149667, // source lat, lng
