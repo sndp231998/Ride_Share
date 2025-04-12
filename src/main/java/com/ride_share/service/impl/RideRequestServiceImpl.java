@@ -99,6 +99,9 @@ public class RideRequestServiceImpl implements RideRequestService {
         }
 
         double distancekm = 0.0;
+        String destinationAdd;
+        String sourceAdd;
+        
         try {
             DistanceMatrixResponse response = mapService.getDistanceMatrixData(
                 user.getCurrentLocation().getLatitude(),
@@ -108,7 +111,8 @@ public class RideRequestServiceImpl implements RideRequestService {
             );
 
             distancekm = response.getDistanceKm();
-            
+           sourceAdd= response.getOriginAddress();
+            destinationAdd=response.getDestinationAddress();
     
         } catch (Exception e) {
             throw new ApiException("Failed to calculate distance: " + e.getMessage());
@@ -137,10 +141,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         double basefare=pricing.getBaseFare();
         
         double generatedPrice = basefare + (perkm * distancekm);
-        	//rideRequestDto.setGeneratedPrice(generatedPrice);
-
-        	// Ensure the price falls within the acceptable range
-            
+        	
         	//user bata pani price line
         	double givenPrice=0.0;
         		//usser bata user ko pn price same attribute me line
@@ -167,6 +168,8 @@ public class RideRequestServiceImpl implements RideRequestService {
          rideRequest.setD_longitude(rideRequestDto.getD_longitude());
         rideRequest.setActualPrice(givenPrice);
     rideRequest.setTotal_Km(distancekm);
+    rideRequest.setD_Name(destinationAdd);
+    rideRequest.setS_Name(sourceAdd);
         //------------yo source-saved----------------------
        
         rideRequest.setS_latitude(user.getCurrentLocation().getLatitude());
@@ -205,10 +208,6 @@ public class RideRequestServiceImpl implements RideRequestService {
             throw new ApiException("Please update your current location.");
         }
 
-      //Map<String, String> data = getDistanceMatrixData(
-//	    27.686284293110297, 85.41387816149667, // source lat, lng
-//	    27.715993329218495, 85.37965796635491  // destination lat, lng
-//	);
         double distance = 0.0;
         double duration = 0.0;
 
@@ -232,13 +231,6 @@ public class RideRequestServiceImpl implements RideRequestService {
         }
 
        
-
-        int distanceKm = mapService.getDistance(
-                user.getCurrentLocation().getLatitude(),
-                user.getCurrentLocation().getLongitude(),
-                rideRequestDto.getD_latitude(),
-                rideRequestDto.getD_longitude()
-        );
      // Determine the state (province) based on user's current location
         String province;
         try {
@@ -296,21 +288,53 @@ public class RideRequestServiceImpl implements RideRequestService {
         throw new ApiException("Please update your current location.");
     }
 
-    int pickupDistance = mapService.getDistance(
-            user.getCurrentLocation().getLatitude(),
-            user.getCurrentLocation().getLongitude(),
-            rideRequest.getD_latitude(),
-            rideRequest.getD_longitude()
-    );
-        
-    int dropDistance=mapService.getDistance(
-    		rideRequest.getS_latitude(),
-    		rideRequest.getS_longitude(), 
-    		rideRequest.getD_latitude(),
-    		rideRequest.getD_longitude());
     
+    double pickupDistance = 0.0;
+    double pickupDuration = 0.0;
+
+    try {
+        DistanceMatrixResponse response = mapService.getDistanceMatrixData(
+        		user.getCurrentLocation().getLatitude(),
+                user.getCurrentLocation().getLongitude(),
+                rideRequest.getD_latitude(),
+                rideRequest.getD_longitude()
+        );
+
+        pickupDistance= response.getDistanceKm();
+        //distance = response.getDistance(); // already in km
+        pickupDistance = response.getDurationMin(); // already in minutes
+
+        System.out.println("Distance: " + pickupDistance + " km");
+        System.out.println("Duration: " + pickupDuration + " mins");
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
     
-   	return new RideInfoDto(pickupDistance,dropDistance);
+    double dropDistance = 0.0;
+    double dropDuration = 0.0;
+
+    try {
+        DistanceMatrixResponse response = mapService.getDistanceMatrixData(
+        		rideRequest.getS_latitude(),
+        		rideRequest.getS_longitude(), 
+        		rideRequest.getD_latitude(),
+        		rideRequest.getD_longitude()
+        );
+
+        dropDistance= response.getDistanceKm();
+        //distance = response.getDistance(); // already in km
+        dropDuration= response.getDurationMin(); // already in minutes
+
+        System.out.println("Distance: " + dropDistance + " km");
+        System.out.println("Duration: " + dropDuration + " mins");
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+ 
+    
+   	return new RideInfoDto(pickupDistance,pickupDuration,dropDistance,dropDuration);
    	
    	
    }

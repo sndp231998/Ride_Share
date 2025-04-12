@@ -11,5 +11,7 @@ public class RideInfoDto {
 
 	    
 	    private double pickupDistance;
+	    private double pickupDuration;
 	    private double dropDistance;
+	    private double dropDuration;
 }

@@ -42,10 +42,10 @@ public class RideRequest {
 //	    private Destination_Coordinates destination;
 	private double d_latitude;
     private double d_longitude;
-	 
+	private String d_Name;
     private double s_latitude;
     private double s_longitude;
-	    
+	private String s_Name;
 	private double replacePessengerPrice=0;
 	private double total_Km;
 	private LocalDateTime addedDate;

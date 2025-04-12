@@ -23,9 +23,10 @@ public class RideRequestDto {
 	
 	private double d_latitude;
     private double d_longitude;
-    
+    private String d_Name;
     private double s_latitude;
     private double s_longitude;
+    private String s_Name;
     private double total_Km;
     
 	private LocalDateTime addedDate;

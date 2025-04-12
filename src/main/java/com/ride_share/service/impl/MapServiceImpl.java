@@ -5,84 +5,27 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.springframework.core.env.Environment;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+
 
 import com.ride_share.playoads.DistanceMatrixResponse;
 import com.ride_share.service.MapService;
 
-import lombok.Value;
-
 
 @Service
 public class MapServiceImpl implements MapService {
+	private final Environment environment;
 
-	   @Value("${google.api.key}")
-	    private String GOOGLE_API_KEY;
-
-    @Override
-    public String getDistanceAndTime(double sourceLat, double sourceLng, double destLat, double destLng) {
-        String url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins="
-                + sourceLat + "," + sourceLng +
-                "&destinations=" + destLat + "," + destLng +
-                "&key=" + GOOGLE_API_KEY;
-
-        RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.getForObject(url, String.class);
+    public MapServiceImpl(Environment environment) {
+        this.environment = environment;
     }
 
-    @Override
-    public int getDistance(double sourceLat, double sourceLng, double destLat, double destLng) {
-        final int EARTH_RADIUS = 6371;
 
-        double sourceLatRad = Math.toRadians(sourceLat);
-        double sourceLngRad = Math.toRadians(sourceLng);
-        double destLatRad = Math.toRadians(destLat);
-        double destLngRad = Math.toRadians(destLng);
-
-        double latDifference = destLatRad - sourceLatRad;
-        double lngDifference = destLngRad - sourceLngRad;
-
-        double a = Math.sin(latDifference / 2) * Math.sin(latDifference / 2)
-                + Math.cos(sourceLatRad) * Math.cos(destLatRad)
-                * Math.sin(lngDifference / 2) * Math.sin(lngDifference / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        return (int) Math.round(EARTH_RADIUS * c);
-    }
-
-    public String getState(double latitude, double longitude) throws Exception {
-        String urlStr = "https://nominatim.openstreetmap.org/reverse?format=json&accept-language=en&lat=" + latitude + "&lon=" + longitude;
-
-        URL url = new URL(urlStr);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-        conn.setRequestProperty("User-Agent", "Mozilla/5.0");
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        StringBuilder response = new StringBuilder();
-        String inputLine;
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-
-        JSONObject jsonResponse = new JSONObject(response.toString());
-
-        if (jsonResponse.has("address")) {
-            JSONObject address = jsonResponse.getJSONObject("address");
-            if (address.has("state")) {
-                return address.getString("state");
-            }
-        }
-
-        throw new Exception("State not found in the response.");
-    }
 
     @Override
     public DistanceMatrixResponse getDistanceMatrixData(double sourceLat, double sourceLng, double destLat, double destLng) throws Exception {
@@ -90,8 +33,8 @@ public class MapServiceImpl implements MapService {
         String destinations = destLat + "," + destLng;
 
         String urlStr = "https://maps.googleapis.com/maps/api/directions/json?origin=" + URLEncoder.encode(origins, "UTF-8")
-                + "&destination=" + URLEncoder.encode(destinations, "UTF-8")
-                + "&key=" + GOOGLE_API_KEY;
+        + "&destination=" + URLEncoder.encode(destinations, "UTF-8")
+        + "&key=" + environment.getProperty("google.api.key");  // Corrected here
 
         URL url = new URL(urlStr);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -131,10 +74,50 @@ public class MapServiceImpl implements MapService {
                 durationMin
         );
     }
-}
 
 
+   
+    public String getState(double latitude, double longitude) throws Exception {
+        String urlStr = "https://nominatim.openstreetmap.org/reverse?format=json&accept-language=en&lat=" + latitude + "&lon=" + longitude;
 
+        URL url = new URL(urlStr);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        StringBuilder response = new StringBuilder();
+        String inputLine;
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+
+        JSONObject jsonResponse = new JSONObject(response.toString());
+
+        if (jsonResponse.has("address")) {
+            JSONObject address = jsonResponse.getJSONObject("address");
+            if (address.has("state")) {
+                return address.getString("state");
+            }
+        }
+
+        throw new Exception("State not found in the response.");
+    }
+
+    }
+
+//  @Override
+//  public String getDistanceAndTime(double sourceLat, double sourceLng, double destLat, double destLng) {
+//      String url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins="
+//              + sourceLat + "," + sourceLng +
+//              "&destinations=" + destLat + "," + destLng +
+//              "&key=" + GOOGLE_API_KEY;
+//
+//      RestTemplate restTemplate = new RestTemplate();
+//      return restTemplate.getForObject(url, String.class);
+//  }
+  
 
 
 //DistanceMatrixResponse getDistanceMatrixData(double sourceLat, double sourceLng, double destLat, double destLng) throws Exception;
