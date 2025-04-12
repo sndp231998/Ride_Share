@@ -70,6 +70,125 @@ public class RideRequestServiceImpl implements RideRequestService {
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     // Existing methods (create, update, delete, get, etc.)
     
+    
+    @Override
+    public RideRequestDto createRideRequest(RideRequestDto rideRequestDto, Integer userId,Integer categoryId) {
+        // Fetch user details
+        User user = userRepo.findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userId));
+
+        Category category = this.categoryRepo.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "category id ", categoryId));
+
+        
+        // Ensure user is in PASSENGER mode
+        if (user.getModes() != User.UserMode.PESSENGER) {
+            throw new ApiException("User must be in PESSENGER mode to create a ride request.");
+        }
+     // Check if the user has a current location
+       // Location currentLocation = user.getCurrentLocation();
+        if (user.getCurrentLocation() == null) {
+            throw new ApiException("User's current location is not set.");
+        }
+        LocalDateTime locationTime=user.getCurrentLocation().getTimestamp();
+        LocalDateTime currentTime = LocalDateTime.now();
+
+        // Check if the location is stale
+        if (locationTime == null || locationTime.isBefore(currentTime.minusMinutes(59))) {
+            throw new ApiException(" Please update your current location.");
+        }
+
+        double distancekm = 0.0;
+        try {
+            DistanceMatrixResponse response = mapService.getDistanceMatrixData(
+                user.getCurrentLocation().getLatitude(),
+                user.getCurrentLocation().getLongitude(),
+                rideRequestDto.getD_latitude(),
+                rideRequestDto.getD_longitude()
+            );
+
+            distancekm = response.getDistanceKm();
+            
+    
+        } catch (Exception e) {
+            throw new ApiException("Failed to calculate distance: " + e.getMessage());
+        }
+       
+   
+
+        // Determine the state (province) based on user's current location
+        String province;
+        try {
+            province = mapServiceImpl.getState(
+                    user.getCurrentLocation().getLatitude(),
+                    user.getCurrentLocation().getLongitude()
+            );
+        } catch (Exception e) {
+            throw new ApiException("Error determining city.");
+        }
+
+       // logger.info("Fetching pricing data for province: {} and category ID: {}", province, categoryId);
+        // Fetch pricing data based on province and category
+        Pricing pricing = pricingRepo.findByProvinceAndCategory_CategoryId(province, categoryId)
+                .orElseThrow(() -> new ApiException("Pricing not available for the given province and category."));
+
+        //logger.info("Pricing data fetched successfully: {}", pricing);
+        double perkm=pricing.getPerKmRate();
+        double basefare=pricing.getBaseFare();
+        
+        double generatedPrice = basefare + (perkm * distancekm);
+        	//rideRequestDto.setGeneratedPrice(generatedPrice);
+
+        	// Ensure the price falls within the acceptable range
+            
+        	//user bata pani price line
+        	double givenPrice=0.0;
+        		//usser bata user ko pn price same attribute me line
+        	givenPrice= rideRequestDto.getActualPrice();
+        	if (givenPrice == 0.0) {
+        		//do nothing
+        	    // If user did not give price, set actualPrice = generatedPrice
+        	    //rideRequestDto.setActualPrice(generatedPrice);
+        		rideRequestDto.setActualPrice(generatedPrice); 
+        	}else if (givenPrice < generatedPrice || givenPrice > generatedPrice + 50) {
+                throw new ApiException("Recommend price:"+generatedPrice);
+            } else {
+                rideRequestDto.setActualPrice(givenPrice); // use user-given price
+            }
+             // Create a new RideRequest
+         RideRequest rideRequest = new RideRequest();
+
+         logger.debug("Setting Destination Coordinates: Latitude={}, Longitude={}", 
+                 rideRequestDto.getD_latitude(), 
+                 rideRequestDto.getD_longitude());
+
+      // destination --saved
+         rideRequest.setD_latitude(rideRequestDto.getD_latitude());
+         rideRequest.setD_longitude(rideRequestDto.getD_longitude());
+        rideRequest.setActualPrice(givenPrice);
+    rideRequest.setTotal_Km(distancekm);
+        //------------yo source-saved----------------------
+       
+        rideRequest.setS_latitude(user.getCurrentLocation().getLatitude());
+        rideRequest.setS_longitude(user.getCurrentLocation().getLongitude());
+        //source.setTimestamp(LocalDateTime.now());
+        
+       rideRequest.setAddedDate(LocalDateTime.now());
+        rideRequest.setStatus(RideRequest.RideStatus.PENDING);
+        rideRequest.setUser(user); // Link the ride request to the user
+        rideRequest.setCategory(category);
+        // Save the ride request
+        RideRequest savedRideReq = rideRequestRepo.save(rideRequest);
+        
+        // Send WebSocket notification
+        webSocketController.sendRideStatusUpdate(savedRideReq);
+
+        return modelMapper.map(savedRideReq, RideRequestDto.class);
+    }
+    
+    
+    
+    
     @Override
     public PriceInfoDto determinePrice(RideRequestDto rideRequestDto, Integer userId, Integer categoryId) {
         User user = userRepo.findById(userId)
@@ -101,8 +220,9 @@ public class RideRequestServiceImpl implements RideRequestService {
                 rideRequestDto.getD_longitude()
             );
 
-            distance = response.getDistance(); // already in km
-            duration = response.getDuration(); // already in minutes
+           distance= response.getDistanceKm();
+            //distance = response.getDistance(); // already in km
+            duration = response.getDurationMin(); // already in minutes
 
             System.out.println("Distance: " + distance + " km");
             System.out.println("Duration: " + duration + " mins");
@@ -196,115 +316,9 @@ public class RideRequestServiceImpl implements RideRequestService {
    }
 //    
 //    
-    @Override
-    public RideRequestDto createRideRequest(RideRequestDto rideRequestDto, Integer userId,Integer categoryId) {
-        // Fetch user details
-        User user = userRepo.findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userId));
-
-        Category category = this.categoryRepo.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "category id ", categoryId));
-
-        
-        // Ensure user is in PASSENGER mode
-        if (user.getModes() != User.UserMode.PESSENGER) {
-            throw new ApiException("User must be in PESSENGER mode to create a ride request.");
-        }
-     // Check if the user has a current location
-       // Location currentLocation = user.getCurrentLocation();
-        if (user.getCurrentLocation() == null) {
-            throw new ApiException("User's current location is not set.");
-        }
-        LocalDateTime locationTime=user.getCurrentLocation().getTimestamp();
-        LocalDateTime currentTime = LocalDateTime.now();
-
-        // Check if the location is stale
-        if (locationTime == null || locationTime.isBefore(currentTime.minusMinutes(59))) {
-            throw new ApiException(" Please update your current location.");
-        }
-        
-     // Fetch distance using MapService
-        int distanceKm = mapService.getDistance(
-                user.getCurrentLocation().getLatitude(),
-                user.getCurrentLocation().getLongitude(),
-                rideRequestDto.getD_latitude(),
-                rideRequestDto.getD_longitude()
-                
-        );
-
-        System.out.println("The distance is " + distanceKm + " km");
-
-        // Determine the state (province) based on user's current location
-        String province;
-        try {
-            province = mapServiceImpl.getState(
-                    user.getCurrentLocation().getLatitude(),
-                    user.getCurrentLocation().getLongitude()
-            );
-        } catch (Exception e) {
-            throw new ApiException("Error determining city.");
-        }
-
-       // logger.info("Fetching pricing data for province: {} and category ID: {}", province, categoryId);
-        // Fetch pricing data based on province and category
-        Pricing pricing = pricingRepo.findByProvinceAndCategory_CategoryId(province, categoryId)
-                .orElseThrow(() -> new ApiException("Pricing not available for the given province and category."));
-
-        //logger.info("Pricing data fetched successfully: {}", pricing);
-        double perkm=pricing.getPerKmRate();
-        double basefare=pricing.getBaseFare();
-        
-        double generatedPrice = basefare + (perkm * distanceKm);
-        	//rideRequestDto.setGeneratedPrice(generatedPrice);
-
-        	// Ensure the price falls within the acceptable range
-            
-        	//user bata pani price line
-        	double givenPrice=0.0;
-        		//usser bata user ko pn price same attribute me line
-        	givenPrice= rideRequestDto.getActualPrice();
-        	if (givenPrice == 0.0) {
-        		//do nothing
-        	    // If user did not give price, set actualPrice = generatedPrice
-        	    //rideRequestDto.setActualPrice(generatedPrice);
-        		rideRequestDto.setActualPrice(generatedPrice); 
-        	}else if (givenPrice < generatedPrice || givenPrice > generatedPrice + 50) {
-                throw new ApiException("Recommend price:"+generatedPrice);
-            } else {
-                rideRequestDto.setActualPrice(givenPrice); // use user-given price
-            }
-             // Create a new RideRequest
-         RideRequest rideRequest = new RideRequest();
-
-         logger.debug("Setting Destination Coordinates: Latitude={}, Longitude={}", 
-                 rideRequestDto.getD_latitude(), 
-                 rideRequestDto.getD_longitude());
-
-      // destination --saved
-         rideRequest.setD_latitude(rideRequestDto.getD_latitude());
-         rideRequest.setD_longitude(rideRequestDto.getD_longitude());
-        rideRequest.setActualPrice(givenPrice);
-    rideRequest.setTotal_Km(distanceKm);
-        //------------yo source-saved----------------------
-       
-        rideRequest.setS_latitude(user.getCurrentLocation().getLatitude());
-        rideRequest.setS_longitude(user.getCurrentLocation().getLongitude());
-        //source.setTimestamp(LocalDateTime.now());
-        
-       rideRequest.setAddedDate(LocalDateTime.now());
-        rideRequest.setStatus(RideRequest.RideStatus.PENDING);
-        rideRequest.setUser(user); // Link the ride request to the user
-        rideRequest.setCategory(category);
-        // Save the ride request
-        RideRequest savedRideReq = rideRequestRepo.save(rideRequest);
-        
-        // Send WebSocket notification
-        webSocketController.sendRideStatusUpdate(savedRideReq);
-
-        return modelMapper.map(savedRideReq, RideRequestDto.class);
-    }
     
-
+    
+    
 
     @Override
     public RideRequestDto updateRideRequest(RideRequestDto rideRequestDto, Integer rideRequestId) {

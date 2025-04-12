@@ -25,8 +25,7 @@ import com.ride_share.service.OtpRequestService;
 public class OtpRequestServiceImpl implements OtpRequestService {
     private static final Logger logger = LoggerFactory.getLogger(OtpRequestServiceImpl.class);
 
-    @Autowired
-    private ModelMapper modelMapper;
+  
 
     @Autowired
     private OtpRequestRepo otpRequestRepo;
@@ -47,39 +46,47 @@ public class OtpRequestServiceImpl implements OtpRequestService {
     }
   
     public void sendOtpSms(String mobileNo, String otp) {
-        String url = String.format("%s?auth_token=%s&to=%s&text=Dear valuable Customer, OTP for Tufan is : %s"
-        		+ "Thank you for choosing us! "
-        		+ "Tufan",
-                SMS_API_URL, SMS_API_TOKEN, mobileNo, otp);
+        try {
+            String url = String.format("%s?auth_token=%s&to=%s&text=Dear valuable Customer, OTP for Tuffan is : %s Thank you for choosing us! Tufan",
+                    SMS_API_URL, SMS_API_TOKEN, mobileNo, otp);
 
-        logger.info("Sending OTP to mobile number: {}", mobileNo);
-        logger.info("Generated OTP: {}", otp);
-        logger.info("Final URL: {}", url);
+            logger.info("Sending OTP to mobile number: {}", mobileNo);
+            logger.info("Generated OTP: {}", otp);
+            logger.info("Final URL: {}", url);
 
-        String response = restTemplate.getForObject(url, String.class);
-        logger.info("Response from SMS API: {}", response);
+            String response = restTemplate.getForObject(url, String.class);
+            logger.info("Response from SMS API: {}", response);
+        } catch (Exception e) {
+            logger.error("Failed to send OTP to {}", mobileNo, e);
+            throw new RuntimeException("OTP pathauna milena, kripaya feri kosis garnuhos!");
+        }
     }
 
     
     
     @Override
     public void sendMessage(String mobileNo, String message) {
-        String url = String.format("%s?auth_token=%s&to=%s&text=%s",
-                SMS_API_URL, SMS_API_TOKEN, mobileNo, message);
+        try {
+            String url = String.format("%s?auth_token=%s&to=%s&text=%s",
+                    SMS_API_URL, SMS_API_TOKEN, mobileNo, message);
 
-        logger.info("Sending message to mobile number: {}", mobileNo);
-        logger.info("Message: {}", message);
-        logger.info("Final URL: {}", url);
+            logger.info("Sending message to mobile number: {}", mobileNo);
+            logger.info("Message: {}", message);
+            logger.info("Final URL: {}", url);
 
-        String response = restTemplate.getForObject(url, String.class);
-        logger.info("Response from SMS API: {}", response);
+            String response = restTemplate.getForObject(url, String.class);
+            logger.info("Response from SMS API: {}", response);
+        } catch (Exception e) {
+            logger.error("Failed to send message to {}", mobileNo, e);
+            throw new RuntimeException("SMS pathauna samasya aayo!");
+        }
     }
-    
+
     
     
     @Override
     public OtpRequest createOtp(OtpRequest otpReq) {
-        if (otpReq.getMobileNo() == null || otpReq.getMobileNo().isEmpty()) {
+        if (otpReq.getMobileNo() == null || otpReq.getMobileNo().isEmpty()){
             throw new IllegalArgumentException("Phone number is required");
         }
         SendOtp(otpReq, otpReq.getMobileNo());

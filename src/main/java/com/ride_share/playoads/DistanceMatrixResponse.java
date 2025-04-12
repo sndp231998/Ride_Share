@@ -8,12 +8,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class DistanceMatrixResponse {
-
-	 private String originAddress;
-	    private String destinationAddress;
-	    private String origin;
-	    private String destination;
-	    private double distance;   // in km
-	    private double duration;   // in minutes
-	    
+	  private String originAddress;      // source name
+	    private String destinationAddress; // destination name
+	    private double distanceKm;         // in kilometers (e.g. 8.6)
+	    private double durationMin;        // in minutes (e.g. 23.0)
 }
+
+
+

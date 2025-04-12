@@ -215,7 +215,7 @@ public class UserServiceImpl implements UserService {
 	        User newUser = this.userRepo.save(user);
 	        
 	        String welcomeMessage = String.format("Welcome, %s! We're excited to have you on our Ride-Share. Dive in and enjoy the journey ahead! "
-	        		+ "Thank you for choosing us, Tufan", user.getName());
+	        		+ "Thank you for choosing us, Tuffan", user.getName());
 	        sendmsg.sendMessage(user.getMobileNo(), welcomeMessage); // Assuming notificationService sends SMS
 
 	     // Create in-app notification

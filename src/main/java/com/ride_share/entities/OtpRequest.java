@@ -19,6 +19,7 @@ public class OtpRequest {
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer Id;
+	
     private String mobileNo;
     private String otp;
    private  LocalDateTime OtpValidUntil;

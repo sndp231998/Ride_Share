@@ -132,14 +132,66 @@ public class MapServiceImpl implements MapService{
 	    }
 	    //DistanceMatrixResponse getDistanceMatrixData(double sourceLat, double sourceLng, double destLat, double destLng) throws Exception;
 
+//	    @Override
+//	    public DistanceMatrixResponse getDistanceMatrixData(double sourceLat, double sourceLng, double destLat, double destLng) throws Exception {
+//	        String origins = sourceLat + "," + sourceLng;
+//	        String destinations = destLat + "," + destLng;
+//	        String apiKey = "kasarw9wCZdbbpi9Trj7SZrwwSvxwczDiO2NUPtDGlwdvFiFyc32kzjhDfo5CeY8";
+//
+//	        String urlStr = "https://api.distancematrix.ai/maps/api/distancematrix/json?origins=" + URLEncoder.encode(origins, "UTF-8")
+//	                + "&destinations=" + URLEncoder.encode(destinations, "UTF-8")
+//	                + "&key=" + apiKey;
+//
+//	        URL url = new URL(urlStr);
+//	        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//	        conn.setRequestMethod("GET");
+//	        conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+//
+//	        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+//	        StringBuilder response = new StringBuilder();
+//	        String inputLine;
+//	        while ((inputLine = in.readLine()) != null) {
+//	            response.append(inputLine);
+//	        }
+//	        in.close();
+//
+//	        JSONObject jsonResponse = new JSONObject(response.toString());
+//
+//	        String originAddress = jsonResponse.getJSONArray("origin_addresses").getString(0);
+//	        String destinationAddress = jsonResponse.getJSONArray("destination_addresses").getString(0);
+//
+//	        JSONObject element = jsonResponse.getJSONArray("rows")
+//	                .getJSONObject(0)
+//	                .getJSONArray("elements")
+//	                .getJSONObject(0);
+//
+//	        String origin = originAddress;  // or element.getString("origin") if present
+//	        String destination = destinationAddress; // or element.getString("destination") if present
+//
+//	        double distance = element.getJSONObject("distance").getDouble("value") / 1000.0;  // meters to km
+//	        double duration = element.getJSONObject("duration").getDouble("value") / 60.0;    // seconds to minutes
+//
+//	        return new DistanceMatrixResponse(
+//	                originAddress,
+//	                destinationAddress,
+//	                origin,
+//	                destination,
+//	                distance,
+//	                duration
+//	        );
+//	    }
+	    
+	   // https://maps.googleapis.com/maps/api/directions/json?origin=27.686246107892664,85.41398706592108&destination=27.71599805854803,85.37976128237251&key=AIzaSyAXs9F40dZwRZVioQJiXw4S82ZQ5dWFaXw
+	    
+	    
 	    @Override
 	    public DistanceMatrixResponse getDistanceMatrixData(double sourceLat, double sourceLng, double destLat, double destLng) throws Exception {
 	        String origins = sourceLat + "," + sourceLng;
 	        String destinations = destLat + "," + destLng;
-	        String apiKey = "kasarw9wCZdbbpi9Trj7SZrwwSvxwczDiO2NUPtDGlwdvFiFyc32kzjhDfo5CeY8";
+	        String apiKey = "AIzaSyAXs9F40dZwRZVioQJiXw4S82ZQ5dWFaXw";
 
-	        String urlStr = "https://api.distancematrix.ai/maps/api/distancematrix/json?origins=" + URLEncoder.encode(origins, "UTF-8")
-	                + "&destinations=" + URLEncoder.encode(destinations, "UTF-8")
+	        String urlStr = "https://maps.googleapis.com/maps/api/directions/json?origin=" + URLEncoder.encode(origins, "UTF-8")
+	                + "&destination=" + URLEncoder.encode(destinations, "UTF-8")
 	                + "&key=" + apiKey;
 
 	        URL url = new URL(urlStr);
@@ -157,29 +209,35 @@ public class MapServiceImpl implements MapService{
 
 	        JSONObject jsonResponse = new JSONObject(response.toString());
 
-	        String originAddress = jsonResponse.getJSONArray("origin_addresses").getString(0);
-	        String destinationAddress = jsonResponse.getJSONArray("destination_addresses").getString(0);
+	        JSONArray routes = jsonResponse.getJSONArray("routes");
+	        if (routes.length() == 0) {
+	            throw new Exception("No routes found.");
+	        }
 
-	        JSONObject element = jsonResponse.getJSONArray("rows")
-	                .getJSONObject(0)
-	                .getJSONArray("elements")
-	                .getJSONObject(0);
+	        JSONObject leg = routes.getJSONObject(0).getJSONArray("legs").getJSONObject(0);
 
-	        String origin = originAddress;  // or element.getString("origin") if present
-	        String destination = destinationAddress; // or element.getString("destination") if present
+	        String originAddress = leg.getString("start_address");
+	        String destinationAddress = leg.getString("end_address");
 
-	        double distance = element.getJSONObject("distance").getDouble("value") / 1000.0;  // meters to km
-	        double duration = element.getJSONObject("duration").getDouble("value") / 60.0;    // seconds to minutes
+	        JSONObject distanceObj = leg.getJSONObject("distance");
+	        JSONObject durationObj = leg.getJSONObject("duration");
+
+	        double distanceKm = distanceObj.getDouble("value") / 1000.0;      // meter to km
+	        double durationMin = durationObj.getDouble("value") / 60.0;       // sec to min
 
 	        return new DistanceMatrixResponse(
-	                originAddress,
-	                destinationAddress,
-	                origin,
-	                destination,
-	                distance,
-	                duration
+	            originAddress,
+	            destinationAddress,
+	            distanceKm,
+	            durationMin
 	        );
-	    }
+
+
+	    
+	    
+	    
+
+	    }  
 }
 //call garne tarika
 //Map<String, String> data = getDistanceMatrixData(

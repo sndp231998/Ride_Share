@@ -18,6 +18,8 @@ public class AppConstants {
 	public static final Integer DAMAK_BRANCH=601;
 	public static final Integer KATHMANDU_BRANCH=602;
 	
+	
+	
 	public static final List<String> VALID_PROVINCES = Arrays.asList(
 	        "Koshi Province",
 	        "Madhesh Province",
