@@ -16,8 +16,6 @@ import com.ride_share.entities.Role;
 import com.ride_share.repositories.BranchRepo;
 import com.ride_share.repositories.RoleRepo;
 
-
-
 @SpringBootApplication
 public class RideShareApplication implements CommandLineRunner{
 
