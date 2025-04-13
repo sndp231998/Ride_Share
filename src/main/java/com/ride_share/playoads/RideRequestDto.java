@@ -7,11 +7,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class RideRequestDto {
 
 	@Id
@@ -28,10 +29,10 @@ public class RideRequestDto {
     private double s_longitude;
     private String s_Name;
     private double total_Km;
-    
+    private int approvedriderId;
 	private LocalDateTime addedDate;
     private UserDto user;
-    private double replacePessengerPrice=0;
+    private double replacePessengerPrice=0.0;
     private double generatedPrice;
 // // Users
 //    private UserDto requestedByUser; // The one who created the request

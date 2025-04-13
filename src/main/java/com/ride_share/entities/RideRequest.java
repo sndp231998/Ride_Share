@@ -20,14 +20,14 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
-
-
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class RideRequest {
 
 	@Id
@@ -46,7 +46,7 @@ public class RideRequest {
     private double s_latitude;
     private double s_longitude;
 	private String s_Name;
-	private double replacePessengerPrice=0;
+	private double replacePessengerPrice=0.0;
 	private double total_Km;
 	private LocalDateTime addedDate;
 	@ManyToOne
@@ -65,7 +65,7 @@ public class RideRequest {
     )
     private Set<User> Reqriders = new HashSet<>(); // Riders who have sent requests
 	
-	
+	private int approvedriderId;
 	 @Enumerated(EnumType.STRING)
 	    private RideStatus status;
 	    

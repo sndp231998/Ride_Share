@@ -1,15 +1,26 @@
 package com.ride_share.playoads;
 
+import java.time.LocalDateTime;
+
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.ride_share.entities.RideRequest;
+import com.ride_share.entities.User;
+import com.ride_share.entities.RideRequest.RideStatus;
+import com.ride_share.entities.RiderApprovalRequest.ApprovedStatus;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class RiderApprovalRequestDto {
 
 	 @Id
@@ -23,7 +34,9 @@ public class RiderApprovalRequestDto {
 	  private RideRequestDto rideRequest;
 	  
 	  private double proposed_price;
-	  
-	  private Boolean isAcceptedByPassenger;
-	  
+	  private ApprovedStatus status;
+	  private LocalDateTime addedDate;
+
+
+
 }
