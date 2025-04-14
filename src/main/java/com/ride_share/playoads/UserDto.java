@@ -10,8 +10,7 @@ import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-
-
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -33,7 +32,7 @@ public class UserDto {
 	private String email;
 	
 	 
-	 
+	  @Schema(hidden = true)
 	 private ManagerAddress managerAddress;
 	 
 	@NotEmpty(message="Mobile num is required !!")
@@ -44,7 +43,7 @@ public class UserDto {
 	private String password;
 
 	private String imageName;
-	
+	  @Schema(hidden = true)
 	private String  otp;
 	 private String balance;
 	private String branch_Name;
