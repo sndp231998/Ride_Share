@@ -23,9 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 
-@Table(
-	    uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "ride_request_id"})
-	)
+
 
 public class RiderApprovalRequest {
 	 @Id
@@ -37,8 +35,10 @@ public class RiderApprovalRequest {
 	    private User user;
 	  
 	  @ManyToOne
-	  @JoinColumn(name="rideRequestId")
-	  private RideRequest rideRequest;
+	    @JoinColumn(name = "ride_request_id") // Fixed column name
+	    private RideRequest rideRequest;
+	  
+	  
 	  
 	  private double proposed_price;
 	 
@@ -53,3 +53,9 @@ public class RiderApprovalRequest {
 	    private LocalDateTime addedDate;
 	  
 }
+
+
+
+//@Table(
+//	    uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "ride_request_id"})
+//	)

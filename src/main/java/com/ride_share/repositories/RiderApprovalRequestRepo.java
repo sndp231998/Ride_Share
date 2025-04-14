@@ -8,12 +8,11 @@ import com.ride_share.entities.RideRequest;
 import com.ride_share.entities.RiderApprovalRequest;
 import com.ride_share.entities.User;
 
-public interface RiderApprovalRequestRepo extends JpaRepository<RiderApprovalRequest, Integer>{
+public interface RiderApprovalRequestRepo extends JpaRepository<RiderApprovalRequest, Integer> {
 
-	Optional<RiderApprovalRequest> findByUserAndRideRequest(User user, RideRequest rideRequest);
+    Optional<RiderApprovalRequest> findByRideRequestRideRequestIdAndUserId(Integer rideRequestId, Integer userId);
 
-	Optional<RiderApprovalRequest> findByRideRequestIdAndRiderId(Integer rideRequestId, Integer userId);
-
-	Optional<RiderApprovalRequest> findByRideRequestIdAndUserId(Integer rideRequestId, Integer userId);
-
+    Optional<RiderApprovalRequest> findByUserAndRideRequest(User user, RideRequest rideRequest);
 }
+
+

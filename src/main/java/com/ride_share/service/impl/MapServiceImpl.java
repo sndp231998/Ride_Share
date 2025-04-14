@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 
 import org.json.JSONArray;
@@ -19,11 +20,9 @@ import com.ride_share.service.MapService;
 
 @Service
 public class MapServiceImpl implements MapService {
-	private final Environment environment;
 
-    public MapServiceImpl(Environment environment) {
-        this.environment = environment;
-    }
+    @Value("${google.maps.api.key}")
+    private String googleMapsApiKey;
 
 
 
@@ -34,7 +33,8 @@ public class MapServiceImpl implements MapService {
 
         String urlStr = "https://maps.googleapis.com/maps/api/directions/json?origin=" + URLEncoder.encode(origins, "UTF-8")
         + "&destination=" + URLEncoder.encode(destinations, "UTF-8")
-        + "&key=" + environment.getProperty("google.api.key");  // Corrected here
+        + "&key=" + googleMapsApiKey; // ✅ fixed here
+  // Corrected here
 
         URL url = new URL(urlStr);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
