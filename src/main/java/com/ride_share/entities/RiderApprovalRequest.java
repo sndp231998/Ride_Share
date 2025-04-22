@@ -39,7 +39,9 @@ public class RiderApprovalRequest {
 	  @ManyToOne
 	    @JoinColumn(name = "ride_request_id") // Fixed column name
 	    private RideRequest rideRequest;
-	  
+	// RiderApprovalRequest.java
+	
+
 	  
 	  private double proposed_price;
 	 

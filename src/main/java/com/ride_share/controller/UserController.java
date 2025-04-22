@@ -3,6 +3,7 @@ package com.ride_share.controller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -32,6 +33,7 @@ import com.ride_share.playoads.ApiResponse;
 import com.ride_share.playoads.Location;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.service.FileService;
+import com.ride_share.service.RiderApprovalRequestService;
 import com.ride_share.service.UserService;
 import com.ride_share.service.impl.RateLimitingService;
 
@@ -47,11 +49,22 @@ public class UserController {
 	   @Autowired
  	    private FileService fileService;
 
+	   @Autowired
+	  private  RiderApprovalRequestService riderApprovalRequestService;
 		@Value("${project.image}")
 		private String path;
 	 @Autowired
 		    private RateLimitingService rateLimitingService;
 		
+	 
+	 @GetMapping("/{rideRequestId}/pending-riders")
+	    public ResponseEntity<Set<UserDto>> getPendingRiders(
+	            @PathVariable Integer rideRequestId) {
+
+	        Set<UserDto> pendingRiders = riderApprovalRequestService.getRidersForRideRequest(rideRequestId);
+	        return ResponseEntity.ok(pendingRiders);
+	    }
+	    
 		
 	 @PutMapping("/{userId}/currentLocation")
 	    public ResponseEntity<UserDto> updateCurrentLocation(

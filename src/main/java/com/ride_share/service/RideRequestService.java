@@ -35,7 +35,7 @@ public interface RideRequestService {
 
 	
 
-	Set<UserDto> getRidersForRideRequest(Integer rideRequestId);
+	//Set<UserDto> getRidersForRideRequest(Integer rideRequestId);
 
 	
 	RideRequestDto approveRideRequestByPassenger(Integer rideRequestId, Integer userId, Integer currentUserId);
@@ -44,8 +44,7 @@ public interface RideRequestService {
 
 	RideInfoDto detailrideViewByRider(RideRequestDto rideRequestDto, Integer rideRequestId, Integer userId);
 
-	List<RiderApprovalRequestDto> getAllPendingApprovalRequestsByRideRequestId(Integer rideRequestId);
-
+	
 	
 	
 

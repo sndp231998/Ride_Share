@@ -82,16 +82,16 @@ public class RideRequestServiceImpl implements RideRequestService {
     
     
 
-    @Override
-    public List<RiderApprovalRequestDto> getAllPendingApprovalRequestsByRideRequestId(Integer rideRequestId) {
-    	List<RiderApprovalRequest> requests = riderApprovalRequestRepo
-    	        .findAllByRideRequestRideRequestIdAndStatus(rideRequestId, ApprovedStatus.PENDING);
-
-    	    return requests.stream()
-    	        .map(request -> modelMapper.map(request, RiderApprovalRequestDto.class))
-    	        .collect(Collectors.toList());
-    }
-    
+//    @Override
+//    public List<RiderApprovalRequestDto> getAllPendingApprovalRequestsByRideRequestId(Integer rideRequestId) {
+//    	List<RiderApprovalRequest> requests = riderApprovalRequestRepo
+//    	        .findAllByRideRequestRideRequestIdAndStatus(rideRequestId, ApprovedStatus.PENDING);
+//
+//    	    return requests.stream()
+//    	        .map(request -> modelMapper.map(request, RiderApprovalRequestDto.class))
+//    	        .collect(Collectors.toList());
+//    }
+//    
     @Override
     public RideRequestDto createRideRequest(RideRequestDto rideRequestDto, Integer userId,Integer categoryId) {
         // Fetch user details
@@ -689,20 +689,30 @@ public class RideRequestServiceImpl implements RideRequestService {
 //  	    return modelMapper.map(approvedRide, RideRequestDto.class);
 //  	}
 
-    @Override
-    public Set<UserDto> getRidersForRideRequest(Integer rideRequestId) {
-        List<RiderApprovalRequest> pendingApprovals = riderApprovalRequestRepo
-            .findByRideRequest_RideRequestIdAndStatus(
-                rideRequestId,
-                RiderApprovalRequest.ApprovedStatus.PENDING
-            );
+	
 
-        return pendingApprovals.stream()
-            .map(approval -> modelMapper.map(approval.getUser(), UserDto.class))
-            .collect(Collectors.toSet());
-    }
+	@Override
+	public RideRequestDto approveRideRequestByPassenger(Integer rideRequestId, Integer userId, Integer currentUserId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
+	
 
+//    @Override
+//    public Set<UserDto> getRidersForRideRequest(Integer rideRequestId) {
+//        List<RiderApprovalRequest> pendingApprovals = riderApprovalRequestRepo
+//            .findByRideRequest_RideRequestIdAndStatus(
+//                rideRequestId,
+//                RiderApprovalRequest.ApprovedStatus.PENDING
+//            );
+//
+//        return pendingApprovals.stream()
+//            .map(approval -> modelMapper.map(approval.getUser(), UserDto.class))
+//            .collect(Collectors.toSet());
+//    }
+
+   
 //	@Override
 //	public RideRequestDto approveRideRequestByPassenger(Integer rideRequestId, Integer userId, Integer currentUserId) {
 //		// TODO Auto-generated method stub

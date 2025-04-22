@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -18,6 +19,7 @@ import com.ride_share.config.AppConstants;
 import com.ride_share.entities.Branch;
 import com.ride_share.entities.OtpRequest;
 import com.ride_share.entities.Rider;
+import com.ride_share.entities.RiderApprovalRequest;
 import com.ride_share.entities.Role;
 import com.ride_share.entities.User;
 import com.ride_share.entities.User.UserMode;
@@ -28,6 +30,7 @@ import com.ride_share.playoads.ManagerAddress;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.repositories.BranchRepo;
 import com.ride_share.repositories.OtpRequestRepo;
+import com.ride_share.repositories.RiderApprovalRequestRepo;
 import com.ride_share.repositories.RiderRepo;
 import com.ride_share.repositories.RoleRepo;
 import com.ride_share.repositories.UserRepo;
@@ -63,6 +66,9 @@ public class UserServiceImpl implements UserService {
 		   @Autowired
 		   private BranchRepo branchRepo;
 		   
+		   @Autowired
+		   private RiderApprovalRequestRepo approvalRequestRepo;
+
 		   
 		   
 		   @Override
@@ -405,6 +411,10 @@ public class UserServiceImpl implements UserService {
         userRepo.save(user);
         return modelMapper.map(user, UserDto.class);
    }
+	
+	
+
+	
 //	public UserDto UserBlanceUpdate(UserDto userDto,Integer userId) {
 //		User user = userRepo.findById(userId)
 //                .orElseThrow(() -> new ResourceNotFoundException("User", "User id", userId));

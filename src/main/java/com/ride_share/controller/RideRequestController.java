@@ -8,6 +8,7 @@ import com.ride_share.playoads.RideRequestDto;
 import com.ride_share.playoads.RiderApprovalRequestDto;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.service.RideRequestService;
+import com.ride_share.service.RiderApprovalRequestService;
 import com.ride_share.service.impl.UserServiceImpl;
 
 import org.slf4j.Logger;
@@ -24,14 +25,14 @@ public class RideRequestController {
 	  private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     @Autowired
     private RideRequestService rideRequestService;
-    
-    
+    @Autowired
+    private RiderApprovalRequestService riderApprovalRequestService;
    
-    @GetMapping("/{rideRequestId}/pending-approvals")
-    public ResponseEntity<List<RiderApprovalRequestDto>> getPendingApprovals(@PathVariable Integer rideRequestId) {
-        List<RiderApprovalRequestDto> dtos = rideRequestService.getAllPendingApprovalRequestsByRideRequestId(rideRequestId);
-        return ResponseEntity.ok(dtos);
-    }
+//    @GetMapping("/{rideRequestId}/pending-approvals")
+//    public ResponseEntity<List<RiderApprovalRequestDto>> getPendingApprovals(@PathVariable Integer rideRequestId) {
+//        List<RiderApprovalRequestDto> dtos = rideRequestService.getAllPendingApprovalRequestsByRideRequestId(rideRequestId);
+//        return ResponseEntity.ok(dtos);
+//    }
 
     
     // Create a new ride request
@@ -63,11 +64,11 @@ public class RideRequestController {
         return ResponseEntity.ok(approvedRequest);
     }
 
-    @GetMapping("/{rideRequestId}/riders")
-    public ResponseEntity<Set<UserDto>> getRidersForRideRequest(@PathVariable Integer rideRequestId) {
-        Set<UserDto> riders = rideRequestService.getRidersForRideRequest(rideRequestId);
-        return ResponseEntity.ok(riders);
-    }
+//    @GetMapping("/{rideRequestId}/riders")
+//    public ResponseEntity<Set<UserDto>> getRidersForRideRequest(@PathVariable Integer rideRequestId) {
+//        Set<UserDto> riders = rideRequestService.getRidersForRideRequest(rideRequestId);
+//        return ResponseEntity.ok(riders);
+//    }
     // Approve a ride request by Passenger
     //rideRequestId; userId=riderId/who req for pessenger for ride and currentUserId
     @PutMapping("/{rideRequestId}/approve-passenger/user/{userId}/currentuser/{currentUserId}")
@@ -129,4 +130,12 @@ public class RideRequestController {
     }
     
     
+//    @GetMapping("/{rideRequestId}/pending-riders")
+//    public ResponseEntity<Set<UserDto>> getPendingRiders(
+//            @PathVariable Integer rideRequestId) {
+//
+//        Set<UserDto> pendingRiders = riderApprovalRequestService.getRidersForRideRequest(rideRequestId);
+//        return ResponseEntity.ok(pendingRiders);
+//    }
+//    
 }

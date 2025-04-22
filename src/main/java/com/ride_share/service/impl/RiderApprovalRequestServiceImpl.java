@@ -1,7 +1,10 @@
 package com.ride_share.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +14,14 @@ import com.ride_share.controller.RideRequestWebSocketController;
 import com.ride_share.entities.RideRequest;
 import com.ride_share.entities.RiderApprovalRequest;
 import com.ride_share.entities.User;
+import com.ride_share.entities.Vehicle;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
 import com.ride_share.playoads.RideRequestDto;
 import com.ride_share.playoads.RiderApprovalRequestDto;
+import com.ride_share.playoads.RiderDto;
 import com.ride_share.playoads.UserDto;
+import com.ride_share.playoads.VehicleDto;
 import com.ride_share.repositories.CategoryRepo;
 import com.ride_share.repositories.PricingRepo;
 import com.ride_share.repositories.RideRequestRepo;
@@ -121,6 +127,61 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	    }
 	    return dto;
 	}
+	
+	
+
+
+	@Override
+	public Set<UserDto> getRidersForRideRequest(Integer rideRequestId) {
+		 List<RiderApprovalRequest> pendingApprovals = riderApprovalRepo.findByRideRequest_RideRequestIdAndStatus(
+			        rideRequestId, RiderApprovalRequest.ApprovedStatus.PENDING
+			    );
+		 return pendingApprovals.stream()
+			        .map(req -> userToDto(req.getUser()))
+			        .collect(Collectors.toSet());
+	}
+	
+	
+//	public User dtoToUser(UserDto userDto) {
+//		User user = this.modelMapper.map(userDto, User.class);
+//
+//		return user;
+//	}
+
+	public UserDto userToDto(User user) {
+		UserDto userDto = this.modelMapper.map(user, UserDto.class);
+		return userDto;
+	}
+	
+	
+//	public UserDto userToDto(User user) {
+//	    UserDto dto = new UserDto();
+//	    dto.setId(user.getId());
+//	    dto.get
+//	    dto.setEmail(user.getEmail());
+//	    // aru jati fill garna man cha
+//	    return dto;
+//	}
+
+
+
+//	@Override
+//	public Set<UserDto> getRidersForRideRequest(Integer rideRequestId) {
+//	    RideRequest rideRequest = rideRequestRepo.findById(rideRequestId)
+//	        .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "id", rideRequestId));
+//
+//	    Set<User> riders=  rideRequest.getUser();
+//	   // ya kunai list xa bhane convert garna parcha
+//	    return riders.stream()
+//	        .map(user -> this.userToDto(user))
+//	        .collect(Collectors.toSet());
+//	}
+
+
+//	Vehicle vehicle = this.vehicleRepo.findById(vehicleId)
+//            .orElseThrow(() -> new ResourceNotFoundException("Vehicle", "vehicle id", vehicleId));
+//    return this.modelMapper.map(vehicle, VehicleDto.class);
+
 
 
 //	public RiderApprovalRequestDto RiderApprovalToDto(RiderApprovalRequest entity) {
