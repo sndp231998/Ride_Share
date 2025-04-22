@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ride_share.playoads.RideRequestResponseDto;
 import com.ride_share.playoads.RiderApprovalRequestDto;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.service.RiderApprovalRequestService;
@@ -31,8 +32,17 @@ public class RiderapprovalRequestController {
 	        return new ResponseEntity<>(created, HttpStatus.CREATED);
 	    }
 	
-@GetMapping("/{rideRequestId}/pending-riders")
-public ResponseEntity<Set<UserDto>> getPendingRiders(@PathVariable Integer rideRequestId) {
-    Set<UserDto> pendingRiders = riderApprovalService.getRidersForRideRequest(rideRequestId);
-    return ResponseEntity.ok(pendingRiders);
-}}
+//@GetMapping("/{rideRequestId}/pending-riders")
+//public ResponseEntity<Set<UserDto>> getPendingRiders(@PathVariable Integer rideRequestId) {
+//    Set<RideRequestResponseDto> pendingRiders = riderApprovalService.getRidersForRideRequest(rideRequestId);
+//    return ResponseEntity.ok(pendingRiders);
+//}
+
+	
+	 @GetMapping("/{rideRequestId}/pending-riders")
+	 public ResponseEntity<Set< RideRequestResponseDto>> getPendingRiders(@PathVariable Integer rideRequestId) {
+	     Set< RideRequestResponseDto> pendingRiders = riderApprovalService.getRidersForRideRequest(rideRequestId);
+	     return ResponseEntity.ok(pendingRiders);
+	 }
+
+}

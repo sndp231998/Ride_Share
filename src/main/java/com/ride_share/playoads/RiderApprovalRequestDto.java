@@ -32,8 +32,8 @@ public class RiderApprovalRequestDto {
 	    private int id;
 	    private UserDto user;
 	  private RideRequestDto rideRequest;
-	  
 	  private double proposed_price;
+	  private double minToReach;
 	  private ApprovedStatus status;
 	  private LocalDateTime addedDate;
 

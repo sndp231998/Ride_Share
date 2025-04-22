@@ -17,7 +17,9 @@ import com.ride_share.entities.User;
 import com.ride_share.entities.Vehicle;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
+import com.ride_share.playoads.DistanceMatrixResponse;
 import com.ride_share.playoads.RideRequestDto;
+import com.ride_share.playoads.RideRequestResponseDto;
 import com.ride_share.playoads.RiderApprovalRequestDto;
 import com.ride_share.playoads.RiderDto;
 import com.ride_share.playoads.UserDto;
@@ -40,7 +42,11 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	    @Autowired
 	    private RideRequestRepo rideRequestRepo;
 
-
+	    @Autowired
+      private VehicleRepo vehicleRepo;
+	    
+	    @Autowired
+	    MapServiceImpl map;
 	    @Autowired
 	    private UserRepo userRepo;
 	    
@@ -66,11 +72,12 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	            throw new ApiException("Must be in RIDER mode to approve a ride request.");
 	        }
 
+	      
 	        if (ride.getStatus() == RideRequest.RideStatus.PESSENGER_APPROVED ||
 	            ride.getStatus() == RideRequest.RideStatus.REJECTED) {
 	            throw new ApiException("This ride request has already been approved/rejected.");
 	        }
-
+           
 	        double riderPrice = riderApprovalRequestDto.getProposed_price();
 	        double passengerPrice = ride.getActualPrice();
 
@@ -89,9 +96,28 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	           // ab.setStatus(RiderApprovalRequest.ApprovedStatus.PENDING);
 	            ab.setAddedDate(LocalDateTime.now());
 	        } else {
-	            // New entry
+	           
+	        	  
+		        double min = 0.0;
+		       
+		        
+		        try {
+		            DistanceMatrixResponse response = map.getDistanceMatrixData(
+		                user.getCurrentLocation().getLatitude(),
+		                user.getCurrentLocation().getLongitude(),
+		                ride.getD_latitude(),
+		                ride.getD_longitude()
+		            );
+		            min=response.getDurationMin();
+		        } catch (Exception e) {
+		            throw new ApiException("Failed to calculate distance: " + e.getMessage());
+		        }
+		           
+		          
+	        	
 	            ab = new RiderApprovalRequest();
 	            ab.setUser(user);
+	            ab.setMinToReach(min);
 	            ab.setRideRequest(ride);
 	            ab.setProposed_price(riderPrice != 0.0 ? riderPrice : passengerPrice);
 	            ab.setStatus(RiderApprovalRequest.ApprovedStatus.PENDING);
@@ -128,123 +154,52 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	    return dto;
 	}
 	
-	
 
 
 	@Override
-	public Set<UserDto> getRidersForRideRequest(Integer rideRequestId) {
-		 List<RiderApprovalRequest> pendingApprovals = riderApprovalRepo.findByRideRequest_RideRequestIdAndStatus(
-			        rideRequestId, RiderApprovalRequest.ApprovedStatus.PENDING
-			    );
-		 return pendingApprovals.stream()
-			        .map(req -> userToDto(req.getUser()))
-			        .collect(Collectors.toSet());
+	public Set<RideRequestResponseDto> getRidersForRideRequest(Integer rideRequestId) {
+	    List<RiderApprovalRequest> pendingApprovals = riderApprovalRepo.findByRideRequest_RideRequestIdAndStatus(
+	            rideRequestId, RiderApprovalRequest.ApprovedStatus.PENDING
+	    );
+	    
+	    return pendingApprovals.stream()
+	            .map(req -> {
+	                User user = req.getUser();
+	                RideRequestResponseDto dto = new RideRequestResponseDto();
+	                dto.setName(user.getName());
+	                dto.setUserId(user.getId());  // Set userId
+	                dto.setMobileNo(user.getMobileNo());
+	                List<Vehicle> vehicles = vehicleRepo.findByUser(user);
+	                if (vehicles != null && !vehicles.isEmpty()) {
+	                    // For example, pick the first vehicle's attributes
+	                    Vehicle vehicle = vehicles.get(0);  // Assuming you want the first vehicle for each user
+
+	                    // Add additional vehicle attributes
+	                    dto.setVehicleBrand(vehicle.getVehicleBrand());
+	                  dto.setVehicleNumber(vehicle.getVehicleNumber());
+	                  
+	                   // dto.setVehicleModel(vehicle.getVehicleModel());
+	                    dto.setVehicleType(vehicle.getVehicleType());
+	                    // You can also add more attributes as needed
+	                } else {
+	                    dto.setVehicleBrand("No vehicle");
+	                    dto.setVehicleType("No Vehicle..");
+	                }
+	                //dto.setProposedPrice(req.getProposed_price());
+	                dto.setProposedPrice(req.getProposed_price());
+	                dto.setMinToReach(req.getMinToReach());
+	                return dto;
+	            })
+	            .collect(Collectors.toSet());
 	}
-	
-	
-//	public User dtoToUser(UserDto userDto) {
-//		User user = this.modelMapper.map(userDto, User.class);
-//
-//		return user;
-//	}
+
+
 
 	public UserDto userToDto(User user) {
 		UserDto userDto = this.modelMapper.map(user, UserDto.class);
 		return userDto;
 	}
 	
-	
-//	public UserDto userToDto(User user) {
-//	    UserDto dto = new UserDto();
-//	    dto.setId(user.getId());
-//	    dto.get
-//	    dto.setEmail(user.getEmail());
-//	    // aru jati fill garna man cha
-//	    return dto;
-//	}
 
 
-
-//	@Override
-//	public Set<UserDto> getRidersForRideRequest(Integer rideRequestId) {
-//	    RideRequest rideRequest = rideRequestRepo.findById(rideRequestId)
-//	        .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "id", rideRequestId));
-//
-//	    Set<User> riders=  rideRequest.getUser();
-//	   // ya kunai list xa bhane convert garna parcha
-//	    return riders.stream()
-//	        .map(user -> this.userToDto(user))
-//	        .collect(Collectors.toSet());
-//	}
-
-
-//	Vehicle vehicle = this.vehicleRepo.findById(vehicleId)
-//            .orElseThrow(() -> new ResourceNotFoundException("Vehicle", "vehicle id", vehicleId));
-//    return this.modelMapper.map(vehicle, VehicleDto.class);
-
-
-
-//	public RiderApprovalRequestDto RiderApprovalToDto(RiderApprovalRequest entity) {
-//	    RiderApprovalRequestDto dto = this.modelMapper.map(entity, RiderApprovalRequestDto.class);
-//	    if (entity.getUser() != null) {
-//	        dto.setUser(this.modelMapper.map(entity.getUser(), UserDto.class));
-//	    }
-//	    if (entity.getRideRequest() != null) {
-//	        dto.setRideRequest(this.modelMapper.map(entity.getRideRequest(), RideRequestDto.class));
-//	    }
-//	    return dto;
-//	}
-
-
-
-	
-	
-//	approval.setUser(user);//rider
-//  	approval.setRideRequest(ride);//riderequestId 
-//  	
-//  	double pessengerprice=rideRequestDto.getActualPrice();
-//  	 // Ensure rider's price is not less than passenger's price
-//   //if (Riderprice != null && Riderprice != 0.0) {
-//  	if ( Riderprice != 0.0) {
-//  	 if  (Riderprice < pessengerprice) {
-//  	        throw new ApiException("Rider Price cannot be less than the passenger's price.");
-//  	    }else {
-//  		approval.setProposed_price(Riderprice);
-//  	    }
-//  	}else {
-//  		approval.setProposed_price(pessengerprice);
-//  	}
-//  
-//  	approval.setStatus(RiderApprovalRequest.ApprovedStatus.PENDING);
-//  	approval.setAddedDate(LocalDateTime.now());
-// 
-//  	// default false
-//  	riderApprovalRepo.save(approval);
-//
-//   //yo comment save nagarda pn hune ho ..tara 
-//    ride.setReplacePessengerPrice(Riderprice);
-//    
-//        
-//  	  //ride.getReqriders().add(user);// main point
-//  	    RideRequest approvedRide = this.rideRequestRepo.save(ride);
-//  	    
-//  	    
-//  	    return this.modelMapper.map(approvedRide, RideRequestDto.class);
-	
-	
-	
-//    @Autowired
-//    private VehicleRepo vehicleRepo;
-//
-//    @Autowired
-//    private CategoryRepo categoryRepo;
-//    
-//    @Autowired
-//    private MapService mapService;
-//    
-//    @Autowired
-//    private PricingRepo pricingRepo;
-//    
-//    @Autowired
-//    private RiderApprovalRequestRepo riderApprovalRequestRepo;
 }

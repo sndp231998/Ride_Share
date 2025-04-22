@@ -82,15 +82,6 @@ public class RideRequestServiceImpl implements RideRequestService {
     
     
 
-//    @Override
-//    public List<RiderApprovalRequestDto> getAllPendingApprovalRequestsByRideRequestId(Integer rideRequestId) {
-//    	List<RiderApprovalRequest> requests = riderApprovalRequestRepo
-//    	        .findAllByRideRequestRideRequestIdAndStatus(rideRequestId, ApprovedStatus.PENDING);
-//
-//    	    return requests.stream()
-//    	        .map(request -> modelMapper.map(request, RiderApprovalRequestDto.class))
-//    	        .collect(Collectors.toList());
-//    }
 //    
     @Override
     public RideRequestDto createRideRequest(RideRequestDto rideRequestDto, Integer userId,Integer categoryId) {

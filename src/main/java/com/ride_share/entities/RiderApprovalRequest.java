@@ -41,7 +41,7 @@ public class RiderApprovalRequest {
 	    private RideRequest rideRequest;
 	// RiderApprovalRequest.java
 	
-
+       private double minToReach;
 	  
 	  private double proposed_price;
 	 

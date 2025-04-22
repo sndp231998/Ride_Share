@@ -56,14 +56,7 @@ public class UserController {
 	 @Autowired
 		    private RateLimitingService rateLimitingService;
 		
-	 
-	 @GetMapping("/{rideRequestId}/pending-riders")
-	    public ResponseEntity<Set<UserDto>> getPendingRiders(
-	            @PathVariable Integer rideRequestId) {
-
-	        Set<UserDto> pendingRiders = riderApprovalRequestService.getRidersForRideRequest(rideRequestId);
-	        return ResponseEntity.ok(pendingRiders);
-	    }
+	
 	    
 		
 	 @PutMapping("/{userId}/currentLocation")
