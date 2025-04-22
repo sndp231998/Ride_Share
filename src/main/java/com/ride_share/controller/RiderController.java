@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.ride_share.playoads.ApiResponse;
 import com.ride_share.playoads.RiderDto;
 import com.ride_share.service.FileService;
@@ -154,4 +155,19 @@ public class RiderController {
 		        StreamUtils.copy(resource, response.getOutputStream());
 		    }
     
-}}
+}
+		
+	    @PutMapping("/{riderId}/reject")
+	    public ResponseEntity<RiderDto> rejectRider(@PathVariable Integer riderId) {
+	        RiderDto rejectedRequest = riderService.rejectRider(riderId);
+	        		
+	        return ResponseEntity.ok(rejectedRequest);
+	    }
+	    @PutMapping("/{riderId}/rider")
+	    public ResponseEntity<RiderDto> approvedPost(@PathVariable Integer riderId) {
+	        RiderDto approvedRequest = riderService.approveRider(riderId); 		
+	        return ResponseEntity.ok(approvedRequest);
+	    }
+
+}
+

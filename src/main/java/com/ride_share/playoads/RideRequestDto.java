@@ -1,11 +1,15 @@
 package com.ride_share.playoads;
 
 import java.time.LocalDateTime;
-
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+
+import com.ride_share.entities.RiderApprovalRequest;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,25 +33,19 @@ public class RideRequestDto {
     private double s_longitude;
     private String s_Name;
     private double total_Km;
-    private int approvedriderId;
+    
 	private LocalDateTime addedDate;
     private UserDto user;
     private double replacePessengerPrice=0.0;
     private double generatedPrice;
-// // Users
-//    private UserDto requestedByUser; // The one who created the request
-//    private UserDto approvedByUser;  // The one who approved the request
+    //private Set<RiderApprovalRequestDto> riderApprovalRequests=new HashSet<>();
 
-    //vehicle
-   // private VehicleDto vehicle;
-    
     private RideStatus status;
     
     public enum RideStatus {
     	PENDING,PESSENGER_APPROVED, REJECTED
     }
-    //private Set<User> Reqriders = new HashSet<>(); // Riders who have sent requests
-  //------------------------------------------------------
+
   	
   	private String ridebookedId;
   	

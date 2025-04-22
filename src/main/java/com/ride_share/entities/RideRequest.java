@@ -1,11 +1,11 @@
 package com.ride_share.entities;
 
-
-
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 
 import javax.persistence.Entity;
@@ -19,6 +19,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
+
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -57,15 +61,10 @@ public class RideRequest {
 	    @JoinColumn(name = "category_id")
 	    private Category category;
 	
-	@ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "ride_request_riders", // Join table name
-        joinColumns = @JoinColumn(name = "ride_request_id"), // Column for RideRequest
-        inverseJoinColumns = @JoinColumn(name = "user_id") // Column for User (rider)
-    )
-    private Set<User> Reqriders = new HashSet<>(); // Riders who have sent requests
+	 @OneToMany(mappedBy = "rideRequest", cascade = CascadeType.ALL)
+		private Set<RiderApprovalRequest> riderApprovalRequests=new HashSet<>();
 	
-	private int approvedriderId;
+	
 	 @Enumerated(EnumType.STRING)
 	    private RideStatus status;
 	    
@@ -74,11 +73,7 @@ public class RideRequest {
 	    }
 	
 //------------------------------------------------------
-	@Column(name="approved_user_Id")// after pessenger choosed rider, storing userId
-	private String ridebookedId;
-	
-	
-
-	
+//	@Column(name="approved_user_Id")// after pessenger choosed rider, storing userId
+//	private String ridebookedId;
 
 }

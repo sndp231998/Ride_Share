@@ -53,8 +53,6 @@ public class UserServiceImpl implements UserService {
 		@Autowired
 		private RoleRepo roleRepo;
 		
-		@Autowired
-		private RiderRepo riderRepo;
 	    
 		@Autowired
 	    private OtpRequestRepo otpRepo;
@@ -164,9 +162,7 @@ public class UserServiceImpl implements UserService {
             user.setDateOfRegistration(LocalDateTime.now());
 		    // roles
 		    Role role = this.roleRepo.findById(AppConstants.NORMAL_USER).get();
-		    user.getRoles().add(role);
-
-		    user.setDate_of_Birth(userDto.getDate_of_Birth());
+		    user.getRoles().add(role);		   
 		    user.setModes(UserMode.PESSENGER);
 		    // Validate and associate branch
 		    String branchName = userDto.getBranch_Name();
@@ -206,7 +202,7 @@ public class UserServiceImpl implements UserService {
 	        }
 	        
 	        if (validOtpRequest == null) {
-	            throw new IllegalArgumentException("Invalid or expired OTP");
+	            throw new ApiException("Invalid or expired OTP");
 	        }
 	        
 	        String mobileNo = validOtpRequest.getMobileNo();
@@ -219,12 +215,43 @@ public class UserServiceImpl implements UserService {
 	        sendmsg.sendMessage(user.getMobileNo(), welcomeMessage); // Assuming notificationService sends SMS
 
 	     // Create in-app notification
-	     //   notificationService.createNotification(newUser.getId(), welcomeMessage);
-	        
-	        
-		   
+	     //   notificationService.createNotification(newUser.getId(), welcomeMessage);	   
 		    return this.modelMapper.map(newUser, UserDto.class);
 		}
+		
+		
+		@Override
+		public UserDto updateUser(UserDto userDto, Integer userId) {
+		    User user = this.userRepo.findById(userId)
+		            .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
+
+		    // Rule: If mobile number or email is being changed, password must be validated
+		    boolean isMobileChanged = userDto.getMobileNo() != null && !userDto.getMobileNo().equals(user.getMobileNo());
+		    boolean isEmailChanged = userDto.getEmail() != null && !userDto.getEmail().equals(user.getEmail());
+
+		    if (isMobileChanged || isEmailChanged) {
+		        if (userDto.getPassword() == null || !passwordEncoder.matches(userDto.getPassword(), user.getPassword())) {
+		            throw new ApiException("Current password required to change mobile number or email.");
+		        }
+
+		        // Now safe to update
+		        if (isMobileChanged) {
+		            user.setMobileNo(userDto.getMobileNo());
+		        }
+		        if (isEmailChanged) {
+		            user.setEmail(userDto.getEmail());
+		        }
+		    }
+
+		    // Always allow these to update
+		    user.setName(userDto.getName());
+		    user.setImageName(userDto.getImageName());
+		    user.setDate_of_Birth(userDto.getDate_of_Birth());
+
+		    User updatedUser = this.userRepo.save(user);
+		    return this.modelMapper.map(updatedUser, UserDto.class);
+		}
+
 		
 		@Override
 		public UserDto createUser(UserDto userDto) {
@@ -235,21 +262,7 @@ public class UserServiceImpl implements UserService {
 
 
 
-	@Override
-	public UserDto updateUser(UserDto userDto, Integer userId) {
-		User user = this.userRepo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
 
-        user.setName(userDto.getName());
-       // user.setEmail(userDto.getEmail());
-       //user.setMobileNo(userDto.getMobileNo());
-       user.setImageName(userDto.getImageName());
-      // user.setPassword(user.getPassword());
-       
-        User updatedUser = this.userRepo.save(user);
-        return this.userToDto(updatedUser);
-        
-	}
 	
 	
 

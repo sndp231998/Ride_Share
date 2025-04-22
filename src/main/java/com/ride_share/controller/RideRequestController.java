@@ -5,6 +5,7 @@ package com.ride_share.controller;
 import com.ride_share.playoads.PriceInfoDto;
 import com.ride_share.playoads.RideInfoDto;
 import com.ride_share.playoads.RideRequestDto;
+import com.ride_share.playoads.RiderApprovalRequestDto;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.service.RideRequestService;
 import com.ride_share.service.impl.UserServiceImpl;
@@ -23,6 +24,15 @@ public class RideRequestController {
 	  private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     @Autowired
     private RideRequestService rideRequestService;
+    
+    
+   
+    @GetMapping("/{rideRequestId}/pending-approvals")
+    public ResponseEntity<List<RiderApprovalRequestDto>> getPendingApprovals(@PathVariable Integer rideRequestId) {
+        List<RiderApprovalRequestDto> dtos = rideRequestService.getAllPendingApprovalRequestsByRideRequestId(rideRequestId);
+        return ResponseEntity.ok(dtos);
+    }
+
     
     // Create a new ride request
     @PostMapping("/user/{userId}/category/{categoryId}")
@@ -117,4 +127,6 @@ public class RideRequestController {
         RideInfoDto detailInfo = rideRequestService.detailrideViewByRider(rideRequestDto, rideRequestId, userId);  		
         return ResponseEntity.ok(detailInfo);
     }
+    
+    
 }

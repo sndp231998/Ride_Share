@@ -6,6 +6,7 @@ import java.util.Set;
 import com.ride_share.playoads.PriceInfoDto;
 import com.ride_share.playoads.RideInfoDto;
 import com.ride_share.playoads.RideRequestDto;
+import com.ride_share.playoads.RiderApprovalRequestDto;
 import com.ride_share.playoads.UserDto;
 
 
@@ -27,17 +28,12 @@ public interface RideRequestService {
 
 	List<RideRequestDto> getAllRideRequests();
 
-	
 
 	RideRequestDto rejectRideRequest(Integer rideRequestId);
 
-	//RideRequestDto approveRideRequest(Integer riderId);
-
 	RideRequestDto approveRideRequestByRider(RideRequestDto rideRequestDto, Integer userId, Integer rideRequestId);
 
-	//RideRequestDto approveRideRequestByPassenger(Integer rideRequestId);
-
-	//void sendRideRequest(Integer rideRequestId, Integer riderId);
+	
 
 	Set<UserDto> getRidersForRideRequest(Integer rideRequestId);
 
@@ -47,6 +43,8 @@ public interface RideRequestService {
 	PriceInfoDto determinePrice(RideRequestDto rideRequestDto, Integer userId, Integer categoryId);
 
 	RideInfoDto detailrideViewByRider(RideRequestDto rideRequestDto, Integer rideRequestId, Integer userId);
+
+	List<RiderApprovalRequestDto> getAllPendingApprovalRequestsByRideRequestId(Integer rideRequestId);
 
 	
 	

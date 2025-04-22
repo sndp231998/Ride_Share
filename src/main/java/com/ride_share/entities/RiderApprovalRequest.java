@@ -18,13 +18,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+//@Table(
+//	    name = "rider_approval_request",
+//	    uniqueConstraints = @UniqueConstraint(columnNames = {"ride_request_id", "user_id"})
+//	)
+
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
-
-
 public class RiderApprovalRequest {
 	 @Id
 	    @GeneratedValue(strategy = GenerationType.AUTO)
@@ -37,7 +39,6 @@ public class RiderApprovalRequest {
 	  @ManyToOne
 	    @JoinColumn(name = "ride_request_id") // Fixed column name
 	    private RideRequest rideRequest;
-	  
 	  
 	  
 	  private double proposed_price;
