@@ -106,7 +106,8 @@ public class RideRequestServiceImpl implements RideRequestService {
          }
     	 
     	 // Step 3: Fetch ride requests by category
-         List<RideRequest> rideRequests = rideRequestRepo.findByCategoryId(categoryId);
+         List<RideRequest> rideRequests = rideRequestRepo.findByCategory_CategoryId(categoryId);
+        		
       // Step 4: Map entity to DTO
          List<RideRequestDto> dtoList = rideRequests.stream().map(ride -> 
          RideRequestDto.builder()
