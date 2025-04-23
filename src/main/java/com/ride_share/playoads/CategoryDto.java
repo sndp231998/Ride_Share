@@ -7,10 +7,14 @@ import javax.persistence.Column;
 
 import com.ride_share.entities.Vehicle;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-@NoArgsConstructor
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class CategoryDto {
 
 	private Integer categoryId;

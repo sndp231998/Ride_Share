@@ -5,12 +5,17 @@ import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 
+import com.ride_share.entities.Category;
 import com.ride_share.entities.User;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class RiderDto {
 
 	    private int id;
@@ -36,4 +41,5 @@ private RiderStatus status;
 	    }
 	    
 	    private UserDto user;
+	    private CategoryDto category;
 }

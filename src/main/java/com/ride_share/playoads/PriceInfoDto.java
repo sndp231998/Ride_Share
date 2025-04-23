@@ -1,12 +1,14 @@
 package com.ride_share.playoads;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PriceInfoDto {
     private double totalKm;
     private double generatedPrice;

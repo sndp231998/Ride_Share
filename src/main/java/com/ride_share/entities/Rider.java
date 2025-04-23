@@ -42,6 +42,10 @@ public class Rider {
 	    
 	    private String balance;
 	  
+	    @ManyToOne
+	    @JoinColumn(name = "category_id")
+	    private Category category;
+	    
 	    //additional
 	    private LocalDateTime addedDate;
 	    @Column(name = "updated_date")

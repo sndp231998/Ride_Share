@@ -26,6 +26,14 @@ public class RideRequestController {
 	  private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     @Autowired
     private RideRequestService rideRequestService;
+    
+    
+    
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<RideRequestDto>> getRideRequestsByUserCategory(@PathVariable int userId) {
+        List<RideRequestDto> rideRequests = rideRequestService.getRideRequestsByUserCategory(userId);
+        return ResponseEntity.ok(rideRequests);
+    }
    
     @PutMapping("/approve/{riderApprovalId}/riderequest/{rideRequestId}")
     public ResponseEntity<RideRequestDto> approveRideRequest(

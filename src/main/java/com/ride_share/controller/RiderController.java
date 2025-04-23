@@ -40,11 +40,22 @@ public class RiderController {
 	@Value("${project.image}")
 	private String path;
 	
+	
+	
+	
+	@GetMapping("/riders/pending")
+	public ResponseEntity<List<RiderDto>> getAllPendingRiders() {
+	    List<RiderDto> pendingRiders = riderService.getPendingRiders();
+	    return ResponseEntity.ok(pendingRiders);
+	}
+
+	
 	// create Rider--------------------------------------
 	 //@PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER')")
-	@PostMapping("/user/{userId}/riders")
-	public ResponseEntity<RiderDto> createRider(@RequestBody RiderDto riderDto,@PathVariable Integer userId) {
-		RiderDto createRiderDto = this.riderService.createRider(riderDto, userId);
+	@PostMapping("/user/{userId}/category/{categoryId}/riders")
+	public ResponseEntity<RiderDto> createRider(@RequestBody RiderDto riderDto,
+			@PathVariable Integer userId, @PathVariable Integer categoryId) {
+		RiderDto createRiderDto = this.riderService.createRider(riderDto, userId,categoryId);
 		return new ResponseEntity<>(createRiderDto, HttpStatus.CREATED);
 	}
 	// Update Rider----------------------------------

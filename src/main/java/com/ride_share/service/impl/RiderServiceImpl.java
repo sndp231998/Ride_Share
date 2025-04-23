@@ -10,15 +10,20 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ride_share.config.AppConstants;
+import com.ride_share.entities.Category;
 import com.ride_share.entities.Rider;
+import com.ride_share.entities.Role;
 import com.ride_share.entities.User;
 import com.ride_share.exceptions.ApiException;
 //import com.ride_share.entities.V;
 import com.ride_share.exceptions.ResourceNotFoundException;
 
 import com.ride_share.playoads.RiderDto;
+import com.ride_share.repositories.CategoryRepo;
 //import com.ride_share.playoads.VDto;
 import com.ride_share.repositories.RiderRepo;
+import com.ride_share.repositories.RoleRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.service.RiderService;
 
@@ -31,23 +36,25 @@ public class RiderServiceImpl implements RiderService{
 	private RiderRepo riderRepo;
 	
 	@Autowired
+	private CategoryRepo categoryRepo;
+	@Autowired
 	private UserRepo userRepo;
+	
+	@Autowired
+	private RoleRepo roleRepo;
 	
 	// Create a new Rider
     @Override
-    public RiderDto createRider(RiderDto riderDto, Integer userId) {
+    public RiderDto createRider(RiderDto riderDto, Integer userId,Integer categoryId) {
         User user = this.userRepo.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userId));
 
+        Category category = this.categoryRepo.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "category id ", categoryId));
+
         Rider.RiderStatus existingStatus = this.riderRepo.findRiderStatusByUserId(userId);
         if (existingStatus == Rider.RiderStatus.PENDING) {
-            throw new IllegalStateException("Cannot create rider. User already has a rider application in PENDING status.");
-        }
-
-        // Validate age based on date of birth
-        int age = calculateAge(riderDto.getDate_Of_Birth());
-        if (age < 18) {
-            throw new IllegalStateException("Cannot create rider. User must be at least 18 years old.");
+            throw new ApiException("Cannot create rider. User already has a rider application in PENDING status.");
         }
 
         Rider rider = this.modelMapper.map(riderDto, Rider.class);
@@ -56,6 +63,7 @@ public class RiderServiceImpl implements RiderService{
         rider.setAddedDate(LocalDateTime.now());
         rider.setSelfieWithIdCard("");
         rider.setUser(user);
+        rider.setCategory(category);
 
         // Set status to PENDING only if no prior application or rejected
         rider.setStatus(Rider.RiderStatus.PENDING);
@@ -72,18 +80,10 @@ public class RiderServiceImpl implements RiderService{
 
         // Prevent updates if the application is already approved
         if (rider.getStatus() == Rider.RiderStatus.APPROVED) {
-            throw new IllegalStateException("Cannot update rider. The application is already APPROVED.");
+            throw new ApiException("The application is already APPROVED.");
         }
-
-        // Validate age if date of birth is being updated
-        if (riderDto.getDate_Of_Birth() != null) {
-            int age = calculateAge(riderDto.getDate_Of_Birth());
-            if (age < 18) {
-                throw new IllegalStateException("Cannot update rider. User must be at least 18 years old.");
-            }
             rider.setDate_Of_Birth(riderDto.getDate_Of_Birth());
-        }
-
+        
         // Update other fields
         rider.setDriver_License(riderDto.getDriver_License());
         rider.setSelfieWithIdCard(riderDto.getSelfieWithIdCard());
@@ -91,6 +91,7 @@ public class RiderServiceImpl implements RiderService{
 
         // After update, set status back to PENDING for admin review
         rider.setStatus(Rider.RiderStatus.PENDING);
+       // rider.setCategory(riderDto.getCategory());
 
         Rider updatedRider = this.riderRepo.save(rider);
         return this.modelMapper.map(updatedRider, RiderDto.class);
@@ -107,13 +108,19 @@ public class RiderServiceImpl implements RiderService{
             throw new ApiException("Cannot approve rider. The application is not in PENDING status.");
         }
 
+        
         rider.setStatus(Rider.RiderStatus.APPROVED);
         rider.setUpdatedDate(LocalDateTime.now());
+        Role role = this.roleRepo.findById(AppConstants.RIDER_USER)
+                .orElseThrow(() -> new ResourceNotFoundException("Role", "ID", AppConstants.RIDER_USER));
 
+        rider.getUser().getRoles().clear();
+        rider.getUser().getRoles().add(role);
         Rider approvedRider = this.riderRepo.save(rider);
         return this.modelMapper.map(approvedRider, RiderDto.class);
     }
-    
+//    Role role = this.roleRepo.findById(AppConstants.NORMAL_USER).get();
+//    user.getRoles().add(role);		   
     @Override
     public RiderDto addBalanceOfRider(RiderDto riderDto, Integer riderId) {
         // Find the rider by ID or throw an exception if not found
@@ -146,9 +153,13 @@ public class RiderServiceImpl implements RiderService{
 
         // Only allow rejection if status is PENDING
         if (rider.getStatus() != Rider.RiderStatus.PENDING) {
-            throw new IllegalStateException("Cannot reject rider. The application is not in PENDING status.");
+            throw new ApiException("Cannot reject rider. The application is not in PENDING status.");
         }
+        Role role = this.roleRepo.findById(AppConstants.NORMAL_USER)
+                .orElseThrow(() -> new ResourceNotFoundException("Role", "ID", AppConstants.RIDER_USER));
 
+        rider.getUser().getRoles().clear();
+        rider.getUser().getRoles().add(role);
         rider.setStatus(Rider.RiderStatus.REJECTED);
         rider.setUpdatedDate(LocalDateTime.now());
 
@@ -156,12 +167,7 @@ public class RiderServiceImpl implements RiderService{
         return this.modelMapper.map(rejectedRider, RiderDto.class);
     }
 
-    // Helper method to calculate age
-    private int calculateAge(String dateOfBirth) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate birthDate = LocalDate.parse(dateOfBirth, formatter);
-        return Period.between(birthDate, LocalDate.now()).getYears();
-    }
+
 
 	@Override
 	public void deleteRider(Integer riderId) {
@@ -203,6 +209,16 @@ public class RiderServiceImpl implements RiderService{
 	}
 	
 	
+
+
+	@Override
+	public List<RiderDto> getPendingRiders() {
+	    List<Rider> pendingRiders = riderRepo.findByStatus(Rider.RiderStatus.PENDING);
+	    return pendingRiders.stream()
+	            .map(this::riderToDto)
+	            .collect(Collectors.toList());
+	}
+
 	public Rider dtoToRider(RiderDto riderDto) {
 		Rider rider = this.modelMapper.map(riderDto, Rider.class);
 

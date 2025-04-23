@@ -18,6 +18,7 @@ import com.ride_share.entities.RideRequest.RideStatus;
 import com.ride_share.entities.RiderApprovalRequest.ApprovedStatus;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -25,6 +26,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class RiderApprovalRequestDto {
 	    private Integer id;
 	    private UserDto user;

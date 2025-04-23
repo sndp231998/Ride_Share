@@ -12,5 +12,5 @@ import com.ride_share.entities.User;
 public interface RideRequestRepo extends JpaRepository<RideRequest, Integer>{
 
 	List<RideRequest> findByUser(User user);
-
+	List<RideRequest> findByCategoryId(int categoryId);
 }

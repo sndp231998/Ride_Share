@@ -33,23 +33,17 @@ public interface RideRequestService {
 
 	RideRequestDto approveRideRequestByRider(RideRequestDto rideRequestDto, Integer userId, Integer rideRequestId);
 
-	
 
-	//Set<UserDto> getRidersForRideRequest(Integer rideRequestId);
-
-	
 	RideRequestDto approveRideRequestByPassenger(Integer rideRequestId, Integer userId, Integer currentUserId);
 
 	PriceInfoDto determinePrice(RideRequestDto rideRequestDto, Integer userId, Integer categoryId);
 
 	RideInfoDto detailrideViewByRider(RideRequestDto rideRequestDto, Integer rideRequestId, Integer userId);
 
-	//RideRequestDto approveRideRequestByPassenger(RideRequestDto rideRequestDto, Integer Id, Integer rideRequestId);
-
+	
 	RideRequestDto approveRideRequestByPassenger(Integer Id, Integer rideRequestId);
 
-	
-	
-	
+	List<RideRequestDto> getRideRequestsByUserCategory(int userId);
+
 
 }

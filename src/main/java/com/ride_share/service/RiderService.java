@@ -11,7 +11,7 @@ public interface RiderService {
 	
 	//create 
 
-			RiderDto createRider(RiderDto riderDto,Integer userId);
+			RiderDto createRider(RiderDto riderDto,Integer userId,Integer categoryId);
 
 			//update 
 
@@ -35,6 +35,8 @@ public interface RiderService {
 			
 			RiderDto addBalanceOfRider(RiderDto riderDto, Integer riderId);
 
-			
+			List<RiderDto> getPendingRiders();
+
+
 	
 }

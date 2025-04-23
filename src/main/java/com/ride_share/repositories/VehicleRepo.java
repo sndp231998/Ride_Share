@@ -1,6 +1,7 @@
 package com.ride_share.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +16,7 @@ public interface VehicleRepo extends JpaRepository<Vehicle, Integer> {
 	List<Vehicle> findByCategory(Category cat);
 
 	List<Vehicle> findByUser(User user);
-
+	Optional<Vehicle> findByUserId(int userId);
 	
 	@Query("SELECT v FROM Vehicle v WHERE " + 
 	"LOWER(v.vehicleNumber) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +

@@ -18,6 +18,7 @@ import com.ride_share.controller.RideRequestWebSocketController;
 import com.ride_share.entities.Category;
 import com.ride_share.entities.Pricing;
 import com.ride_share.entities.RideRequest;
+import com.ride_share.entities.Rider;
 import com.ride_share.entities.RiderApprovalRequest;
 import com.ride_share.entities.RiderApprovalRequest.ApprovedStatus;
 import com.ride_share.entities.User;
@@ -36,6 +37,7 @@ import com.ride_share.repositories.CategoryRepo;
 import com.ride_share.repositories.PricingRepo;
 import com.ride_share.repositories.RideRequestRepo;
 import com.ride_share.repositories.RiderApprovalRequestRepo;
+import com.ride_share.repositories.RiderRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.repositories.VehicleRepo;
 import com.ride_share.service.MapService;
@@ -61,6 +63,8 @@ public class RideRequestServiceImpl implements RideRequestService {
 
     @Autowired
     private VehicleRepo vehicleRepo;
+    @Autowired
+    private RiderRepo riderRepo;
 
     @Autowired
     private CategoryRepo categoryRepo;
@@ -71,14 +75,60 @@ public class RideRequestServiceImpl implements RideRequestService {
     @Autowired
     private PricingRepo pricingRepo;
     
-    @Autowired
-    private RiderApprovalRequestRepo riderApprovalRequestRepo;
+//    @Autowired
+//    private RiderApprovalRequestRepo riderApprovalRequestRepo;
     
     @Autowired
     private RideRequestWebSocketController webSocketController;
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     // Existing methods (create, update, delete, get, etc.)
+    
+    
+    
+    
+    @Override
+    public List<RideRequestDto> getRideRequestsByUserCategory(int userId) {
+    
+    	 Optional<Vehicle> vehicleOpt = vehicleRepo.findByUserId(userId);
+    	 Integer categoryId = null;
+    	 if (vehicleOpt.isPresent()) {
+             categoryId = vehicleOpt.get().getCategory().getCategoryId();
+         } else {
+             // Step 2: If no vehicle, find from Rider
+             Optional<Rider> riderOpt = riderRepo.findByUserId(userId);
+             if (riderOpt.isPresent()) {
+                 categoryId = riderOpt.get().getCategory().getCategoryId();
+             }
+         }
+    	 if (categoryId == null) {
+             throw new ApiException("User does not have a category assigned via Vehicle or Rider");
+         }
+    	 
+    	 // Step 3: Fetch ride requests by category
+         List<RideRequest> rideRequests = rideRequestRepo.findByCategoryId(categoryId);
+      // Step 4: Map entity to DTO
+         List<RideRequestDto> dtoList = rideRequests.stream().map(ride -> 
+         RideRequestDto.builder()
+         .rideRequestId(ride.getRideRequestId())
+         .actualPrice(ride.getActualPrice())
+         .d_latitude(ride.getD_latitude())
+         .d_longitude(ride.getD_longitude())
+         .d_Name(ride.getD_Name())
+         .s_latitude(ride.getS_latitude())
+         .s_longitude(ride.getS_longitude())
+         .s_Name(ride.getS_Name())
+                 
+         .build()
+        		 ).collect(Collectors.toList());
+
+         return dtoList;
+     }
+ 
+    
+    
+    
+    
     
     
     @Override
