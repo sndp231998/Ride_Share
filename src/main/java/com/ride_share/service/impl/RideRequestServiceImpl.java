@@ -81,6 +81,34 @@ public class RideRequestServiceImpl implements RideRequestService {
     // Existing methods (create, update, delete, get, etc.)
     
     
+    @Override
+    public RideRequestDto approveRideRequestByPassenger(Integer Id, Integer rideRequestId) {
+        
+        RiderApprovalRequest riderApproval = riderApprovalRepo.findById(Id)
+                .orElseThrow(() -> new ResourceNotFoundException("RideApprovalRequest", "Id", Id));
+
+        RideRequest rideRequest = rideRequestRepo.findById(rideRequestId)
+                .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
+
+        if (rideRequest.getStatus() == RideRequest.RideStatus.PESSENGER_APPROVED) {
+            throw new ApiException("Already approved");
+        }
+
+        rideRequest.setStatus(RideRequest.RideStatus.PESSENGER_APPROVED);
+        riderApproval.setStatus(RiderApprovalRequest.ApprovedStatus.PESSENGER_APPROVED);
+        rideRequest.setActualPrice(riderApproval.getProposed_price());
+        rideRequest.setRidebookedId(riderApproval.getUser().getId());
+
+        // Save
+        rideRequestRepo.save(rideRequest);
+        riderApprovalRepo.save(riderApproval);
+
+        // Notify clients via websocket (optional)
+        webSocketController.sendRideStatusUpdate(rideRequest);
+
+        // Return updated RideRequestDto
+        return modelMapper.map(rideRequest, RideRequestDto.class);
+    }
 
 //    
     @Override

@@ -127,35 +127,79 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	        RiderApprovalRequest saved = this.riderApprovalRepo.save(ab);
 	        return this.RiderApprovalToDto(saved);
 	    }
+	    public RiderApprovalRequestDto RiderApprovalToDto(RiderApprovalRequest entity) {
+	        RiderApprovalRequestDto dto = new RiderApprovalRequestDto();
+	        
+	        dto.setId(entity.getId());
+	        dto.setProposed_price(entity.getProposed_price());
+	        dto.setStatus(entity.getStatus());
+	        dto.setAddedDate(entity.getAddedDate());
+	        dto.setMinToReach(entity.getMinToReach());
+
+	        if (entity.getUser() != null) {
+	            dto.setUser(this.modelMapper.map(entity.getUser(), UserDto.class));
+	        }
+	        
+	        if (entity.getRideRequest() != null) {
+	            dto.setRideRequestId(entity.getRideRequest().getRideRequestId());
+	        }
+	        
+	        return dto;
+	    }
+
+	    public RiderApprovalRequest dtoToRiderApproval(RiderApprovalRequestDto dto) {
+	        RiderApprovalRequest entity = this.modelMapper.map(dto, RiderApprovalRequest.class);
+	        
+	        if (dto.getUser() != null) {
+	            entity.setUser(this.modelMapper.map(dto.getUser(), User.class));
+	        }
+	        
+	        if (dto.getRideRequestId() !=null) {
+	            RideRequest ride = this.rideRequestRepo.findById(dto.getRideRequestId())
+	                .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", dto.getRideRequestId()));
+	            entity.setRideRequest(ride);
+	        }
+	        
+	        return entity;
+	    }
+
+
+
 	
-	public RiderApprovalRequest dtoToRiderApproval(RiderApprovalRequestDto dto) {
-	    RiderApprovalRequest entity = this.modelMapper.map(dto, RiderApprovalRequest.class);
-	    if (dto.getUser() != null) {
-	        entity.setUser(this.modelMapper.map(dto.getUser(), User.class));
-	    }
-	    if (dto.getRideRequest() != null) {
-	        entity.setRideRequest(this.modelMapper.map(dto.getRideRequest(), RideRequest.class));
-	    }
-	    return entity;
-	}
-	public RiderApprovalRequestDto RiderApprovalToDto(RiderApprovalRequest entity) {
-	    RiderApprovalRequestDto dto = new RiderApprovalRequestDto();
-	    dto.setId(entity.getId());
-	    dto.setProposed_price(entity.getProposed_price());
-	    dto.setStatus(entity.getStatus());
-	    dto.setAddedDate(entity.getAddedDate());
-
-	    if (entity.getUser() != null) {
-	        dto.setUser(this.modelMapper.map(entity.getUser(), UserDto.class));
-	    }
-	    if (entity.getRideRequest() != null) {
-	        dto.setRideRequest(this.modelMapper.map(entity.getRideRequest(), RideRequestDto.class));
-	    }
-	    return dto;
-	}
+//	@Override
+//	public RideRequestDto approveRideRequestByPassenger(RiderApprovalRequestDto riderApprovalRequestDto, 
+//			Integer Id, Integer rideRequestId) {
+//		
+//		 RiderApprovalRequest riderApproval = riderApprovalRepo.findById(Id)
+//			        .orElseThrow(() -> new ResourceNotFoundException("RideApprovalRequest", "Id", Id));
+//
+//	    // Fetch the ride request using the rideRequestId
+//	    RideRequest rideRequest = rideRequestRepo.findById(rideRequestId)
+//	        .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
+//	    if (rideRequest.getStatus() == RideRequest.RideStatus.PESSENGER_APPROVED) {
+//	        throw new ApiException("Already approved");
+//	    }
+//
+//	    rideRequest.setStatus(RideRequest.RideStatus.PESSENGER_APPROVED);
+//	    // ✅ Ensures that the selected rider is actually in the list of users who requested this ride
+//	    riderApproval.setStatus(RiderApprovalRequest.ApprovedStatus.PESSENGER_APPROVED);
+//	    rideRequest.setActualPrice(riderApproval.getProposed_price());
+//	    // ✅ Updates the ride request with the approved rider's ID and changes status to PESSENGER_APPROVED
+//	    rideRequest.setRidebookedId(riderApproval.getUser().getId());
+//	    // Save the updated ride request and return it as a DTO
+//	    RideRequest ridereq = rideRequestRepo.save(rideRequest);
+//	    RiderApprovalRequest approvedreq= riderApprovalRepo.save(riderApproval);
+//	// Notify WebSocket clients
+//	  webSocketController.sendRideStatusUpdate(rideRequest);
+//	  // ✅ Return DTO
+//	  // ✅ ModelMapper बाट map गरेर return
+//	    return modelMapper.map(ridereq, RideRequestDto.class);
+//	}
+//	
 	
-
-
+	
+	
+	
 	@Override
 	public Set<RideRequestResponseDto> getRidersForRideRequest(Integer rideRequestId) {
 	    List<RiderApprovalRequest> pendingApprovals = riderApprovalRepo.findByRideRequest_RideRequestIdAndStatus(
@@ -188,6 +232,8 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	                //dto.setProposedPrice(req.getProposed_price());
 	                dto.setProposedPrice(req.getProposed_price());
 	                dto.setMinToReach(req.getMinToReach());
+	                dto.setId(req.getId());
+	                dto.setRideRequestId(req.getRideRequest().getRideRequestId());
 	                return dto;
 	            })
 	            .collect(Collectors.toSet());

@@ -14,6 +14,7 @@ import com.ride_share.service.impl.UserServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -25,14 +26,17 @@ public class RideRequestController {
 	  private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     @Autowired
     private RideRequestService rideRequestService;
-    @Autowired
-    private RiderApprovalRequestService riderApprovalRequestService;
    
-//    @GetMapping("/{rideRequestId}/pending-approvals")
-//    public ResponseEntity<List<RiderApprovalRequestDto>> getPendingApprovals(@PathVariable Integer rideRequestId) {
-//        List<RiderApprovalRequestDto> dtos = rideRequestService.getAllPendingApprovalRequestsByRideRequestId(rideRequestId);
-//        return ResponseEntity.ok(dtos);
-//    }
+    @PutMapping("/approve/{riderApprovalId}/riderequest/{rideRequestId}")
+    public ResponseEntity<RideRequestDto> approveRideRequest(
+            @PathVariable Integer riderApprovalId,
+            @PathVariable Integer rideRequestId) {
+
+        RideRequestDto updatedRideRequest = rideRequestService.approveRideRequestByPassenger(riderApprovalId, rideRequestId);
+        return new ResponseEntity<>(updatedRideRequest, HttpStatus.OK);
+    }
+
+
 
     
     // Create a new ride request
@@ -69,14 +73,7 @@ public class RideRequestController {
 //        Set<UserDto> riders = rideRequestService.getRidersForRideRequest(rideRequestId);
 //        return ResponseEntity.ok(riders);
 //    }
-    // Approve a ride request by Passenger
-    //rideRequestId; userId=riderId/who req for pessenger for ride and currentUserId
-    @PutMapping("/{rideRequestId}/approve-passenger/user/{userId}/currentuser/{currentUserId}")
-    public ResponseEntity<RideRequestDto> approveRideByPassenger(@PathVariable Integer rideRequestId, 
-    		@PathVariable Integer userId, @PathVariable Integer currentUserId) {
-        RideRequestDto approvedRequest = rideRequestService.approveRideRequestByPassenger(rideRequestId,userId,currentUserId);
-        return ResponseEntity.ok(approvedRequest);
-    }
+
 
     // Reject a ride request
     @PutMapping("/{rideRequestId}/reject")

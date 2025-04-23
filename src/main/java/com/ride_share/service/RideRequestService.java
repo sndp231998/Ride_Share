@@ -44,6 +44,10 @@ public interface RideRequestService {
 
 	RideInfoDto detailrideViewByRider(RideRequestDto rideRequestDto, Integer rideRequestId, Integer userId);
 
+	//RideRequestDto approveRideRequestByPassenger(RideRequestDto rideRequestDto, Integer Id, Integer rideRequestId);
+
+	RideRequestDto approveRideRequestByPassenger(Integer Id, Integer rideRequestId);
+
 	
 	
 	

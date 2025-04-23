@@ -26,12 +26,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RiderApprovalRequestDto {
-
-	 @Id
-	    @GeneratedValue(strategy = GenerationType.AUTO)
-	    private int id;
+	    private Integer id;
 	    private UserDto user;
-	  private RideRequestDto rideRequest;
+	    private Integer rideRequestId;
 	  private double proposed_price;
 	  private double minToReach;
 	  private ApprovedStatus status;

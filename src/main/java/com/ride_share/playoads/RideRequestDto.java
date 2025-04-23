@@ -39,6 +39,7 @@ public class RideRequestDto {
     private double replacePessengerPrice=0.0;
     private double generatedPrice;
     //private Set<RiderApprovalRequestDto> riderApprovalRequests=new HashSet<>();
+    private Set<Integer> riderApprovalRequestIds; // just IDs or lightweight structure
 
     private RideStatus status;
     
@@ -47,7 +48,7 @@ public class RideRequestDto {
     }
 
   	
-  	private String ridebookedId;
+  	private Integer ridebookedId;
   	
   	private CategoryDto category;
 

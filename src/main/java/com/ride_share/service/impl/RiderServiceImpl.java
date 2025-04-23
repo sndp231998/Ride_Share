@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.ride_share.entities.Rider;
 import com.ride_share.entities.User;
+import com.ride_share.exceptions.ApiException;
 //import com.ride_share.entities.V;
 import com.ride_share.exceptions.ResourceNotFoundException;
 
@@ -103,7 +104,7 @@ public class RiderServiceImpl implements RiderService{
 
         // Only allow approval if status is PENDING
         if (rider.getStatus() != Rider.RiderStatus.PENDING) {
-            throw new IllegalStateException("Cannot approve rider. The application is not in PENDING status.");
+            throw new ApiException("Cannot approve rider. The application is not in PENDING status.");
         }
 
         rider.setStatus(Rider.RiderStatus.APPROVED);

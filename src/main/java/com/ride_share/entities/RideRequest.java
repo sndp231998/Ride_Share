@@ -22,7 +22,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
-
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,18 +35,14 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "rideRequestId")
+
 public class RideRequest {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int rideRequestId;
-	
-	
 	private double actualPrice=0.0;
-	
-	
-//	 @Embedded
-//	    private Destination_Coordinates destination;
 	private double d_latitude;
     private double d_longitude;
 	private String d_Name;
@@ -62,7 +61,9 @@ public class RideRequest {
 	    private Category category;
 	
 	 @OneToMany(mappedBy = "rideRequest", cascade = CascadeType.ALL)
-		private Set<RiderApprovalRequest> riderApprovalRequests=new HashSet<>();
+	// @JsonManagedReference
+	 @JsonIgnore 
+    private Set<RiderApprovalRequest> riderApprovalRequests=new HashSet<>();
 	
 	
 	 @Enumerated(EnumType.STRING)
@@ -73,7 +74,7 @@ public class RideRequest {
 	    }
 	
 //------------------------------------------------------
-//	@Column(name="approved_user_Id")// after pessenger choosed rider, storing userId
-//	private String ridebookedId;
+	@Column(name="approved_user_Id")// after pessenger choosed rider, storing userId
+	private Integer ridebookedId;
 
 }

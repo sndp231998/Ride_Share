@@ -16,16 +16,9 @@ public class RideRequestResponseDto {
 	    private String vehicleBrand;  // Add vehicle brand
 	    private Double proposedPrice; 
 	    private String vehicleType;   // Add vehicle type
-	    
+	    private int rideRequestId;
+	    private int Id;//RiderApprovalRequestId
 	    private String vehicleNumber;
-	    private LocationDto currentLocation;
 	    
-	    
-	    
-	    @Data
-	    @NoArgsConstructor
-	    public class LocationDto {
-	        private Double latitude;
-	        private Double longitude;
-	    }
+	
 }
