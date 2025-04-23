@@ -2,6 +2,7 @@ package com.ride_share.controller;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
@@ -138,17 +139,18 @@ public class AuthController {
         rateLimitingService.checkRateLimit("test-api-key");
         return ResponseEntity.ok(forgetPassword);
     }
-
     @PostMapping("/update-password")
-    public ResponseEntity<String> updatePassword(@RequestBody ForgetPassword request) {
+    public ResponseEntity<Map<String, Object>> updatePassword(@RequestBody ForgetPassword request) {
         try {
-        	forgetPasswordService.updatePassword(request.getPhnum(), request.getOtp(), request.getNewPassword());
-            return ResponseEntity.ok("Password updated successfully");
+            forgetPasswordService.updatePassword(request.getPhnum(), request.getOtp(), request.getNewPassword());
+            return ResponseEntity.ok(Map.of("status", true, "message", "Password updated successfully"));
         } catch (RuntimeException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("status", false, "message", ex.getMessage()));
         }
+    }
 
-}
+
+
     @GetMapping("/branch")
     public List<Branch> getAllBranches() {
         return branchRepo.findAll();

@@ -111,15 +111,15 @@ public class ForgetPasswordServiceImpl implements ForgetPasswordService {
         // Step 1: Validate input parameters
         if (mobileNo == null || mobileNo.isEmpty()) {
             logger.error("Mobile number cannot be null or empty.");
-            throw new IllegalArgumentException("Mobile number cannot be null or empty.");
+            throw new ApiException("Mobile number cannot be null or empty.");
         }
         if (otp == null || otp.isEmpty()) {
             logger.error("OTP cannot be null or empty.");
-            throw new IllegalArgumentException("OTP cannot be null or empty.");
+            throw new ApiException("OTP cannot be null or empty.");
         }
         if (newPassword == null || newPassword.isEmpty()) {
             logger.error("New password cannot be null or empty.");
-            throw new IllegalArgumentException("New password cannot be null or empty.");
+            throw new ApiException("New password cannot be null or empty.");
         }
 
         logger.debug("Updating password for mobile number: {}", mobileNo);
@@ -147,7 +147,7 @@ public class ForgetPasswordServiceImpl implements ForgetPasswordService {
             // Step 4: Check if the OTP has expired
             if (currentTime.isAfter(otpExpirationTime)) {
                 logger.warn("OTP expired for mobile number: {}", mobileNo);
-                throw new RuntimeException("OTP has expired. Please request a new one.");
+                throw new ApiException("OTP has expired. Please request a new one.");
             }
 
 
@@ -164,7 +164,7 @@ public class ForgetPasswordServiceImpl implements ForgetPasswordService {
                     // Step 7: Check if the new password is the same as the old password
                     if (passwordEncoder.matches(newPassword, user.getPassword())) {
                         logger.warn("New password cannot be the same as the old password for mobile number: {}", mobileNo);
-                        throw new RuntimeException("New password cannot be the same as the old password.");
+                        throw new ApiException("New password cannot be the same as the old password.");
                     }
 
                     // Step 8: Encode and update the new password
@@ -177,15 +177,15 @@ public class ForgetPasswordServiceImpl implements ForgetPasswordService {
                     // forgetPasswordRepo.delete(forgetPassword);
                 } else {
                     logger.warn("User not found for the provided mobile number: {}", mobileNo);
-                    throw new RuntimeException("User not found for the provided mobile number.");
+                    throw new ApiException("User not found for the provided mobile number.");
                 }
             } else {
                 logger.warn("Invalid OTP provided for mobile number: {}", mobileNo);
-                throw new RuntimeException("Invalid OTP. Please try again.");
+                throw new ApiException("Invalid OTP. Please try again.");
             }
         } else {
             logger.warn("Forget password request not found for the provided mobile number: {}", mobileNo);
-            throw new RuntimeException("Forget password request not found for the provided mobile number.");
+            throw new ApiException("Forget password request not found for the provided mobile number.");
         }
     }
 
