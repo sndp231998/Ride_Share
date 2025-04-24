@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.ride_share.entities.OtpRequest;
 import com.ride_share.entities.User;
+import com.ride_share.exceptions.ApiException;
 import com.ride_share.repositories.OtpRequestRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.service.OtpRequestService;
@@ -58,7 +59,7 @@ public class OtpRequestServiceImpl implements OtpRequestService {
             logger.info("Response from SMS API: {}", response);
         } catch (Exception e) {
             logger.error("Failed to send OTP to {}", mobileNo, e);
-            throw new RuntimeException("OTP pathauna milena, kripaya feri kosis garnuhos!");
+            throw new ApiException("OTP pathauna milena, kripaya feri kosis garnuhos!");
         }
     }
 

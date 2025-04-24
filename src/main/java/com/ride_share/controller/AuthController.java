@@ -23,28 +23,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ride_share.entities.Branch;
-import com.ride_share.entities.ForgetPassword;
+
 import com.ride_share.entities.OtpRequest;
 import com.ride_share.entities.User;
 import com.ride_share.exceptions.ApiException;
-import com.ride_share.playoads.ForgetPasswordDto;
+import com.ride_share.playoads.ApiResponse;
+
 import com.ride_share.playoads.JwtAuthRequest;
 import com.ride_share.playoads.JwtAuthResponse;
 import com.ride_share.playoads.PriceInfoDto;
+import com.ride_share.playoads.ResetPasswordRequestDto;
 import com.ride_share.playoads.RideRequestDto;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.repositories.BranchRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.security.JwtTokenHelper;
-import com.ride_share.service.ForgetPasswordService;
+
 import com.ride_share.service.OtpRequestService;
 import com.ride_share.service.RideRequestService;
 import com.ride_share.service.UserService;
+import com.ride_share.service.impl.EmailService;
 import com.ride_share.service.impl.RateLimitingService;
-
-
-
-
+import com.ride_share.service.impl.VerificationService;
 
 @RestController
 @RequestMapping("/api/v1/auth/")
@@ -71,10 +71,37 @@ public class AuthController {
 	 private RateLimitingService rateLimitingService;
 	 
 	 @Autowired
-	    private ForgetPasswordService forgetPasswordService;
+	    private BranchRepo branchRepo;
 	 
 	 @Autowired
-	    private BranchRepo branchRepo;
+	 private VerificationService verificationService;
+	 @Autowired
+	 private EmailService emailService;
+	 
+	 @GetMapping("/send")
+	    public String sendOtp(@RequestParam("input") String emailOrMobile) {
+	        verificationService.sendOtp(emailOrMobile);
+	        return "OTP sent to: " + emailOrMobile;
+	    }
+
+	 
+	 @PostMapping("/forgetpw")
+	 public ResponseEntity<ApiResponse> sendResetOtp(@RequestBody ResetPasswordRequestDto request) {
+	     String emailOrMobile = request.getEmailOrMobile();
+	     userService.sendResetPasswordOtp(emailOrMobile);
+	     
+	     String target = emailOrMobile.contains("@") ? "email." : "mobile.";
+	     return ResponseEntity.ok(new ApiResponse("OTP sent successfully to your " + target, true));
+	 }
+
+
+
+	    @PostMapping("/update-password")
+	    public ResponseEntity<ApiResponse> resetPassword(@RequestBody ResetPasswordRequestDto request) {
+	        userService.resetPassword(request.getEmailOrMobile(), request.getOtp(), request.getNewPassword());
+	        return ResponseEntity.ok(new ApiResponse("Password Changed successfully.",true));
+
+	    }
 
 	@PostMapping("/login")
 	public ResponseEntity<JwtAuthResponse> createToken(@RequestBody JwtAuthRequest request) throws Exception {
@@ -133,21 +160,21 @@ public class AuthController {
     			
         return ResponseEntity.ok(ph);
     }
-    @PostMapping("/forgetpw")
-    public ResponseEntity<ForgetPassword> createForgetPassword(@RequestBody ForgetPasswordDto forgetPasswordDto) {
-        ForgetPassword forgetPassword = forgetPasswordService.createForget(forgetPasswordDto);
-        rateLimitingService.checkRateLimit("test-api-key");
-        return ResponseEntity.ok(forgetPassword);
-    }
-    @PostMapping("/update-password")
-    public ResponseEntity<Map<String, Object>> updatePassword(@RequestBody ForgetPassword request) {
-        try {
-            forgetPasswordService.updatePassword(request.getPhnum(), request.getOtp(), request.getNewPassword());
-            return ResponseEntity.ok(Map.of("status", true, "message", "Password updated successfully"));
-        } catch (RuntimeException ex) {
-            return ResponseEntity.badRequest().body(Map.of("status", false, "message", ex.getMessage()));
-        }
-    }
+//    @PostMapping("/forgetpw")
+//    public ResponseEntity<ForgetPassword> createForgetPassword(@RequestBody ForgetPasswordDto forgetPasswordDto) {
+//        ForgetPassword forgetPassword = forgetPasswordService.createForget(forgetPasswordDto);
+//        rateLimitingService.checkRateLimit("test-api-key");
+//        return ResponseEntity.ok(forgetPassword);
+//    }
+//    @PostMapping("/update-password")
+//    public ResponseEntity<Map<String, Object>> updatePassword(@RequestBody ForgetPassword request) {
+//        try {
+//            forgetPasswordService.updatePassword(request.getPhnum(), request.getOtp(), request.getNewPassword());
+//            return ResponseEntity.ok(Map.of("status", true, "message", "Password updated successfully"));
+//        } catch (RuntimeException ex) {
+//            return ResponseEntity.badRequest().body(Map.of("status", false, "message", ex.getMessage()));
+//        }
+//    }
 
 
 

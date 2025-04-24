@@ -19,8 +19,5 @@ void createNotification(Integer userId, String message);
 
 	NotificationDto createNotification(Integer userId, NotificationDto notificationDto);
 
-
-	void notifyExamScore(Integer userId, String examTitle, double score);
-
 	
 }

@@ -42,11 +42,13 @@ public interface UserService {
 		
 	//---------------forget password---------------
 	    UserDto updatePassword(UserDto user ,Integer userId);
-	    UserDto GetOtp(UserDto user,Integer userId);
+	    //UserDto GetOtp(UserDto user,Integer userId);
 
 		UserDto UserModeChanger(Integer userId);
 
-		
+		void sendResetPasswordOtp(String emailOrMobile);
+		void resetPassword(String emailOrMobile, String otp, String newPassword);
+
 
 		UserDto updateManager(UserDto userDto, Integer userId, Integer branchId);
 

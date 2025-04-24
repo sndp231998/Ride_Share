@@ -31,6 +31,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     
   //call from other class
+    //create notification for specific user
     @Override
     public void createNotification(Integer userId, String message) {
         User user = userRepo.findById(userId)
@@ -41,6 +42,7 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepo.save(notification);
     }
     
+    // create notification for all user 
     @Override
     public NotificationDto createNotification(Integer userId, NotificationDto notificationDto) {
         User user = userRepo.findById(userId)
@@ -56,11 +58,7 @@ public class NotificationServiceImpl implements NotificationService {
         return savedAotDto;
     }
 
-    
-    
-    
-    
-    
+ 
     @Override
     public List<Notification> getUnreadNotificationsForUser(Integer userId) {
         return notificationRepo.findByUserIdAndIsReadFalse(userId);
@@ -83,13 +81,6 @@ public class NotificationServiceImpl implements NotificationService {
                 .collect(Collectors.toList());
     }
 
-
- // New method to create exam score notification
-   @Override
-    public void notifyExamScore(Integer userId, String examTitle, double score) {
-        String message = String.format("You have received a score of %.2f for the exam: %s", score, examTitle);
-        createNotification(userId, message);
-    }
 
 
 	

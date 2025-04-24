@@ -74,8 +74,7 @@ public class User implements UserDetails{
         @Column(name = "date_of_registration")
         private LocalDateTime dateOfRegistration;
         private LocalDateTime date_Of_Role_Changed;
-        private LocalDateTime otpValidUntil;
-        private String otp;
+       
         
 	    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 		@JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role", referencedColumnName = "id"))
@@ -84,11 +83,7 @@ public class User implements UserDetails{
 	    //user lai [http://localhost:8085/api/v1/auth/branch] yo dine ui side ma
 	    //let to choose branch
 	    private String branch_Name;
-	    
-	   private String date_of_Birth;
 	   
-
-	 
 	   @Embedded
 	    private ManagerAddress managerAddress;
 	    

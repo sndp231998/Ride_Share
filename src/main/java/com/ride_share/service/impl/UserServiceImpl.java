@@ -1,4 +1,5 @@
 package com.ride_share.service.impl;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-
 import com.ride_share.config.AppConstants;
 import com.ride_share.entities.Branch;
 import com.ride_share.entities.OtpRequest;
@@ -28,6 +28,7 @@ import com.ride_share.exceptions.ResourceNotFoundException;
 import com.ride_share.playoads.Location;
 import com.ride_share.playoads.ManagerAddress;
 import com.ride_share.playoads.UserDto;
+import com.ride_share.playoads.VerificationDto;
 import com.ride_share.repositories.BranchRepo;
 import com.ride_share.repositories.OtpRequestRepo;
 import com.ride_share.repositories.RiderApprovalRequestRepo;
@@ -42,7 +43,7 @@ import com.ride_share.service.UserService;
 public class UserServiceImpl implements UserService {
 	  private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 	    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
-
+	    private static final long OTP_VALID_DURATION = 5 * 60; // 5 min in seconds
 	    
 	    @Autowired
 	    private UserRepo userRepo;
@@ -68,7 +69,83 @@ public class UserServiceImpl implements UserService {
 		   
 		   @Autowired
 		   private RiderApprovalRequestRepo approvalRequestRepo;
+		   @Autowired
+			private VerificationService verificationService;
+		   
+		   
+		   
+		   
+		   
+		   @Override
+			public UserDto registerNewUser(UserDto userDto) {
+			    User user = this.modelMapper.map(userDto, User.class);
+	    
+			    String emailKey = "email:" + userDto.getEmail();
+			    String mobileKey = "mobile:" + userDto.getMobileNo();
 
+			    VerificationDto emailOtp = verificationService.getOtpDetails(emailKey);
+			    VerificationDto mobileOtp = verificationService.getOtpDetails(mobileKey);
+
+			    VerificationDto validOtp = null;
+			    String validKey = null;
+
+			    if (emailOtp != null && emailOtp.getOtp().equals(userDto.getOtp())) {
+			        validOtp = emailOtp;
+			        validKey = emailKey;
+			    } else if (mobileOtp != null && mobileOtp.getOtp().equals(userDto.getOtp())) {
+			        validOtp = mobileOtp;
+			        validKey = mobileKey;
+			    } else {
+			        throw new ApiException("Invalid OTP!");
+			    }
+
+			    // Time validation
+			    if (Duration.between(validOtp.getTimestamp(), Instant.now()).getSeconds() > OTP_VALID_DURATION) {
+			        verificationService.removeOtp(validKey);
+			        throw new ApiException("OTP expired! Please request a new one.");
+			    }
+
+			    // OTP valid => remove it
+			    verificationService.removeOtp(validKey);
+
+	            user.setImageName("");
+			    // encoded the password
+			    user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+
+	           // String otp = userDto.getOtp();
+	            user.setMobileNo(userDto.getMobileNo());
+	            user.setEmail(userDto.getEmail());
+	            user.setDateOfRegistration(LocalDateTime.now());
+			    // roles
+			    Role role = this.roleRepo.findById(AppConstants.NORMAL_USER).get();
+			    user.getRoles().add(role);		   
+			    user.setModes(UserMode.PESSENGER);
+			    
+		        User newUser = this.userRepo.save(user);
+		        
+		        String welcomeMessage = String.format("Welcome, %s! We're excited to have you on our Ride-Share. Dive in and enjoy the journey ahead! "
+		        		+ "Thank you for choosing us, Tuffan", user.getName());
+		        sendmsg.sendMessage(user.getMobileNo(), welcomeMessage); // Assuming notificationService sends SMS
+
+		     // Create in-app notification
+		     //   notificationService.createNotification(newUser.getId(), welcomeMessage);	   
+			    return this.modelMapper.map(newUser, UserDto.class);
+			}
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
 		   
 		   
 		   @Override
@@ -156,74 +233,7 @@ public class UserServiceImpl implements UserService {
 		   
 		   
 		   
-		@Override
-		public UserDto registerNewUser(UserDto userDto) {
-		    User user = this.modelMapper.map(userDto, User.class);
-
-		    // encoded the password
-		    user.setPassword(this.passwordEncoder.encode(user.getPassword()));
-            user.setImageName("");
-            user.setMobileNo(userDto.getMobileNo());
-            //[otp req garako num ra reg bata aako num same hunu parxa yo valid garna baki xa
-            user.setDateOfRegistration(LocalDateTime.now());
-		    // roles
-		    Role role = this.roleRepo.findById(AppConstants.NORMAL_USER).get();
-		    user.getRoles().add(role);		   
-		    user.setModes(UserMode.PESSENGER);
-		    // Validate and associate branch
-		    String branchName = userDto.getBranch_Name();
-		    Branch branch = this.branchRepo.findByName(branchName)
-		                    .orElseThrow(() -> new ApiException("Please select valid branch: " + branchName));
-		    
-		    user.setBranch_Name(branch.getName()); // Ensure it matches exactly
-		    
-		    user.setBranch_Name(userDto.getBranch_Name());
-		    String otp = userDto.getOtp();
-		    // Logging OTP from user
-	        logger.info("Otp from user: " + otp);
-	        
-	        if (otp == null) {
-	            throw new ApiException("OTP must be provided");
-	        }
-	        
-	        // Get OTP requests from the repository
-	        List<OtpRequest> otpRequests = this.otpRepo.findByOtp(otp);
-	        logger.info("Retrieved OTP requests: " + otpRequests);
-	        
-	        // Iterate through each OTP request and check validity
-	        OtpRequest validOtpRequest = null;
-	        for (OtpRequest otpRequest : otpRequests) {
-	            // Null check before comparison
-	            if (otpRequest.getOtp() != null && otpRequest.getOtp().equals(otp)) {
-	                LocalDateTime otpValidUntil = otpRequest.getOtpValidUntil();
-	                if (otpValidUntil != null) {
-	                    Instant otpValidUntilInstant = otpValidUntil.atZone(ZoneId.systemDefault()).toInstant();
-	                    Instant now = Instant.now();
-	                    if (otpValidUntilInstant.isAfter(now)) {
-	                        validOtpRequest = otpRequest;
-	                        break; // Exit the loop if a valid OTP is found
-	                    }
-	                }
-	            }
-	        }
-	        
-	        if (validOtpRequest == null) {
-	            throw new ApiException("Invalid or expired OTP");
-	        }
-	        
-	        String mobileNo = validOtpRequest.getMobileNo();
-	        user.setMobileNo(mobileNo);
-	        
-	        User newUser = this.userRepo.save(user);
-	        
-	        String welcomeMessage = String.format("Welcome, %s! We're excited to have you on our Ride-Share. Dive in and enjoy the journey ahead! "
-	        		+ "Thank you for choosing us, Tuffan", user.getName());
-	        sendmsg.sendMessage(user.getMobileNo(), welcomeMessage); // Assuming notificationService sends SMS
-
-	     // Create in-app notification
-	     //   notificationService.createNotification(newUser.getId(), welcomeMessage);	   
-		    return this.modelMapper.map(newUser, UserDto.class);
-		}
+		
 		
 		
 		@Override
@@ -252,7 +262,7 @@ public class UserServiceImpl implements UserService {
 		    // Always allow these to update
 		    user.setName(userDto.getName());
 		    user.setImageName(userDto.getImageName());
-		    user.setDate_of_Birth(userDto.getDate_of_Birth());
+		    
 
 		    User updatedUser = this.userRepo.save(user);
 		    return this.modelMapper.map(updatedUser, UserDto.class);
@@ -377,17 +387,17 @@ public class UserServiceImpl implements UserService {
 		
 	}
 
-	@Override
-	public UserDto GetOtp(UserDto userDto, Integer userId) {
-		  User user = this.userRepo.findById(userId)
-	                .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
-
-	        // Saving OTP to User table (optional step)
-	        user.setOtp(userDto.getOtp());
-	        
-	        // Save and return updated user with OTP
-	        return modelMapper.map(userRepo.save(user), UserDto.class);
-	}
+//	@Override
+//	public UserDto GetOtp(UserDto userDto, Integer userId) {
+//		  User user = this.userRepo.findById(userId)
+//	                .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
+//
+//	        // Saving OTP to User table (optional step)
+//	        user.setOtp(userDto.getOtp());
+//	        
+//	        // Save and return updated user with OTP
+//	        return modelMapper.map(userRepo.save(user), UserDto.class);
+//	}
 	
 	@Override
 	 public Location getLocationByUserId(Integer userId) {
@@ -412,7 +422,35 @@ public class UserServiceImpl implements UserService {
         return modelMapper.map(user, UserDto.class);
    }
 	
-	
+	@Override
+	public void sendResetPasswordOtp(String emailOrMobile) {
+	    // Ensure user exists before sending OTP
+	    userRepo.findByEmail(emailOrMobile)
+	        .or(() -> userRepo.findByMobileNo(emailOrMobile))
+	        .orElseThrow(() -> new ResourceNotFoundException("User", "emailOrMobile", emailOrMobile));
+
+	    // Send OTP via VerificationService (your existing logic)
+	    verificationService.sendOtpForReset(emailOrMobile);
+	}
+	@Override
+	public void resetPassword(String emailOrMobile, String otp, String newPassword) {
+	    boolean isValid = verificationService.verifyOtp(emailOrMobile, otp);
+
+	    if (!isValid) {
+	        throw new ApiException("Invalid or expired OTP");
+	    }
+
+	    User user = userRepo.findByEmail(emailOrMobile)
+	        .or(() -> userRepo.findByMobileNo(emailOrMobile))
+	        .orElseThrow(() -> new ResourceNotFoundException("User", "emailOrMobile", emailOrMobile));
+
+	    user.setPassword(passwordEncoder.encode(newPassword));
+	    userRepo.save(user);
+
+	    verificationService.removeOtp(emailOrMobile);  // Remove after successful reset
+	}
+
+
 
 	
 //	public UserDto UserBlanceUpdate(UserDto userDto,Integer userId) {
