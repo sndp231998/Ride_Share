@@ -24,13 +24,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ride_share.entities.Branch;
 
-import com.ride_share.entities.OtpRequest;
 import com.ride_share.entities.User;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.playoads.ApiResponse;
 
 import com.ride_share.playoads.JwtAuthRequest;
 import com.ride_share.playoads.JwtAuthResponse;
+import com.ride_share.playoads.OtpRequestDto;
 import com.ride_share.playoads.PriceInfoDto;
 import com.ride_share.playoads.ResetPasswordRequestDto;
 import com.ride_share.playoads.RideRequestDto;
@@ -39,10 +39,10 @@ import com.ride_share.repositories.BranchRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.security.JwtTokenHelper;
 
-import com.ride_share.service.OtpRequestService;
+
 import com.ride_share.service.RideRequestService;
 import com.ride_share.service.UserService;
-import com.ride_share.service.impl.EmailService;
+
 import com.ride_share.service.impl.RateLimitingService;
 import com.ride_share.service.impl.VerificationService;
 
@@ -63,9 +63,7 @@ public class AuthController {
 	
 	 @Autowired
 	    private RideRequestService rideRequestService;
-	
-	 @Autowired
-	   private OtpRequestService otpRequestService;
+
 	  
 	 @Autowired
 	 private RateLimitingService rateLimitingService;
@@ -75,14 +73,19 @@ public class AuthController {
 	 
 	 @Autowired
 	 private VerificationService verificationService;
-	 @Autowired
-	 private EmailService emailService;
+	
 	 
 	 @GetMapping("/send")
 	    public String sendOtp(@RequestParam("input") String emailOrMobile) {
 	        verificationService.sendOtp(emailOrMobile);
 	        return "OTP sent to: " + emailOrMobile;
 	    }
+
+	 @PostMapping("/verify")
+	 public ResponseEntity<ApiResponse> verify(@RequestBody OtpRequestDto request) {
+	     ApiResponse response = userService.verifyUser(request.getEmailOrMobile(), request.getOtp());
+	     return ResponseEntity.ok(response);
+	 }
 
 	 
 	 @PostMapping("/forgetpw")
@@ -151,32 +154,6 @@ public class AuthController {
 		return new ResponseEntity<UserDto>(this.mapper.map(user, UserDto.class), HttpStatus.OK);
 	}
 	
-	//otp for registration
-    @PostMapping("/get-phone-number")
-    public ResponseEntity<OtpRequest> createOtp(@RequestBody OtpRequest otpReq) {
-    	
-    	OtpRequest ph = otpRequestService.createOtp(otpReq);
-    	
-    			
-        return ResponseEntity.ok(ph);
-    }
-//    @PostMapping("/forgetpw")
-//    public ResponseEntity<ForgetPassword> createForgetPassword(@RequestBody ForgetPasswordDto forgetPasswordDto) {
-//        ForgetPassword forgetPassword = forgetPasswordService.createForget(forgetPasswordDto);
-//        rateLimitingService.checkRateLimit("test-api-key");
-//        return ResponseEntity.ok(forgetPassword);
-//    }
-//    @PostMapping("/update-password")
-//    public ResponseEntity<Map<String, Object>> updatePassword(@RequestBody ForgetPassword request) {
-//        try {
-//            forgetPasswordService.updatePassword(request.getPhnum(), request.getOtp(), request.getNewPassword());
-//            return ResponseEntity.ok(Map.of("status", true, "message", "Password updated successfully"));
-//        } catch (RuntimeException ex) {
-//            return ResponseEntity.badRequest().body(Map.of("status", false, "message", ex.getMessage()));
-//        }
-//    }
-
-
 
     @GetMapping("/branch")
     public List<Branch> getAllBranches() {

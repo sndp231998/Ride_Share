@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.ride_share.config.AppConstants;
 import com.ride_share.entities.Branch;
-import com.ride_share.entities.OtpRequest;
+
 import com.ride_share.entities.Rider;
 import com.ride_share.entities.RiderApprovalRequest;
 import com.ride_share.entities.Role;
@@ -25,17 +25,18 @@ import com.ride_share.entities.User;
 import com.ride_share.entities.User.UserMode;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
+import com.ride_share.playoads.ApiResponse;
 import com.ride_share.playoads.Location;
 import com.ride_share.playoads.ManagerAddress;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.playoads.VerificationDto;
 import com.ride_share.repositories.BranchRepo;
-import com.ride_share.repositories.OtpRequestRepo;
+
 import com.ride_share.repositories.RiderApprovalRequestRepo;
 import com.ride_share.repositories.RiderRepo;
 import com.ride_share.repositories.RoleRepo;
 import com.ride_share.repositories.UserRepo;
-import com.ride_share.service.OtpRequestService;
+
 import com.ride_share.service.UserService;
 
 
@@ -58,12 +59,7 @@ public class UserServiceImpl implements UserService {
 		private RoleRepo roleRepo;
 		
 	    
-		@Autowired
-	    private OtpRequestRepo otpRepo;
 		
-		   @Autowired
-		   private OtpRequestService sendmsg;
-		   
 		   @Autowired
 		   private BranchRepo branchRepo;
 		   
@@ -72,7 +68,8 @@ public class UserServiceImpl implements UserService {
 		   @Autowired
 			private VerificationService verificationService;
 		   
-		   
+		   @Autowired
+		   private EmailService emailService;
 		   
 		   
 		   
@@ -125,8 +122,8 @@ public class UserServiceImpl implements UserService {
 		        
 		        String welcomeMessage = String.format("Welcome, %s! We're excited to have you on our Ride-Share. Dive in and enjoy the journey ahead! "
 		        		+ "Thank you for choosing us, Tuffan", user.getName());
-		        sendmsg.sendMessage(user.getMobileNo(), welcomeMessage); // Assuming notificationService sends SMS
-
+		       
+		        emailService.sendOtpMobile(user.getMobileNo(), welcomeMessage);
 		     // Create in-app notification
 		     //   notificationService.createNotification(newUser.getId(), welcomeMessage);	   
 			    return this.modelMapper.map(newUser, UserDto.class);
@@ -139,8 +136,30 @@ public class UserServiceImpl implements UserService {
 		   
 		   
 		   
-		   
-		   
+		    @Override
+		   public ApiResponse verifyUser(String emailOrMobile, String otp) {
+			    VerificationDto dto = verificationService.getOtpDetails(
+			        emailOrMobile.contains("@") ? "email:" + emailOrMobile : "mobile:" + emailOrMobile
+			    );
+
+			    if (dto == null) {
+			        return new ApiResponse("No OTP found for this user", false);
+			    }
+
+			    if (!dto.getOtp().equals(otp)) {
+			        return new ApiResponse("Invalid OTP", false);
+			    }
+
+			    if (Duration.between(dto.getTimestamp(), Instant.now()).getSeconds() > OTP_VALID_DURATION) {
+			        verificationService.removeOtp(emailOrMobile);
+			        return new ApiResponse("OTP expired", false);
+			    }
+
+			    // verified => remove OTP
+			    //verificationService.removeOtp(emailOrMobile);
+			    return new ApiResponse("User verified successfully", true);
+			}
+
 		   
 		   
 		   
@@ -351,41 +370,41 @@ public class UserServiceImpl implements UserService {
     
 	}
 
-	@Override
-	public UserDto updatePassword(UserDto userDto, Integer userId) {
-		User user = this.userRepo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
-
-		String otp=userDto.getOtp();
-		if(otp==null) {
-			throw new IllegalArgumentException("OTP must be provided");
-		}
-		// Fetch the OTP from the database
-	    List<OtpRequest> otpRequests = this.otpRepo.findByOtp(otp);
-	    OtpRequest validOtpRequest = null;
-	    for (OtpRequest otpRequest : otpRequests) {
-	        if (otpRequest.getOtp() != null && otpRequest.getOtp().equals(otp)) {
-	            LocalDateTime otpValidUntil = otpRequest.getOtpValidUntil();
-	            if (otpValidUntil != null) {
-	                Instant otpValidUntilInstant = otpValidUntil.atZone(ZoneId.systemDefault()).toInstant();
-	                Instant now = Instant.now();
-	                if (otpValidUntilInstant.isAfter(now)) {
-	                    validOtpRequest = otpRequest;
-	                    break; // Found valid OTP, exit loop
-	                }
-	            }
-	        }
-	    }
-	    if (validOtpRequest == null) {
-	        throw new IllegalArgumentException("Invalid or expired OTP");
-	    }
-	    // OTP is valid, proceed to update the password
-	    user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-	    User updatedUser = userRepo.save(user);
-
-	    return modelMapper.map(updatedUser, UserDto.class);
-		
-	}
+//	@Override
+//	public UserDto updatePassword(UserDto userDto, Integer userId) {
+//		User user = this.userRepo.findById(userId)
+//                .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
+//
+//		String otp=userDto.getOtp();
+//		if(otp==null) {
+//			throw new IllegalArgumentException("OTP must be provided");
+//		}
+//		// Fetch the OTP from the database
+//	    List<OtpRequest> otpRequests = this.otpRepo.findByOtp(otp);
+//	    OtpRequest validOtpRequest = null;
+//	    for (OtpRequest otpRequest : otpRequests) {
+//	        if (otpRequest.getOtp() != null && otpRequest.getOtp().equals(otp)) {
+//	            LocalDateTime otpValidUntil = otpRequest.getOtpValidUntil();
+//	            if (otpValidUntil != null) {
+//	                Instant otpValidUntilInstant = otpValidUntil.atZone(ZoneId.systemDefault()).toInstant();
+//	                Instant now = Instant.now();
+//	                if (otpValidUntilInstant.isAfter(now)) {
+//	                    validOtpRequest = otpRequest;
+//	                    break; // Found valid OTP, exit loop
+//	                }
+//	            }
+//	        }
+//	    }
+//	    if (validOtpRequest == null) {
+//	        throw new IllegalArgumentException("Invalid or expired OTP");
+//	    }
+//	    // OTP is valid, proceed to update the password
+//	    user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+//	    User updatedUser = userRepo.save(user);
+//
+//	    return modelMapper.map(updatedUser, UserDto.class);
+//		
+//	}
 
 //	@Override
 //	public UserDto GetOtp(UserDto userDto, Integer userId) {

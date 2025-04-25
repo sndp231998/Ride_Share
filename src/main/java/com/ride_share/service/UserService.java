@@ -3,6 +3,7 @@ package com.ride_share.service;
 import java.util.List;
 import java.util.Set;
 
+import com.ride_share.playoads.ApiResponse;
 import com.ride_share.playoads.Location;
 import com.ride_share.playoads.UserDto;
 
@@ -41,7 +42,7 @@ public interface UserService {
 	   // List<UserDto>getUsersByPayment(String )
 		
 	//---------------forget password---------------
-	    UserDto updatePassword(UserDto user ,Integer userId);
+	   // UserDto updatePassword(UserDto user ,Integer userId);
 	    //UserDto GetOtp(UserDto user,Integer userId);
 
 		UserDto UserModeChanger(Integer userId);
@@ -55,5 +56,7 @@ public interface UserService {
 		UserDto updateCurrentLocation(UserDto userDto, Integer userId);
 
 		Location getLocationByUserId(Integer userId);
+
+		ApiResponse verifyUser(String emailOrMobile, String otp);
 
 }
