@@ -161,7 +161,9 @@ public class AuthController {
     public List<Branch> getAllBranches() {
         return branchRepo.findAll();
     }  
-    @GetMapping("/ride/price")
+    
+    
+    @PostMapping("/ride/price")
     public ResponseEntity<PriceInfoDto> getPriceInfo(
             @RequestBody RideRequestDto rideRequestDto,
             @RequestParam Integer userId,
