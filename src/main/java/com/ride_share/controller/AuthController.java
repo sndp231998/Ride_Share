@@ -75,11 +75,13 @@ public class AuthController {
 	 private VerificationService verificationService;
 	
 	 
-	 @GetMapping("/send")
-	    public String sendOtp(@RequestParam("input") String emailOrMobile) {
-	        verificationService.sendOtp(emailOrMobile);
-	        return "OTP sent to: " + emailOrMobile;
-	    }
+	 @PostMapping("/send")
+	 public ResponseEntity<ApiResponse> sendOtp(@RequestParam("input") String emailOrMobile) {
+	     verificationService.sendOtp(emailOrMobile);
+	     ApiResponse response = new ApiResponse( "OTP sent to: " + emailOrMobile,true);
+	     return ResponseEntity.ok(response);
+	 }
+
 
 	 @PostMapping("/verify")
 	 public ResponseEntity<ApiResponse> verify(@RequestBody OtpRequestDto request) {

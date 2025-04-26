@@ -65,7 +65,7 @@ public class UserDto {
       
      // private LocalDateTime otpValidUntil;
 	
-      private String date_of_Birth;
+      //private String date_of_Birth;
       
       private String mode;
       
