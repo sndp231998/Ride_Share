@@ -35,6 +35,7 @@ public class RideRequestController {
         return ResponseEntity.ok(rideRequests);
     }
    
+    //approved ride request by pessenger
     @PutMapping("/approve/{riderApprovalId}/riderequest/{rideRequestId}")
     public ResponseEntity<RideRequestDto> approveRideRequest(
             @PathVariable Integer riderApprovalId,
