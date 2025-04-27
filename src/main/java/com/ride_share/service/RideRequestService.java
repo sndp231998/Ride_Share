@@ -34,7 +34,7 @@ public interface RideRequestService {
 	RideRequestDto approveRideRequestByRider(RideRequestDto rideRequestDto, Integer userId, Integer rideRequestId);
 
 
-	RideRequestDto approveRideRequestByPassenger(Integer rideRequestId, Integer userId, Integer currentUserId);
+	//RideRequestDto approveRideRequestByPassenger(Integer rideRequestId, Integer userId, Integer currentUserId);
 
 	PriceInfoDto determinePrice(RideRequestDto rideRequestDto, Integer userId, Integer categoryId);
 

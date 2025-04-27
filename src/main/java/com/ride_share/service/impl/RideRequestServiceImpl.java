@@ -452,7 +452,7 @@ public class RideRequestServiceImpl implements RideRequestService {
 	    if (rideRequest.getStatus() == RideRequest.RideStatus.PESSENGER_APPROVED ||
 	    		rideRequest.getStatus() == RideRequest.RideStatus.REJECTED
 	    		) {
-	        throw new IllegalStateException("This ride request has already been approved/rejected.");
+	        throw new ApiException("This ride request has already been approved/rejected.");
 	    }
    	
     if (user.getCurrentLocation() == null) {
@@ -762,16 +762,6 @@ public class RideRequestServiceImpl implements RideRequestService {
 //  	  webSocketController.sendRideStatusUpdate(rideRequest);
 //  	    return modelMapper.map(approvedRide, RideRequestDto.class);
 //  	}
-
-	
-
-	@Override
-	public RideRequestDto approveRideRequestByPassenger(Integer rideRequestId, Integer userId, Integer currentUserId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	
 
 //    @Override
 //    public Set<UserDto> getRidersForRideRequest(Integer rideRequestId) {
