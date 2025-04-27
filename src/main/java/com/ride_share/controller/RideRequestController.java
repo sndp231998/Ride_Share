@@ -28,13 +28,19 @@ public class RideRequestController {
     private RideRequestService rideRequestService;
     
     
-    
+    //for rider pending riders
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<RideRequestDto>> getRideRequestsByUserCategory(@PathVariable int userId) {
         List<RideRequestDto> rideRequests = rideRequestService.getRideRequestsByUserCategory(userId);
         return ResponseEntity.ok(rideRequests);
     }
-   
+   //for rider side
+    @GetMapping("/pending/{userId}")
+    public ResponseEntity<List<RideRequestDto>> SortedPendingRideRequests(@PathVariable int userId) {
+        List<RideRequestDto> rideRequests = rideRequestService.getSortedPendingRideRequests(userId);
+        return ResponseEntity.ok(rideRequests);
+    }
+
     //approved ride request by pessenger
     @PutMapping("/approve/{riderApprovalId}/riderequest/{rideRequestId}")
     public ResponseEntity<RideRequestDto> approveRideRequest(

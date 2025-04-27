@@ -1,6 +1,7 @@
 package com.ride_share.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,9 +28,11 @@ import com.ride_share.entities.Vehicle;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
 import com.ride_share.playoads.DistanceMatrixResponse;
+import com.ride_share.playoads.Location;
 import com.ride_share.playoads.PriceInfoDto;
 import com.ride_share.playoads.RideInfoDto;
 import com.ride_share.playoads.RideRequestDto;
+import com.ride_share.playoads.RideRequestWithDistanceDto;
 import com.ride_share.playoads.RiderApprovalRequestDto;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.playoads.VehicleDto;
@@ -85,8 +88,6 @@ public class RideRequestServiceImpl implements RideRequestService {
     // Existing methods (create, update, delete, get, etc.)
     
     
-    
-    
     @Override
     public List<RideRequestDto> getRideRequestsByUserCategory(int userId) {
     
@@ -130,6 +131,87 @@ public class RideRequestServiceImpl implements RideRequestService {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    @Override
+    public List<RideRequestDto> getSortedPendingRideRequests(int riderUserId) {
+
+        // 1. Get Rider's current location
+        User rider = userRepo.findById(riderUserId)
+                .orElseThrow(() -> new ApiException("User not found"));
+        
+        Location riderLocation = rider.getCurrentLocation();
+        if (riderLocation == null) {
+            throw new ApiException("User current location not available");
+        }
+
+        // 2. Get Rider's category
+        Optional<Vehicle> vehicleOpt = vehicleRepo.findByUserId(riderUserId);
+        Integer categoryId = null;
+        
+        if (vehicleOpt.isPresent()) {
+            categoryId = vehicleOpt.get().getCategory().getCategoryId();
+        } else {
+            Optional<Rider> riderOpt = riderRepo.findByUserId(riderUserId);
+            if (riderOpt.isPresent()) {
+                categoryId = riderOpt.get().getCategory().getCategoryId();
+            }
+        }
+        
+        if (categoryId == null) {
+            throw new ApiException("User does not have a category assigned via Vehicle or Rider");
+        }
+
+        // 3. Fetch all pending ride requests by category
+        List<RideRequest> rideRequests = rideRequestRepo.findByCategory_CategoryId(categoryId);
+
+        // 4. Filter ride requests within 10km pickup distance using Google API
+        List<RideRequest> filteredRideRequests = new ArrayList<>();
+        
+        for (RideRequest ride : rideRequests) {
+            try {
+                DistanceMatrixResponse distanceData = mapServiceImpl.getDistanceMatrixData(
+                        riderLocation.getLatitude(),
+                        riderLocation.getLongitude(),
+                        ride.getS_latitude(),
+                        ride.getS_longitude()
+                );
+                if (distanceData.getDistanceKm() <= 10.0) { // Only within 10 km road distance
+                    filteredRideRequests.add(ride);
+                }
+            } catch (Exception e) {
+                // Log error and continue
+                System.err.println("Failed to fetch distance for RideRequestId " + ride.getRideRequestId() + ": " + e.getMessage());
+            }
+        }
+
+        // 5. Map to DTO
+        List<RideRequestDto> dtoList = filteredRideRequests.stream().map(ride -> 
+            RideRequestDto.builder()
+                .rideRequestId(ride.getRideRequestId())
+                .actualPrice(ride.getActualPrice())
+                .d_latitude(ride.getD_latitude())
+                .d_longitude(ride.getD_longitude())
+                .d_Name(ride.getD_Name())
+                .s_latitude(ride.getS_latitude())
+                .s_longitude(ride.getS_longitude())
+                .s_Name(ride.getS_Name())
+                .build()
+        ).collect(Collectors.toList());
+
+        return dtoList;
+    }
+
+ 
+    
+ 
     
     
     @Override

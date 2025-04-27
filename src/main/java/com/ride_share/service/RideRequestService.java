@@ -45,5 +45,7 @@ public interface RideRequestService {
 
 	List<RideRequestDto> getRideRequestsByUserCategory(int userId);
 
+	List<RideRequestDto> getSortedPendingRideRequests(int riderUserId);
+
 
 }
