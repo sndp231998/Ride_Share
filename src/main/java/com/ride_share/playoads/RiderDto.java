@@ -7,6 +7,7 @@ import javax.persistence.Column;
 
 import com.ride_share.entities.Category;
 import com.ride_share.entities.User;
+import com.ride_share.entities.Vehicle;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +27,7 @@ public class RiderDto {
 	    
 	    private String date_Of_Birth;
 	    
-	    private String balance;
+	    private Double balance;
 	    
 	    private LocalDateTime addedDate;
 	    @Column(name = "updated_date")
@@ -39,7 +40,7 @@ private RiderStatus status;
 	    public enum RiderStatus {
 	        PENDING, APPROVED, REJECTED
 	    }
-	    
+	    private VehicleDto vehicle;
 	    private UserDto user;
 	    private CategoryDto category;
 }

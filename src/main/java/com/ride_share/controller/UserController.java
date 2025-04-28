@@ -86,7 +86,7 @@ public class UserController {
 			return ResponseEntity.ok(updatedUser);
 		}
 
-		@PreAuthorize("hasRole('ADMIN')")
+		//@PreAuthorize("hasRole('ADMIN')")
 		@DeleteMapping("/{userId}")
 		public ResponseEntity<ApiResponse> deleteUser(@PathVariable("userId") Integer uid) {
 			this.userService.deleteUser(uid);
@@ -95,7 +95,7 @@ public class UserController {
 
 		
 		
-		@PreAuthorize("hasRole('ADMIN')")
+		//@PreAuthorize("hasRole('ADMIN')")
 		@GetMapping("/")
 		public ResponseEntity<List<UserDto>> getAllUsers() {
 			 rateLimitingService.checkRateLimit("test-api-key");
@@ -106,7 +106,7 @@ public class UserController {
 			return ResponseEntity.ok(this.userService.getUserById(userId));
 		}
 		//-----------------ROles change----------------
-		 @PreAuthorize("hasRole('ADMIN')")
+		// @PreAuthorize("hasRole('ADMIN')")
 		    @PostMapping("/addRole/email/{email}/role/{roleName}")
 		    public ResponseEntity<ApiResponse> addRoleToUser(@PathVariable String email, @PathVariable String roleName) {
 		        userService.addRoleToUser(email, roleName);
@@ -125,7 +125,7 @@ public class UserController {
 	        return new ResponseEntity<>(user, HttpStatus.OK);
 	    }
 		
-		@PreAuthorize("hasRole('ADMIN')")
+		//@PreAuthorize("hasRole('ADMIN')")
 	    @GetMapping("/role/{roleName}")
 	    public ResponseEntity<List<UserDto>> getUsersByRole(@PathVariable String roleName) {
 	        List<UserDto> users = userService.getUsersByRole(roleName);

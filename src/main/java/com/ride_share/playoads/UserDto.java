@@ -48,7 +48,7 @@ public class UserDto {
 	private String imageName;
 	  @Schema(hidden = true)
 	private String  otp;
-	 private String balance;
+	
 	private String branch_Name;
 	
 	 private UserMode modes;
@@ -63,14 +63,9 @@ public class UserDto {
 
       //private LocalDateTime date_Of_Role_Changed;
       
-     // private LocalDateTime otpValidUntil;
-	
-      //private String date_of_Birth;
-      
-      private String mode;
       
 	private Set<RoleDto> roles = new HashSet<>();
-	private Set<VehicleDto> vehicles; 
+	//private Set<VehicleDto> vehicles; 
 	
 	
 	@JsonIgnore

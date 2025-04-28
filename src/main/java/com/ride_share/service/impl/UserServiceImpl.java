@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService {
 	            user.setImageName("");
 			    // encoded the password
 			    user.setPassword(this.passwordEncoder.encode(user.getPassword()));
-
+               
 	           // String otp = userDto.getOtp();
 	            user.setMobileNo(userDto.getMobileNo());
 	            user.setEmail(userDto.getEmail());
@@ -280,8 +280,9 @@ public class UserServiceImpl implements UserService {
 
 		    // Always allow these to update
 		    user.setName(userDto.getName());
+		    if(userDto.getImageName()!=null) {
 		    user.setImageName(userDto.getImageName());
-		    
+		    }
 
 		    User updatedUser = this.userRepo.save(user);
 		    return this.modelMapper.map(updatedUser, UserDto.class);
@@ -294,12 +295,6 @@ public class UserServiceImpl implements UserService {
 		    User savedUser = this.userRepo.save(userEntity);
 		    return this.userToDto(savedUser);
 		}
-
-
-
-
-	
-	
 
 
 	@Override
@@ -333,23 +328,32 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void addRoleToUser(String email, String roleName) {
-		   // Fetch user by email, throw exception if not found
-        User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+	    // Fetch the role object for ROLE_RIDER from database
+	    Role riderRole = this.roleRepo.findById(AppConstants.RIDER_USER)
+	            .orElseThrow(() -> new ResourceNotFoundException("Role", "ID", AppConstants.RIDER_USER));
 
-        // Fetch role by name, throw exception if not found
-        Role role = roleRepo.findByName(roleName)
-                .orElseThrow(() -> new ResourceNotFoundException("Role", "name", roleName));
+	    // Check: if trying to assign ROLE_RIDER, throw exception
+	    if (riderRole.getName().equals(roleName)) {
+	        throw new ApiException("Not allowed to assign ROLE_RIDER from this method.");
+	    }
 
-        // Clear existing roles and assign new role
-        user.getRoles().clear();  // Clear all existing roles
-        user.getRoles().add(role);  // Assign new role
-        user.setDate_Of_Role_Changed(LocalDateTime.now());  // Update role change date
-        
-        // Save updated user
-        userRepo.save(user);
-        System.out.println("User role changed to " + roleName + ".");
+	    // Fetch user by email
+	    User user = userRepo.findByEmail(email)
+	            .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+
+	    // Fetch role by name
+	    Role role = roleRepo.findByName(roleName)
+	            .orElseThrow(() -> new ResourceNotFoundException("Role", "name", roleName));
+
+	    // Clear existing roles and assign new role
+	    user.getRoles().clear();
+	    user.getRoles().add(role);
+	    user.setDate_Of_Role_Changed(LocalDateTime.now());
+
+	    userRepo.save(user);
+	    System.out.println("User role changed to " + roleName + ".");
 	}
+
 
 	
 	@Override

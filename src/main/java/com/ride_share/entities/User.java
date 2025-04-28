@@ -44,7 +44,6 @@ public class User implements UserDetails{
 	     @Embedded
 	     private Location currentLocation;
 
-
 	    @Column(name = "name", nullable = false, length = 100)
 	    private String name;
 

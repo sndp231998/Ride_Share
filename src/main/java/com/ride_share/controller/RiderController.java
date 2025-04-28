@@ -89,7 +89,7 @@ public class RiderController {
     
     
  // get rider details by id
- 	@PreAuthorize("hasRole('ADMIN')")
+ 	//@PreAuthorize("hasRole('ADMIN')")
  	@GetMapping("/riders/{riderId}")
  	public ResponseEntity<RiderDto> getRiderById(@PathVariable Integer riderId) {
 
@@ -169,13 +169,13 @@ public class RiderController {
 }
 		
 	    @PutMapping("/{riderId}/reject")
-	    public ResponseEntity<RiderDto> rejectRider(@PathVariable Integer riderId) {
-	        RiderDto rejectedRequest = riderService.rejectRider(riderId);
+	    public ResponseEntity<RiderDto> rejectRider(@RequestBody RiderDto riderDto,@PathVariable Integer riderId) {
+	        RiderDto rejectedRequest = riderService.rejectRider(riderDto,riderId);
 	        		
 	        return ResponseEntity.ok(rejectedRequest);
 	    }
 	    @PutMapping("/{riderId}/rider")
-	    public ResponseEntity<RiderDto> approvedPost(@PathVariable Integer riderId) {
+	    public ResponseEntity<RiderDto> approvedRider(@PathVariable Integer riderId) {
 	        RiderDto approvedRequest = riderService.approveRider(riderId); 		
 	        return ResponseEntity.ok(approvedRequest);
 	    }

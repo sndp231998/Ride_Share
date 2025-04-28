@@ -40,7 +40,7 @@ public class Rider {
 	    
 	    private String date_Of_Birth;
 	    
-	    private String balance;
+	    private Double balance;
 	  
 	    @ManyToOne
 	    @JoinColumn(name = "category_id")
@@ -59,4 +59,5 @@ public class Rider {
 	    public enum RiderStatus {
 	        PENDING, APPROVED, REJECTED
 	    }
+	    
 }

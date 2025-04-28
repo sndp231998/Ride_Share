@@ -18,6 +18,8 @@ public interface VehicleRepo extends JpaRepository<Vehicle, Integer> {
 	List<Vehicle> findByUser(User user);
 	Optional<Vehicle> findByUserId(int userId);
 	
+
+	
 	@Query("SELECT v FROM Vehicle v WHERE " + 
 	"LOWER(v.vehicleNumber) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
 			"LOWER(v.productionYear) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " + 

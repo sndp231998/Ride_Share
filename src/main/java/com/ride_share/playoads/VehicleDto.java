@@ -23,8 +23,5 @@ public class VehicleDto {
 	private String billBook2; 
     
 	private CategoryDto category; 
-	
-	
-	
 	//private UserDto user;
 }

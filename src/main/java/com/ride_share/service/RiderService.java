@@ -28,7 +28,7 @@ public interface RiderService {
 
 			
 
-			RiderDto rejectRider(Integer riderId);
+			//RiderDto rejectRider(Integer riderId);
 
 			RiderDto approveRider(Integer riderId);
 
@@ -36,6 +36,8 @@ public interface RiderService {
 			RiderDto addBalanceOfRider(RiderDto riderDto, Integer riderId);
 
 			List<RiderDto> getPendingRiders();
+
+			RiderDto rejectRider(RiderDto riderDto, Integer riderId);
 
 
 	
