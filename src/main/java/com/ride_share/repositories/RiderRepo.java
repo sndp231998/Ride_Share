@@ -22,4 +22,7 @@ public interface RiderRepo extends JpaRepository<Rider, Integer>{
 	 List<Rider> findByStatus(Rider.RiderStatus status);
 
 	 Optional<Rider> findByUserId(int userId);
+	// Rider findByUserIdAndCategoryId(Integer userId, Integer categoryId);
+	 Rider findByUserIdAndCategoryCategoryId(Integer userId, Integer categoryId);
+
 }

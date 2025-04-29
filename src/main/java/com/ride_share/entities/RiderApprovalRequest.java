@@ -45,8 +45,12 @@ public class RiderApprovalRequest {
 	    @JoinColumn(name = "ride_request_id") // Fixed column name
 	  @JsonBackReference
 	    private RideRequest rideRequest;
+	  
+	  
        private double minToReach;
+       
 	  private double proposed_price;
+	  
 	  @Enumerated(EnumType.STRING)
 	    private ApprovedStatus status;
 	    

@@ -1,16 +1,23 @@
 package com.ride_share.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.transaction.Transactional;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.ride_share.config.AppConstants;
 import com.ride_share.entities.Category;
 import com.ride_share.entities.Pricing;
+import com.ride_share.entities.RideCount;
+import com.ride_share.entities.Rider;
 import com.ride_share.entities.User;
 
 import com.ride_share.exceptions.ResourceNotFoundException;
@@ -18,6 +25,8 @@ import com.ride_share.playoads.PricingDto;
 
 import com.ride_share.repositories.CategoryRepo;
 import com.ride_share.repositories.PricingRepo;
+import com.ride_share.repositories.RideCountRepo;
+import com.ride_share.repositories.RiderRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.service.PricingService;
 
@@ -33,6 +42,15 @@ public class PricingServiceImpl implements PricingService {
     private  CategoryRepo categoryRepo;
     @Autowired
     private  UserRepo userRepo;
+    
+    @Autowired
+    private RideCountRepo rideCountRepo;
+    
+    @Autowired
+    private RiderRepo riderRepo;
+    
+    @Autowired
+    private EmailService emailService;
 
     //Integer userId, Integer categoryId
     @Override
@@ -123,6 +141,69 @@ public class PricingServiceImpl implements PricingService {
         Pricing pricing = pricingRepo.findById(pricingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pricing", "id", pricingId));
         return modelMapper.map(pricing, PricingDto.class);
+    }
+
+    // @Transactional
+    @Scheduled(cron = "57 23 * * *") // Runs daily at 11:57 PM
+    public void deductBalanceBasedOnRides() {
+        LocalDate today = LocalDate.now();
+        StringBuilder logMessage = new StringBuilder();
+
+        try {
+            List<RideCount> todayRideCounts = rideCountRepo.findByDateBetween(
+                today.atStartOfDay(), today.plusDays(1).atStartOfDay()
+            );
+
+            Map<String, Long> rideSummary = todayRideCounts.stream()
+                .collect(Collectors.groupingBy(
+                    rc -> String.valueOf(rc.getUser().getId()) + "-" + String.valueOf(rc.getCategory().getCategoryId()),
+                    Collectors.summingLong(RideCount::getTotalRide)
+                ));
+
+            for (Map.Entry<String, Long> entry : rideSummary.entrySet()) {
+                try {
+                    String[] parts = entry.getKey().split("-");
+                    Integer userId = Integer.parseInt(parts[0]);
+                    Integer categoryId = Integer.parseInt(parts[1]);
+                    Long totalRides = entry.getValue();
+
+                    Rider rider = riderRepo.findByUserIdAndCategoryCategoryId(userId, categoryId);
+                    if (rider != null) {
+                        double deductAmount = 0;
+
+                        if (categoryId == 1) {
+                            if (totalRides == 5) deductAmount = 50;
+                            else if (totalRides >= 6) deductAmount = 100;
+                        } else if (categoryId == 2) {
+                            if (totalRides == 5) deductAmount = 80;
+                            else if (totalRides >= 6) deductAmount = 150;
+                        }
+
+                        if (deductAmount > 0 && rider.getBalance() != null) {
+                            if (rider.getBalance() >= deductAmount) {
+                                double newBalance = rider.getBalance() - deductAmount;
+                                rider.setBalance(newBalance);
+                                riderRepo.save(rider);
+                                logMessage.append("Deducted Rs. ").append(deductAmount)
+                                    .append(" from RiderID ").append(rider.getId()).append("\n");
+                            } else {
+                                logMessage.append("Skipped deduction for RiderID ").append(rider.getId())
+                                    .append(" due to insufficient balance.\n");
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    logMessage.append("Error processing entry ").append(entry.getKey()).append(": ").append(e.getMessage()).append("\n");
+                }
+            }
+
+            // ✅ Message on successful run
+            emailService.sendOtpMobile("9816032025", "✅ Balance deduction task completed.\n" + logMessage.toString());
+
+        } catch (Exception ex) {
+            // ❌ Message on error in entire method
+            emailService.sendOtpMobile("9816032025", "❌ Error in balance deduction method: " + ex.getMessage());
+        }
     }
 
 	

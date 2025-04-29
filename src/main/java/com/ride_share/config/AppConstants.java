@@ -30,14 +30,6 @@ public class AppConstants {
 		    "Sudurpashchim Province"
 		));
 
-//	public static final List<String> VALID_PROVINCES = Arrays.asList(
-//	        "Koshi Province",
-//	        "Madhesh Province",
-//	        "Bagamati Province",
-//	        "Gandaki Province",
-//	        "Lumbini Province",
-//	        "Karnali Province",
-//	        "Sudurpashchim Province"
-//	    );
+
 	
 }
