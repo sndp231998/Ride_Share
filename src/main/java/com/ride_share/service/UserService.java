@@ -39,11 +39,6 @@ public interface UserService {
 	    
 	    List<UserDto> getUsersByRole(String roleName);
 	    
-	   // List<UserDto>getUsersByPayment(String )
-		
-	//---------------forget password---------------
-	   // UserDto updatePassword(UserDto user ,Integer userId);
-	    //UserDto GetOtp(UserDto user,Integer userId);
 
 		UserDto UserModeChanger(Integer userId);
 
@@ -51,7 +46,7 @@ public interface UserService {
 		void resetPassword(String emailOrMobile, String otp, String newPassword);
 
 
-		UserDto updateManager(UserDto userDto, Integer userId, Integer branchId);
+		//UserDto updateManager(UserDto userDto, Integer userId, Integer branchId);
 
 		UserDto updateCurrentLocation(UserDto userDto, Integer userId);
 

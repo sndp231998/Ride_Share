@@ -35,8 +35,8 @@ public class UserDto {
 	private String email;
 	
 	 
-	  @Schema(hidden = true)
-	 private ManagerAddress managerAddress;
+//	  @Schema(hidden = true)
+//	 private ManagerAddress managerAddress;
 	 
 	@NotEmpty(message="Mobile num is required !!")
 	 private String mobileNo;
@@ -56,14 +56,10 @@ public class UserDto {
 	    public enum UserMode {
 	        RIDER,PESSENGER
 	    }
-	   
+	   // @JsonIgnore 
+	    private DeviceInfoDto deviceInfo;
 	//--------------------------
-	  //@Column(name = "date_of_registration")
-     // private LocalDateTime dateOfRegistration;
 
-      //private LocalDateTime date_Of_Role_Changed;
-      
-      
 	private Set<RoleDto> roles = new HashSet<>();
 	//private Set<VehicleDto> vehicles; 
 	

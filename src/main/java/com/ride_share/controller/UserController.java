@@ -195,14 +195,14 @@ public class UserController {
 	        return new ResponseEntity<>(modechange, HttpStatus.OK);
 	    }
 	    
-	    @PutMapping("/{userId}/manager/branch/{branchId}")
-	    public ResponseEntity<UserDto> updateManager(
-	            @PathVariable Integer userId,
-	            @PathVariable Integer branchId,
-	            @RequestBody UserDto userDto) {
-	        
-	        UserDto updatedUser = userService.updateManager(userDto, userId, branchId);
-	        return ResponseEntity.ok(updatedUser);
-	    }
+//	    @PutMapping("/{userId}/manager/branch/{branchId}")
+//	    public ResponseEntity<UserDto> updateManager(
+//	            @PathVariable Integer userId,
+//	            @PathVariable Integer branchId,
+//	            @RequestBody UserDto userDto) {
+//	        
+//	        UserDto updatedUser = userService.updateManager(userDto, userId, branchId);
+//	        return ResponseEntity.ok(updatedUser);
+//	    }
 		
 }

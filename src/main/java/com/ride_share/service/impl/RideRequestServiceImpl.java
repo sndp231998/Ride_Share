@@ -86,10 +86,45 @@ public class RideRequestServiceImpl implements RideRequestService {
     @Autowired
     private RideRequestWebSocketController webSocketController;
 
+    
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     // Existing methods (create, update, delete, get, etc.)
     
-    
+    @Override
+    public RideRequestDto rejectRideRequest(Integer rideRequestId) {
+        RideRequest ride = rideRequestRepo.findById(rideRequestId)
+            .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
+
+        // ✅ If already rejected, then return same ride without changing anything
+        if (ride.getStatus() == RideRequest.RideStatus.REJECTED) {
+            return modelMapper.map(ride, RideRequestDto.class);
+        }
+
+        // ✅ Set status to rejected
+        ride.setStatus(RideRequest.RideStatus.REJECTED);
+        RideRequest rejectedRide = rideRequestRepo.save(ride);
+
+        // ✅ ride.getRidebookedId() null xa vane skip
+        if (ride.getRidebookedId() != null) {
+            LocalDate today = LocalDate.now();
+            User user = userRepo.findById(ride.getRidebookedId())
+                    .orElseThrow(() -> new ApiException("User not found"));
+            Category category = ride.getCategory();
+
+            RideCount existing = rideCountRepo.findByUserAndCategoryAndDate(user, category, today.atStartOfDay());
+
+            if (existing != null) {
+                existing.setTotalRide(existing.getTotalRide() - 1);
+                rideCountRepo.save(existing);
+            }
+        }
+
+        // ✅ Notify WebSocket clients
+        webSocketController.sendRideStatusUpdate(rejectedRide);
+
+        return modelMapper.map(rejectedRide, RideRequestDto.class);
+    }
+
     @Override //id=rideapproval
     public RideRequestDto approveRideRequestByPassenger(Integer Id, Integer rideRequestId) {
         
@@ -809,17 +844,7 @@ public class RideRequestServiceImpl implements RideRequestService {
             .collect(Collectors.toList());
     }
 
-    @Override
-    public RideRequestDto rejectRideRequest(Integer rideRequestId) {
-        RideRequest ride = rideRequestRepo.findById(rideRequestId)
-            .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
-        ride.setStatus(RideRequest.RideStatus.REJECTED);
-        RideRequest rejectedRide = rideRequestRepo.save(ride);
-     // ✅ Notify WebSocket clients
-        webSocketController.sendRideStatusUpdate(rejectedRide);
 
-        return modelMapper.map(rejectedRide, RideRequestDto.class);
-    }
 //
 //	@Override
 //  	public RideRequestDto approveRideRequestByPassenger(Integer rideRequestId, Integer userId, Integer currentUserId) {

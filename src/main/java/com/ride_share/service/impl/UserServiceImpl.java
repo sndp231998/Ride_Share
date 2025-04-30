@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.ride_share.config.AppConstants;
 import com.ride_share.entities.Branch;
-
+import com.ride_share.entities.DeviceInfo;
 import com.ride_share.entities.Rider;
 import com.ride_share.entities.RiderApprovalRequest;
 import com.ride_share.entities.Role;
@@ -27,13 +27,13 @@ import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
 import com.ride_share.playoads.ApiResponse;
 import com.ride_share.playoads.Location;
-import com.ride_share.playoads.ManagerAddress;
+
 import com.ride_share.playoads.UserDto;
 import com.ride_share.playoads.VerificationDto;
 import com.ride_share.repositories.BranchRepo;
 
 import com.ride_share.repositories.RiderApprovalRequestRepo;
-import com.ride_share.repositories.RiderRepo;
+
 import com.ride_share.repositories.RoleRepo;
 import com.ride_share.repositories.UserRepo;
 
@@ -118,6 +118,13 @@ public class UserServiceImpl implements UserService {
 			    user.getRoles().add(role);		   
 			    user.setModes(UserMode.PESSENGER);
 			    
+			    // 👉 DeviceInfo handle only if it is not null
+			    if (userDto.getDeviceInfo() != null) {
+			        DeviceInfo deviceInfo = this.modelMapper.map(userDto.getDeviceInfo(), DeviceInfo.class);
+			        deviceInfo.setUser(user);           // Set reverse mapping
+			        user.setDeviceInfo(deviceInfo);     // Set to user
+			    }
+			    
 		        User newUser = this.userRepo.save(user);
 		        
 		        String welcomeMessage = String.format("Welcome, %s! We're excited to have you on our Ride-Share. Dive in and enjoy the journey ahead! "
@@ -188,49 +195,49 @@ public class UserServiceImpl implements UserService {
 		   
 		   
 		   
-		   @Override
-		   public UserDto updateManager(UserDto userDto, Integer userId, Integer branchId) {
-		       User user = this.userRepo.findById(userId)
-		               .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
-
-		       Branch branch = this.branchRepo.findById(branchId)
-		               .orElseThrow(() -> new ResourceNotFoundException("Branch", "Id", branchId));
-
-		       // Initialize or get existing managerAddress
-		       ManagerAddress managerAddress = user.getManagerAddress();
-		       if (managerAddress == null) {
-		           managerAddress = new ManagerAddress();
-		       }
-
-		       ManagerAddress managerAddressDto = userDto.getManagerAddress();
-		       if (managerAddressDto != null) {
-		           if (managerAddressDto.getManagerProvision() != null &&
-		               !managerAddressDto.getManagerProvision().equals(managerAddress.getManagerProvision())) {
-		               managerAddress.setManagerProvision(managerAddressDto.getManagerProvision());
-		           }
-
-		           if (managerAddressDto.getManagerLocalLevel() != null &&
-		               !managerAddressDto.getManagerLocalLevel().equals(managerAddress.getManagerLocalLevel())) {
-		               managerAddress.setManagerLocalLevel(managerAddressDto.getManagerLocalLevel());
-		           }
-
-		           if (managerAddressDto.getManagerDistrict() != null &&
-		               !managerAddressDto.getManagerDistrict().equals(managerAddress.getManagerDistrict())) {
-		               managerAddress.setManagerDistrict(managerAddressDto.getManagerDistrict());
-		           }
-
-		           if (managerAddressDto.getManager_wardnumber() != null &&
-		               !managerAddressDto.getManager_wardnumber().equals(managerAddress.getManager_wardnumber())) {
-		               managerAddress.setManager_wardnumber(managerAddressDto.getManager_wardnumber());
-		           }
-
-		           managerAddress.setBranch(branch);
-		           user.setManagerAddress(managerAddress);
-		       }
-
-		       User updatedUser = this.userRepo.save(user);
-		       return this.userToDto(updatedUser);
-		   }
+//		   @Override
+//		   public UserDto updateManager(UserDto userDto, Integer userId, Integer branchId) {
+//		       User user = this.userRepo.findById(userId)
+//		               .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
+//
+//		       Branch branch = this.branchRepo.findById(branchId)
+//		               .orElseThrow(() -> new ResourceNotFoundException("Branch", "Id", branchId));
+//
+//		       // Initialize or get existing managerAddress
+//		       ManagerAddress managerAddress = user.getManagerAddress();
+//		       if (managerAddress == null) {
+//		           managerAddress = new ManagerAddress();
+//		       }
+//
+//		       ManagerAddress managerAddressDto = userDto.getManagerAddress();
+//		       if (managerAddressDto != null) {
+//		           if (managerAddressDto.getManagerProvision() != null &&
+//		               !managerAddressDto.getManagerProvision().equals(managerAddress.getManagerProvision())) {
+//		               managerAddress.setManagerProvision(managerAddressDto.getManagerProvision());
+//		           }
+//
+//		           if (managerAddressDto.getManagerLocalLevel() != null &&
+//		               !managerAddressDto.getManagerLocalLevel().equals(managerAddress.getManagerLocalLevel())) {
+//		               managerAddress.setManagerLocalLevel(managerAddressDto.getManagerLocalLevel());
+//		           }
+//
+//		           if (managerAddressDto.getManagerDistrict() != null &&
+//		               !managerAddressDto.getManagerDistrict().equals(managerAddress.getManagerDistrict())) {
+//		               managerAddress.setManagerDistrict(managerAddressDto.getManagerDistrict());
+//		           }
+//
+//		           if (managerAddressDto.getManager_wardnumber() != null &&
+//		               !managerAddressDto.getManager_wardnumber().equals(managerAddress.getManager_wardnumber())) {
+//		               managerAddress.setManager_wardnumber(managerAddressDto.getManager_wardnumber());
+//		           }
+//
+//		           managerAddress.setBranch(branch);
+//		           user.setManagerAddress(managerAddress);
+//		       }
+//
+//		       User updatedUser = this.userRepo.save(user);
+//		       return this.userToDto(updatedUser);
+//		   }
 
 
 

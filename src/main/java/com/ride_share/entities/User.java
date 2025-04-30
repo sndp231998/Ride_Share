@@ -26,8 +26,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ride_share.playoads.Location;
-import com.ride_share.playoads.ManagerAddress;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -83,9 +83,12 @@ public class User implements UserDetails{
 	    //let to choose branch
 	    private String branch_Name;
 	   
-	   @Embedded
-	    private ManagerAddress managerAddress;
+//	   @Embedded
+//	    private ManagerAddress managerAddress;
 	    
+	    @OneToOne(cascade = CascadeType.ALL)
+	    @JsonIgnore 
+	    private DeviceInfo deviceInfo;
 		@Override
 		public Collection<? extends GrantedAuthority> getAuthorities() {
 

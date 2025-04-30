@@ -61,7 +61,6 @@ public class RideRequest {
 	    private Category category;
 	
 	 @OneToMany(mappedBy = "rideRequest", cascade = CascadeType.ALL)
-	// @JsonManagedReference
 	 @JsonIgnore 
     private Set<RiderApprovalRequest> riderApprovalRequests=new HashSet<>();
 	
