@@ -69,6 +69,16 @@ public class RiderServiceImpl implements RiderService{
         rider.setDate_Of_Birth(riderDto.getDate_Of_Birth());
         rider.setAddedDate(LocalDateTime.now());
         rider.setSelfieWithIdCard("");
+        rider.setLicense_Image("");
+        //---------------------------
+        rider.setCitizen_Back(""); 
+        rider.setCitizen_Front("");
+        rider.setCitizen_No(riderDto.getCitizen_No());
+        //-------------------------------
+       
+        rider.setNid_Img("");
+        rider.setNid_No(riderDto.getNid_No());
+        //----------------------------------
         rider.setUser(user);
         rider.setCategory(category);
 
@@ -85,24 +95,38 @@ public class RiderServiceImpl implements RiderService{
         Rider rider = this.riderRepo.findById(riderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Rider", "Rider ID", riderId));
 
-        // Prevent updates if the application is already approved
         if (rider.getStatus() == Rider.RiderStatus.APPROVED) {
             throw new ApiException("The application is already APPROVED.");
         }
-            rider.setDate_Of_Birth(riderDto.getDate_Of_Birth());
-        
-        // Update other fields
+
+        // Normal fields
+        rider.setDate_Of_Birth(riderDto.getDate_Of_Birth());
         rider.setDriver_License(riderDto.getDriver_License());
-        rider.setSelfieWithIdCard(riderDto.getSelfieWithIdCard());
+        rider.setNid_No(riderDto.getNid_No());
+        rider.setCitizen_No(riderDto.getCitizen_No());
         rider.setUpdatedDate(LocalDateTime.now());
 
-        // After update, set status back to PENDING for admin review
+        // Image fields (smart handling)
+        rider.setSelfieWithIdCard(getUpdatedValue(riderDto.getSelfieWithIdCard(), rider.getSelfieWithIdCard()));
+        rider.setLicense_Image(getUpdatedValue(riderDto.getLicense_Image(), rider.getLicense_Image()));
+        rider.setCitizen_Back(getUpdatedValue(riderDto.getCitizen_Back(), rider.getCitizen_Back()));
+        rider.setCitizen_Front(getUpdatedValue(riderDto.getCitizen_Front(), rider.getCitizen_Front()));
+        rider.setNid_Img(getUpdatedValue(riderDto.getNid_Img(), rider.getNid_Img()));
+
+        // Status back to pending
         rider.setStatus(Rider.RiderStatus.PENDING);
-       // rider.setCategory(riderDto.getCategory());
 
         Rider updatedRider = this.riderRepo.save(rider);
         return this.modelMapper.map(updatedRider, RiderDto.class);
     }
+
+    
+    
+    
+    private String getUpdatedValue(String newValue, String oldValue) {
+        return (newValue != null && !newValue.isEmpty()) ? newValue : oldValue;
+    }
+
 
     // Approve Rider Application
     @Override

@@ -24,30 +24,29 @@ public class Rider {
 	    @GeneratedValue(strategy = GenerationType.AUTO)
 	    private int id;
 	 
-	 //1. BAsic Info //user table bata 
-	 //2. Driver lic 
-	 //3. selfi with Id
-	 //4. Vehicle info
-	 
-	 
 	 @ManyToOne
 	    @JoinColumn(name = "user_id")
 	    private User user;
 
-	    private String driver_License; // Driver License
-	    
-	    private String selfieWithIdCard; // Image path
-	    
+	    private String driver_License; // Driver License No
+	    private String Nid_No;
+	    private String citizen_No;
 	    private String date_Of_Birth;
 	    
 	    private Double balance;
-	  
+	    
+	    private String license_Image;
+	    private String citizen_Front;
+	    private String citizen_Back;
+	    private String Nid_Img;
+	    private String selfieWithIdCard; // Image path
 	    @ManyToOne
 	    @JoinColumn(name = "category_id")
 	    private Category category;
 	    
 	    //additional
 	    private LocalDateTime addedDate;
+	    
 	    @Column(name = "updated_date")
 	    private LocalDateTime updatedDate;
 

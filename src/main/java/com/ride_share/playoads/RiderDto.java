@@ -21,13 +21,19 @@ public class RiderDto {
 
 	    private int id;
 	 
-	    private String driver_License; // Driver License
-	    
-	    private String selfieWithIdCard; // Image path
-	    
+
+	    private String driver_License; // Driver License No
+	    private String Nid_No;
+	    private String citizen_No;
 	    private String date_Of_Birth;
 	    
 	    private Double balance;
+	    
+	    private String license_Image;       //img path
+	    private String citizen_Front;       //img path
+	    private String citizen_Back;      //img path
+	    private String Nid_Img;          //img path
+	    private String selfieWithIdCard; // Image path
 	    
 	    private LocalDateTime addedDate;
 	    @Column(name = "updated_date")

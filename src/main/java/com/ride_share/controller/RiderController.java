@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ride_share.exceptions.ApiException;
 import com.ride_share.playoads.ApiResponse;
 import com.ride_share.playoads.RiderDto;
 import com.ride_share.service.FileService;
@@ -40,7 +41,96 @@ public class RiderController {
 	@Value("${project.image}")
 	private String path;
 	
-	
+    
+
+	@PostMapping("/rider/file/upload/{riderId}")
+	public ResponseEntity<RiderDto> uploadRiderFile(@RequestParam("file") MultipartFile file,
+	                                                @RequestParam("fileType") String fileType,
+	                                                @PathVariable Integer riderId) throws IOException {
+	   
+		 final long MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+
+		    // Check file size
+		 if (file.getSize() > MAX_FILE_SIZE) {
+			    throw new ApiException("File size must be less than 2MB");
+			}
+
+		String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename()).toLowerCase();
+
+	    if (!fileExtension.equals("pdf") && !fileExtension.equals("jpeg") && !fileExtension.equals("jpg")
+	            && !fileExtension.equals("png") && !fileExtension.equals("pptx")) {
+	        return new ResponseEntity<>(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+	    }
+
+	    String fileName = this.fileService.uploadFile(path, file);
+	    RiderDto riderDto = this.riderService.getRiderById(riderId);
+
+	    // Smart setting of the file based on type
+	    switch (fileType.toLowerCase()) {
+	        case "selfie":
+	            riderDto.setSelfieWithIdCard(fileName);
+	            break;
+	        case "license":
+	            riderDto.setLicense_Image(fileName);
+	            break;
+	        case "citizen_front":
+	            riderDto.setCitizen_Front(fileName);
+	            break;
+	        case "citizen_back":
+	            riderDto.setCitizen_Back(fileName);
+	            break;
+	        case "nid":
+	            riderDto.setNid_Img(fileName);
+	            break;
+	        default:
+	            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+	    }
+
+	    RiderDto updatedRider = this.riderService.updateRider(riderDto, riderId);
+	    return new ResponseEntity<>(updatedRider, HttpStatus.OK);
+	}
+
+   
+	// Method to serve files of various types
+		@GetMapping(value = "/rider/image/{fileName}")
+		public void downloadFile(
+		        @PathVariable("fileName") String fileName,
+		        HttpServletResponse response
+		) throws IOException {
+		    // Determine the file extension to set content type
+		    String fileExtension = FilenameUtils.getExtension(fileName).toLowerCase();
+		    MediaType mediaType;
+
+		    switch (fileExtension) {
+		        case "png":
+		            mediaType = MediaType.IMAGE_PNG;
+		            break;
+		        case "jpg":
+		        case "jpeg":
+		            mediaType = MediaType.IMAGE_JPEG;
+		            break;
+		        case "pdf":
+		            mediaType = MediaType.APPLICATION_PDF;
+		            break;
+		        case "pptx":
+		            mediaType = MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.presentationml.presentation");
+		            break;
+		        default:
+		            mediaType = MediaType.APPLICATION_OCTET_STREAM;
+		    }
+
+		    // Set the content type
+		    response.setContentType(mediaType.toString());
+		    
+		    // Set the Content-Disposition header manually
+		    response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+
+		    // Serve the file
+		    try (InputStream resource = this.fileService.getResource(path, fileName)) {
+		        StreamUtils.copy(resource, response.getOutputStream());
+		    }
+    
+}
 	
 	
 	@GetMapping("/riders/pending")
@@ -103,70 +193,7 @@ public class RiderController {
  	public ResponseEntity<List<RiderDto>> getAllRiders() {
  		return ResponseEntity.ok(this.riderService.getAllRiders());
  	}
-    
 
-	// Updated upload method for multiple file types
-	@PostMapping("/rider/file/upload/{riderId}")
-	public ResponseEntity<RiderDto> uploadRiderFile(@RequestParam("file") MultipartFile file,
-	                                              @PathVariable Integer riderId) throws IOException {
-	    // Get the file extension in lowercase
-	    String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename()).toLowerCase();
-
-	    // Allowable file types
-	    if (!fileExtension.equals("pdf") && !fileExtension.equals("jpeg") && !fileExtension.equals("jpg")
-	            && !fileExtension.equals("png") && !fileExtension.equals("pptx")) {
-	        return new ResponseEntity<>(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-	    }
-
-	    // Continue with file upload
-	    RiderDto riderDto = this.riderService.getRiderById(riderId);
-	    String fileName = this.fileService.uploadFile(path, file);
-	    riderDto.setSelfieWithIdCard(fileName);// Assuming imageName is used for storing any file type name
-	    RiderDto updatedRider = this.riderService.updateRider(riderDto, riderId);
-	    return new ResponseEntity<>(updatedRider, HttpStatus.OK);
-	}
-    
-    
-	// Method to serve files of various types
-		@GetMapping(value = "/rider/image/{fileName}")
-		public void downloadFile(
-		        @PathVariable("fileName") String fileName,
-		        HttpServletResponse response
-		) throws IOException {
-		    // Determine the file extension to set content type
-		    String fileExtension = FilenameUtils.getExtension(fileName).toLowerCase();
-		    MediaType mediaType;
-
-		    switch (fileExtension) {
-		        case "png":
-		            mediaType = MediaType.IMAGE_PNG;
-		            break;
-		        case "jpg":
-		        case "jpeg":
-		            mediaType = MediaType.IMAGE_JPEG;
-		            break;
-		        case "pdf":
-		            mediaType = MediaType.APPLICATION_PDF;
-		            break;
-		        case "pptx":
-		            mediaType = MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.presentationml.presentation");
-		            break;
-		        default:
-		            mediaType = MediaType.APPLICATION_OCTET_STREAM;
-		    }
-
-		    // Set the content type
-		    response.setContentType(mediaType.toString());
-		    
-		    // Set the Content-Disposition header manually
-		    response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
-
-		    // Serve the file
-		    try (InputStream resource = this.fileService.getResource(path, fileName)) {
-		        StreamUtils.copy(resource, response.getOutputStream());
-		    }
-    
-}
 		
 	    @PutMapping("/{riderId}/reject")
 	    public ResponseEntity<RiderDto> rejectRider(@RequestBody RiderDto riderDto,@PathVariable Integer riderId) {

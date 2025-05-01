@@ -15,6 +15,7 @@ import com.ride_share.entities.Branch;
 import com.ride_share.entities.Role;
 import com.ride_share.repositories.BranchRepo;
 import com.ride_share.repositories.RoleRepo;
+import com.ride_share.service.impl.PricingServiceImpl;
 
 @SpringBootApplication
 public class RideShareApplication implements CommandLineRunner{
@@ -27,9 +28,12 @@ public class RideShareApplication implements CommandLineRunner{
 	
 	@Autowired
 	private BranchRepo branchRepo;
+
 	
 	public static void main(String[] args) {
 		SpringApplication.run(RideShareApplication.class, args);
+		
+		
 	}
 
 	

@@ -25,8 +25,8 @@ public class RideRequestDto {
 //    @GeneratedValue(strategy = GenerationType.AUTO)
     private int rideRequestId;
 	
-	
-	private double actualPrice=0;
+    @Builder.Default
+	private double actualPrice=0.0;
 	
 	private double d_latitude;
     private double d_longitude;
@@ -38,6 +38,7 @@ public class RideRequestDto {
     
 	private LocalDateTime addedDate;
     private UserDto user;
+    @Builder.Default
     private double replacePessengerPrice=0.0;
     private double generatedPrice;
     //private Set<RiderApprovalRequestDto> riderApprovalRequests=new HashSet<>();

@@ -28,7 +28,7 @@ public class Vehicle {
     private String vehicleBrand;
     private String vehicleNumber;
     private String productionYear;
-
+    private String vehiclecolor;//black
     
 	private String vechicleImg; 
 	private String billBook1;
