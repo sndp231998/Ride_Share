@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.ride_share.config.AppConstants;
 import com.ride_share.entities.Category;
 import com.ride_share.entities.Rider;
+import com.ride_share.entities.RiderTransaction;
 import com.ride_share.entities.Role;
 import com.ride_share.entities.User;
 import com.ride_share.entities.Vehicle;
@@ -25,6 +26,7 @@ import com.ride_share.playoads.VehicleDto;
 import com.ride_share.repositories.CategoryRepo;
 //import com.ride_share.playoads.VDto;
 import com.ride_share.repositories.RiderRepo;
+import com.ride_share.repositories.RiderTransactionRepo;
 import com.ride_share.repositories.RoleRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.repositories.VehicleRepo;
@@ -48,6 +50,8 @@ public class RiderServiceImpl implements RiderService{
 	@Autowired
 	private EmailService emailService;
 	
+	@Autowired
+	private RiderTransactionRepo riderTransactionRepo;
 	@Autowired
 	private VehicleRepo vehicleRepo;
 	// Create a new Rider
@@ -179,6 +183,14 @@ public class RiderServiceImpl implements RiderService{
         // Add the requested balance to the current balance
         double newBalance = currentBalance + reqBalance;
         
+        RiderTransaction txn = new RiderTransaction();
+        txn.setRider(rider);
+        txn.setAmount(reqBalance); // credit
+        txn.setType("CREDIT");
+        txn.setReason("Top-up");
+        txn.setDateTime(LocalDateTime.now());
+        riderTransactionRepo.save(txn);
+
         // Update the rider's balance
         rider.setBalance(newBalance);
         riderRepo.save(rider);

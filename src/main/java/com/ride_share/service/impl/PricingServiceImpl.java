@@ -1,6 +1,7 @@
 package com.ride_share.service.impl;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,6 +19,7 @@ import com.ride_share.entities.Category;
 import com.ride_share.entities.Pricing;
 import com.ride_share.entities.RideCount;
 import com.ride_share.entities.Rider;
+import com.ride_share.entities.RiderTransaction;
 import com.ride_share.entities.User;
 
 import com.ride_share.exceptions.ResourceNotFoundException;
@@ -27,6 +29,7 @@ import com.ride_share.repositories.CategoryRepo;
 import com.ride_share.repositories.PricingRepo;
 import com.ride_share.repositories.RideCountRepo;
 import com.ride_share.repositories.RiderRepo;
+import com.ride_share.repositories.RiderTransactionRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.service.PricingService;
 
@@ -52,7 +55,8 @@ public class PricingServiceImpl implements PricingService {
     @Autowired
     private EmailService emailService;
 
-    
+    @Autowired
+    private RiderTransactionRepo riderTransactionRepo;
     
     
     
@@ -100,6 +104,17 @@ public class PricingServiceImpl implements PricingService {
                                  double newBalance = rider.getBalance() - deductAmount;
                                  rider.setBalance(newBalance);
                                  riderRepo.save(rider);
+                                 
+                                 
+                                 RiderTransaction txn = new RiderTransaction();
+                                 txn.setRider(rider);
+                                 txn.setAmount(-deductAmount); // Negative means debit
+                                 txn.setType("DEBIT");
+                                 txn.setReason("Ride Deduction for category " + categoryId);
+                                 txn.setDateTime(LocalDateTime.now());
+                                 riderTransactionRepo.save(txn); // Save transaction
+                                 
+                                 
                                  logMessage.append("Deducted Rs. ").append(deductAmount)
                                      .append(" from RiderID ").append(rider.getId()).append("\n");
                              } else {

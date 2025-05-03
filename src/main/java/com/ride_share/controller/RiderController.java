@@ -22,9 +22,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ride_share.entities.RiderTransaction;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.playoads.ApiResponse;
 import com.ride_share.playoads.RiderDto;
+import com.ride_share.repositories.RiderTransactionRepo;
 import com.ride_share.service.FileService;
 import com.ride_share.service.RiderService;
 
@@ -38,10 +40,18 @@ public class RiderController {
 	@Autowired
 	private FileService fileService;
 
+	@Autowired
+	private RiderTransactionRepo riderTransactionRepo;
+	
 	@Value("${project.image}")
 	private String path;
 	
     
+	@GetMapping("/rider/{riderId}/statement")
+	public List<RiderTransaction> getStatement(@PathVariable Integer riderId) {
+	    return riderTransactionRepo.findByRiderIdOrderByDateTimeDesc(riderId);
+	}
+
 
 	@PostMapping("/rider/file/upload/{riderId}")
 	public ResponseEntity<RiderDto> uploadRiderFile(@RequestParam("file") MultipartFile file,

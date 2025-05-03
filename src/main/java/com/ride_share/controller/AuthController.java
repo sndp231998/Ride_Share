@@ -1,6 +1,7 @@
 package com.ride_share.controller;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +28,7 @@ import com.ride_share.entities.Branch;
 import com.ride_share.entities.User;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.playoads.ApiResponse;
-
+import com.ride_share.playoads.EmergencyDTO;
 import com.ride_share.playoads.JwtAuthRequest;
 import com.ride_share.playoads.JwtAuthResponse;
 import com.ride_share.playoads.OtpRequestDto;
@@ -73,7 +74,15 @@ public class AuthController {
 	 
 	 @Autowired
 	 private VerificationService verificationService;
-	
+
+     @GetMapping("/emergency")
+     public List<EmergencyDTO> getAllEmergencies() {
+         List<EmergencyDTO> list = new ArrayList<>();
+         list.add(new EmergencyDTO("Fire Department", "101", "Damak"));
+         list.add(new EmergencyDTO("Police Station", "100", "Damak"));
+         list.add(new EmergencyDTO("Hospital", "102", "Damak"));
+         return list;
+     }
 	 
 	 @PostMapping("/send")
 	 public ResponseEntity<ApiResponse> sendOtp(@RequestParam("input") String emailOrMobile) {
@@ -162,6 +171,7 @@ public class AuthController {
         return branchRepo.findAll();
     }  
     
+  
     
     @PostMapping("/ride/price")
     public ResponseEntity<PriceInfoDto> getPriceInfo(
