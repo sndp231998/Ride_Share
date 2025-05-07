@@ -18,6 +18,7 @@ import com.ride_share.repositories.RoleRepo;
 import com.ride_share.service.impl.PricingServiceImpl;
 
 @SpringBootApplication
+//@SpringBootTest(classes = RideShareApplication.class)
 public class RideShareApplication implements CommandLineRunner{
 
 	@Autowired

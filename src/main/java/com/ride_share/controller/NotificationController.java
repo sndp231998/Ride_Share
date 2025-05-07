@@ -9,12 +9,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.ride_share.entities.Notification;
 import com.ride_share.playoads.NotificationDto;
 
 import com.ride_share.service.NotificationService;
-
+@RestController
+@RequestMapping("/api/v1/notification")
 public class NotificationController {
 	@Autowired
     private NotificationService notificationService;

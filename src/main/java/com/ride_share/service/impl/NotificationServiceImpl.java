@@ -10,12 +10,14 @@ import org.springframework.stereotype.Service;
 import com.ride_share.entities.Notification;
 import com.ride_share.entities.User;
 import com.ride_share.exceptions.ResourceNotFoundException;
+import com.ride_share.playoads.FirebaseNotification;
 import com.ride_share.playoads.NotificationDto;
-//import com.ride_share.payloads.NotificationDto;
+
 import com.ride_share.repositories.NotificationRepo;
 import com.ride_share.repositories.UserRepo;
-//import com.ride_share.services.NotificationService;
+
 import com.ride_share.service.NotificationService;
+
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
@@ -29,6 +31,9 @@ public class NotificationServiceImpl implements NotificationService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private FirebaseNotification firebaseNotification;
+
     
   //call from other class
     //create notification for specific user
@@ -39,6 +44,7 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = new Notification();
         notification.setUser(user);
         notification.setMessage(message);
+        firebaseNotification.notifyUser(user, message);
         notificationRepo.save(notification);
     }
     
@@ -83,5 +89,4 @@ public class NotificationServiceImpl implements NotificationService {
 
 
 
-	
 }

@@ -50,7 +50,7 @@ public class UserDto {
 	private String  otp;
 	
 	private String branch_Name;
-	
+	 private String deviceToken;
 	 private UserMode modes;
 	    
 	    public enum UserMode {

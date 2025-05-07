@@ -54,4 +54,6 @@ public interface UserService {
 
 		ApiResponse verifyUser(String emailOrMobile, String otp);
 
+		UserDto updateDeviceToken(UserDto userDto, Integer userId);
+
 }

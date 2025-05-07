@@ -192,7 +192,17 @@ public class UserServiceImpl implements UserService {
 			}
 
 
-		   
+		   @Override
+		   public UserDto updateDeviceToken(UserDto userDto, Integer userId) {
+			    User user = this.userRepo.findById(userId)
+			            .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
+			    user.setDeviceToken(userDto.getDeviceToken());  
+			    // Save the updated user back to the repository
+			    User updatedUser = this.userRepo.save(user);
+			    // Convert the updated User to UserDto and return it
+			    return this.userToDto(updatedUser);
+			}
+
 		   
 		   
 //		   @Override

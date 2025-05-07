@@ -58,6 +58,8 @@ public class User implements UserDetails{
 
 	    private String imageName;
 	    
+	    private String deviceToken;
+	    
 	    //@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	
 
