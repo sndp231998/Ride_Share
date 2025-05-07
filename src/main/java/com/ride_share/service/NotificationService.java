@@ -10,15 +10,16 @@ import com.ride_share.playoads.NotificationDto;
 
 public interface NotificationService {
 
-void createNotification(Integer userId, String message);
+	public NotificationDto createNotification(NotificationDto notificationDto,Integer userId);
 	
     List<Notification> getUnreadNotificationsForUser(Integer userId);
     
-    void markNotificationsAsRead(Integer userId); // optional if you want read marking
+  
 
 	List<NotificationDto> getAllNotificationsForUser(Integer userId);
+	 void markNotificationsAsRead(Integer notificationId);
 
-	NotificationDto createNotification(Integer userId, NotificationDto notificationDto);
+	//NotificationDto createNotification(Integer userId, NotificationDto notificationDto);
 
 	//void notifyUser(User user, String message);
 

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,7 +29,8 @@ public class NotificationController {
             @PathVariable Integer userId, 
             @RequestBody NotificationDto notificationDto) {
         
-        NotificationDto createdNotification = notificationService.createNotification(userId, notificationDto);
+        NotificationDto createdNotification = notificationService.createNotification(notificationDto,userId);
+       
         return ResponseEntity.status(HttpStatus.CREATED).body(createdNotification);
     }
   
@@ -52,11 +54,7 @@ public class NotificationController {
 
 
     // Endpoint to mark all notifications as read for a user
-    @PostMapping("/user/{userId}/mark-read")
-    public ResponseEntity<Void> markNotificationsAsRead(@PathVariable Integer userId) {
-        notificationService.markNotificationsAsRead(userId);
-        return ResponseEntity.ok().build();
-    }
+ 
 
     // Endpoint to get the count of unread notifications for a user
     @GetMapping("/user/{userId}/unread-count")

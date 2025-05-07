@@ -17,7 +17,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,8 +41,7 @@ import com.ride_share.playoads.UserDto;
 import com.ride_share.repositories.BranchRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.security.JwtTokenHelper;
-
-
+import com.ride_share.service.NotificationService;
 import com.ride_share.service.RideRequestService;
 import com.ride_share.service.UserService;
 
@@ -65,7 +66,8 @@ public class AuthController {
 	 @Autowired
 	    private RideRequestService rideRequestService;
 
-	  
+	 @Autowired
+	 NotificationService  notificationService;
 	 @Autowired
 	 private RateLimitingService rateLimitingService;
 	 
@@ -181,5 +183,10 @@ public class AuthController {
     ) {
         PriceInfoDto priceInfo = rideRequestService.determinePrice(rideRequestDto, userId, categoryId);
         return ResponseEntity.ok(priceInfo);
+    }
+    @PutMapping("/notification/{notificationId}/mark-read")
+    public ResponseEntity<Void> markNotificationsAsRead(@PathVariable Integer notificationId) {
+        notificationService.markNotificationsAsRead(notificationId);
+        return ResponseEntity.ok().build();
     }
 }

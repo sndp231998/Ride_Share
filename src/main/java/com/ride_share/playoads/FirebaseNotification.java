@@ -16,10 +16,9 @@ public class FirebaseNotification {
     private FirebaseMessaging firebaseMessaging;
 
     public void notifyUser(User user, String message) {
-    	
-    	
-        if (user.getDeviceToken() != null) {
-         	
+        if (user.getDeviceToken() == null) {
+            throw new RuntimeException("Device token not found for user id: " + user.getId());
+        } else {
             Message fcmMessage = Message.builder()
                 .setToken(user.getDeviceToken())
                 .setNotification(Notification.builder()
@@ -32,7 +31,7 @@ public class FirebaseNotification {
                 String response = firebaseMessaging.send(fcmMessage);
                 System.out.println("Push notification sent: " + response);
             } catch (FirebaseMessagingException e) {
-                e.printStackTrace();
+                throw new RuntimeException("Failed to send notification", e);
             }
         }
     }

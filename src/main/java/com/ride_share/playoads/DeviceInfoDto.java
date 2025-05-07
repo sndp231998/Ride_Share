@@ -2,6 +2,8 @@ package com.ride_share.playoads;
 
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
 
 @Data
@@ -13,6 +15,6 @@ public class DeviceInfoDto {
     private String model;          // e.g., "Galaxy S8"
     private String androidVersion; // e.g., "11"
     private int sdkInt;            // e.g., 30
-    
+    @JsonIgnore
     private UserDto user;
 }

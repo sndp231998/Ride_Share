@@ -23,7 +23,7 @@ public class Notification {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int notificationId;
 
     @Column(nullable = false)
     private String message;

@@ -17,9 +17,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class NotificationDto {
 
-	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+
+    private int notificationId;
 
     private String message;
 
