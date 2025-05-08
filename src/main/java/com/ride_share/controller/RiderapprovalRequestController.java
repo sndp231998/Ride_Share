@@ -34,7 +34,13 @@ public class RiderapprovalRequestController {
 	        return new ResponseEntity<>(created, HttpStatus.CREATED);
 	    }
 	
-
+	    // Reject a ride request
+	    @PutMapping("/{rideAppId}/reject")
+	    public ResponseEntity<RiderApprovalRequestDto> rejectRideApproval(@PathVariable Integer riderAppId) {
+	    	RiderApprovalRequestDto rejectedRequest = riderApprovalService.rejectRideApproval(riderAppId);
+	        		
+	        return ResponseEntity.ok(rejectedRequest);
+	    }
 	
 
 	 @GetMapping("/{rideRequestId}/pending-riders")

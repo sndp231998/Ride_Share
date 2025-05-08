@@ -1,5 +1,6 @@
 package com.ride_share.service.impl;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ride_share.controller.RideRequestWebSocketController;
+import com.ride_share.entities.Category;
+import com.ride_share.entities.RideCount;
 import com.ride_share.entities.RideRequest;
 import com.ride_share.entities.RiderApprovalRequest;
 import com.ride_share.entities.User;
@@ -58,6 +61,34 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	    @Autowired
 	    private RideRequestWebSocketController webSocketController;
 
+	    
+	    
+	    
+	    
+	    
+	    
+	    @Override
+	    public RiderApprovalRequestDto rejectRideApproval(Integer riderAppId) {
+	        RiderApprovalRequest ride = riderApprovalRepo.findById(riderAppId)
+	            .orElseThrow(() -> new ResourceNotFoundException("RiderApprovalRequest", "ID", riderAppId));
+
+	        // ✅ If already rejected, then return same ride without changing anything
+	        if (ride.getStatus() == RiderApprovalRequest.ApprovedStatus.REJECTED) {
+	            return modelMapper.map(ride, RiderApprovalRequestDto.class);
+	        }
+
+	        // ✅ Set status to rejected
+	        ride.setStatus(RiderApprovalRequest.ApprovedStatus.REJECTED);
+	        RiderApprovalRequest rejectedRide = riderApprovalRepo.save(ride);
+
+	      
+
+	        // ✅ Notify WebSocket clients
+	       // webSocketController.sendRideStatusUpdate(rejectedRide);
+
+	        return modelMapper.map(rejectedRide, RiderApprovalRequestDto.class);
+	    }
+	    
 	    @Override
 	    public RiderApprovalRequestDto createRiderApproval(RiderApprovalRequestDto riderApprovalRequestDto,
 	                                                      Integer rideRequestId, Integer userId) {
