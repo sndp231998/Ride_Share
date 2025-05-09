@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ride_share.playoads.ApiResponse;
 import com.ride_share.playoads.EmergencyContactDto;
 import com.ride_share.service.EmergencyContactService;
 
@@ -46,10 +47,10 @@ public class EmergencyContactController {
         return ResponseEntity.ok(contacts);
     }
 
-    // Delete emergency contact by ID
     @DeleteMapping("/{contactId}")
-    public ResponseEntity<String> deleteEmergencyContact(@PathVariable Integer contactId) {
+    public ResponseEntity<ApiResponse> deleteEmergencyContact(@PathVariable Integer contactId) {
         emergencyContactService.deleteEmergencyContact(contactId);
-        return ResponseEntity.ok("Emergency contact deleted successfully");
+        return ResponseEntity.ok(new ApiResponse("Emergency contact deleted successfully", true));
     }
+
 }
