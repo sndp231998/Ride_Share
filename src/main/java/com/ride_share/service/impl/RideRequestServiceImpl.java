@@ -295,6 +295,8 @@ public class RideRequestServiceImpl implements RideRequestService {
                 .build()
         ).collect(Collectors.toList());
 
+        // ✅ Send via WebSocket
+        webSocketController.sendSortedRideRequestListUpdate(riderUserId, dtoList);
         return dtoList;
     }
 
