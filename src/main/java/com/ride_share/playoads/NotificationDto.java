@@ -21,11 +21,10 @@ public class NotificationDto {
     private int notificationId;
 
     private String message;
-
    
     private boolean isRead = false;
      
     private UserDto user;
-
+    
     private LocalDateTime createdAt = LocalDateTime.now();
 }

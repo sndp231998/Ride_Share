@@ -31,6 +31,7 @@ import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
 import com.ride_share.playoads.DistanceMatrixResponse;
 import com.ride_share.playoads.Location;
+import com.ride_share.playoads.NotificationDto;
 import com.ride_share.playoads.PriceInfoDto;
 import com.ride_share.playoads.RideInfoDto;
 import com.ride_share.playoads.RideRequestDto;
@@ -47,6 +48,7 @@ import com.ride_share.repositories.RiderRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.repositories.VehicleRepo;
 import com.ride_share.service.MapService;
+import com.ride_share.service.NotificationService;
 import com.ride_share.service.RideRequestService;
 
 @Service
@@ -80,7 +82,8 @@ public class RideRequestServiceImpl implements RideRequestService {
     
     @Autowired
     private PricingRepo pricingRepo;
-    
+    @Autowired
+    NotificationService notificationService;
     @Autowired
     RideCountRepo rideCountRepo;   
     @Autowired
@@ -110,15 +113,19 @@ public class RideRequestServiceImpl implements RideRequestService {
             User user = userRepo.findById(ride.getRidebookedId())
                     .orElseThrow(() -> new ApiException("User not found"));
             Category category = ride.getCategory();
-
             RideCount existing = rideCountRepo.findByUserAndCategoryAndDate(user, category, today.atStartOfDay());
 
             if (existing != null) {
                 existing.setTotalRide(existing.getTotalRide() - 1);
                 rideCountRepo.save(existing);
             }
+            NotificationDto notificationDto = new NotificationDto();
+            notificationDto.setMessage("passenger has been rejected ride request.");
+            int userId=user.getId();
+            notificationService.createNotification(notificationDto, userId);
         }
-
+        
+        
         // ✅ Notify WebSocket clients
         webSocketController.sendRideStatusUpdate(rejectedRide);
 
@@ -140,7 +147,8 @@ public class RideRequestServiceImpl implements RideRequestService {
 
         rideRequest.setStatus(RideRequest.RideStatus.PESSENGER_APPROVED);
         riderApproval.setStatus(RiderApprovalRequest.ApprovedStatus.PESSENGER_APPROVED);
-        rideRequest.setActualPrice(riderApproval.getProposed_price());
+        rideRequest.setReplacePessengerPrice(riderApproval.getProposed_price());
+        //rideRequest.setActualPrice(riderApproval.getProposed_price());
         rideRequest.setRidebookedId(riderApproval.getUser().getId());
 
         // Get user, category, and today's date

@@ -56,7 +56,7 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	    @Autowired
 	    RiderApprovalRequestRepo riderApprovalRepo;
 
-
+	    
 //	    
 	    @Autowired
 	    private RideRequestWebSocketController webSocketController;
@@ -156,8 +156,61 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	        }
 
 	        RiderApprovalRequest saved = this.riderApprovalRepo.save(ab);
+	       
+	        Set<RideRequestResponseDto> updatedRiders = getRidersForRideRequest(rideRequestId);
+	        webSocketController.sendRiderListForRideRequest(rideRequestId, updatedRiders);
 	        return this.RiderApprovalToDto(saved);
 	    }
+	    
+	    
+	  
+
+	    @Override
+		public Set<RideRequestResponseDto> getRidersForRideRequest(Integer rideRequestId) {
+		    List<RiderApprovalRequest> pendingApprovals = riderApprovalRepo.findByRideRequest_RideRequestIdAndStatus(
+		            rideRequestId, RiderApprovalRequest.ApprovedStatus.PENDING
+		    );
+		    
+		    return pendingApprovals.stream()
+		            .map(req -> {
+		                User user = req.getUser();
+		                RideRequestResponseDto dto = new RideRequestResponseDto();
+		                dto.setName(user.getName());
+		                dto.setUserId(user.getId());  // Set userId
+		                dto.setMobileNo(user.getMobileNo());
+		                List<Vehicle> vehicles = vehicleRepo.findByUser(user);
+		                if (vehicles != null && !vehicles.isEmpty()) {
+		                    // For example, pick the first vehicle's attributes
+		                    Vehicle vehicle = vehicles.get(0);  // Assuming you want the first vehicle for each user
+
+		                    // Add additional vehicle attributes
+		                    dto.setVehicleBrand(vehicle.getVehicleBrand());
+		                  dto.setVehicleNumber(vehicle.getVehicleNumber());
+		                  
+		                   // dto.setVehicleModel(vehicle.getVehicleModel());
+		                    dto.setVehicleType(vehicle.getVehicleType());
+		                    // You can also add more attributes as needed
+		                } else {
+		                    dto.setVehicleBrand("No vehicle");
+		                    dto.setVehicleType("No Vehicle..");
+		                }
+		                //dto.setProposedPrice(req.getProposed_price());
+		                dto.setProposedPrice(req.getProposed_price());
+		                dto.setMinToReach(req.getMinToReach());
+		                dto.setId(req.getId());
+		                dto.setRideRequestId(req.getRideRequest().getRideRequestId());
+		                return dto;
+		            })
+		            .collect(Collectors.toSet());
+		}
+
+
+
+		public UserDto userToDto(User user) {
+			UserDto userDto = this.modelMapper.map(user, UserDto.class);
+			return userDto;
+		}
+		  
 	    public RiderApprovalRequestDto RiderApprovalToDto(RiderApprovalRequest entity) {
 	        RiderApprovalRequestDto dto = new RiderApprovalRequestDto();
 	        
@@ -194,8 +247,6 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	        return entity;
 	    }
 
-
-
 	
 //	@Override
 //	public RideRequestDto approveRideRequestByPassenger(RiderApprovalRequestDto riderApprovalRequestDto, 
@@ -231,51 +282,6 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	
 	
 	
-	@Override
-	public Set<RideRequestResponseDto> getRidersForRideRequest(Integer rideRequestId) {
-	    List<RiderApprovalRequest> pendingApprovals = riderApprovalRepo.findByRideRequest_RideRequestIdAndStatus(
-	            rideRequestId, RiderApprovalRequest.ApprovedStatus.PENDING
-	    );
-	    
-	    return pendingApprovals.stream()
-	            .map(req -> {
-	                User user = req.getUser();
-	                RideRequestResponseDto dto = new RideRequestResponseDto();
-	                dto.setName(user.getName());
-	                dto.setUserId(user.getId());  // Set userId
-	                dto.setMobileNo(user.getMobileNo());
-	                List<Vehicle> vehicles = vehicleRepo.findByUser(user);
-	                if (vehicles != null && !vehicles.isEmpty()) {
-	                    // For example, pick the first vehicle's attributes
-	                    Vehicle vehicle = vehicles.get(0);  // Assuming you want the first vehicle for each user
-
-	                    // Add additional vehicle attributes
-	                    dto.setVehicleBrand(vehicle.getVehicleBrand());
-	                  dto.setVehicleNumber(vehicle.getVehicleNumber());
-	                  
-	                   // dto.setVehicleModel(vehicle.getVehicleModel());
-	                    dto.setVehicleType(vehicle.getVehicleType());
-	                    // You can also add more attributes as needed
-	                } else {
-	                    dto.setVehicleBrand("No vehicle");
-	                    dto.setVehicleType("No Vehicle..");
-	                }
-	                //dto.setProposedPrice(req.getProposed_price());
-	                dto.setProposedPrice(req.getProposed_price());
-	                dto.setMinToReach(req.getMinToReach());
-	                dto.setId(req.getId());
-	                dto.setRideRequestId(req.getRideRequest().getRideRequestId());
-	                return dto;
-	            })
-	            .collect(Collectors.toSet());
-	}
-
-
-
-	public UserDto userToDto(User user) {
-		UserDto userDto = this.modelMapper.map(user, UserDto.class);
-		return userDto;
-	}
 	
 
 

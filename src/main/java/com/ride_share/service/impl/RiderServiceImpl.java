@@ -21,6 +21,7 @@ import com.ride_share.exceptions.ApiException;
 //import com.ride_share.entities.V;
 import com.ride_share.exceptions.ResourceNotFoundException;
 import com.ride_share.playoads.CategoryDto;
+import com.ride_share.playoads.NotificationDto;
 import com.ride_share.playoads.RiderDto;
 import com.ride_share.playoads.VehicleDto;
 import com.ride_share.repositories.CategoryRepo;
@@ -30,6 +31,7 @@ import com.ride_share.repositories.RiderTransactionRepo;
 import com.ride_share.repositories.RoleRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.repositories.VehicleRepo;
+import com.ride_share.service.NotificationService;
 import com.ride_share.service.RiderService;
 
 @Service
@@ -54,6 +56,9 @@ public class RiderServiceImpl implements RiderService{
 	private RiderTransactionRepo riderTransactionRepo;
 	@Autowired
 	private VehicleRepo vehicleRepo;
+	
+	@Autowired
+	 NotificationService  notificationService;
 	// Create a new Rider
     @Override
     public RiderDto createRider(RiderDto riderDto, Integer userId,Integer categoryId) {
@@ -90,6 +95,8 @@ public class RiderServiceImpl implements RiderService{
         rider.setStatus(Rider.RiderStatus.PENDING);
 
         Rider savedRider = this.riderRepo.save(rider);
+        
+       
         return this.modelMapper.map(savedRider, RiderDto.class);
     }
 
@@ -121,6 +128,11 @@ public class RiderServiceImpl implements RiderService{
         rider.setStatus(Rider.RiderStatus.PENDING);
 
         Rider updatedRider = this.riderRepo.save(rider);
+        NotificationDto notificationDto = new NotificationDto();
+        notificationDto.setMessage("Your rider application is under review."
+        		+ " You will be notified once it's approved or if further details are needed.");
+           int user_Id=rider.getUser().getId();
+           notificationService.createNotification(notificationDto, user_Id);
         return this.modelMapper.map(updatedRider, RiderDto.class);
     }
 
@@ -165,6 +177,11 @@ public class RiderServiceImpl implements RiderService{
         emailService.sendOtpMobile(user.getMobileNo(), welcomeMessage);
 
         Rider approvedRider = this.riderRepo.save(rider);
+        
+        NotificationDto notificationDto = new NotificationDto();
+        notificationDto.setMessage("Congratulations! Your rider application has been approved. A balance of Rs. 6000 has been added to your account. Welcome to Tuffan Ride-Share!");
+        notificationService.createNotification(notificationDto, user.getId());
+
         return this.modelMapper.map(approvedRider, RiderDto.class);
     }
 

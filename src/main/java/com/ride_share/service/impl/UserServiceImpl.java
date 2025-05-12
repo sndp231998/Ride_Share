@@ -58,7 +58,8 @@ public class UserServiceImpl implements UserService {
 		@Autowired
 		private RoleRepo roleRepo;
 		
-	    
+		@Autowired
+		private MapServiceImpl mapServiceImpl;
 		
 		   @Autowired
 		   private BranchRepo branchRepo;
@@ -183,7 +184,20 @@ public class UserServiceImpl implements UserService {
 			    Location newLocation = userDto.getCurrentLocation(); // Get Location object
 			    newLocation.setTimestamp(LocalDateTime.now());
 			    user.setCurrentLocation(newLocation); // Update the entire Location object
-
+			    String province;
+			    if(user.getBranch_Name() == null || user.getBranch_Name().trim().isEmpty()) {
+			    	
+			         try {
+			             province = mapServiceImpl.getState(
+			                     userDto.getCurrentLocation().getLatitude(),
+			                     userDto.getCurrentLocation().getLongitude()
+			             );
+			         } catch (Exception e) {
+			             throw new ApiException("Error determining city.");
+			         }
+			         user.setBranch_Name(province);
+			    }
+			   
 			    // Save the updated user back to the repository
 			    User updatedUser = this.userRepo.save(user);
 

@@ -4,11 +4,13 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import com.ride_share.entities.RideRequest;
 import com.ride_share.playoads.RideRequestDto;
+import com.ride_share.playoads.RideRequestResponseDto;
 
 @Controller
 public class RideRequestWebSocketController {
@@ -35,4 +37,10 @@ public class RideRequestWebSocketController {
 		///to access=topic/sorted-ride-requests/{riderUserId}
 		
 	}
+	// localhost:...api/v1/riderAppReq/{rideRequestId}/pending-riders
+	//rider le approved garne bitike harna milxa+ get all gar.r harda pn hunxa
+	public void sendRiderListForRideRequest(Integer rideRequestId, Set<RideRequestResponseDto> riderList) {
+	    messagingTemplate.convertAndSend("/topic/ride-riders/" + rideRequestId, riderList);
+	}
+
 }

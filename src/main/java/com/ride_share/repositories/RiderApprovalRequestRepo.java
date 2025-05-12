@@ -16,6 +16,8 @@ public interface RiderApprovalRequestRepo extends JpaRepository<RiderApprovalReq
 	Optional<RiderApprovalRequest> findByUserAndRideRequest(User user, RideRequest ride);
 
 	Optional<RiderApprovalRequest> findByRideRequest_RideRequestId(Integer rideRequestId);
+	
+	
 }
 
 
