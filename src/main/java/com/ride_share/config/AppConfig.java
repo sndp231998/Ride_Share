@@ -1,6 +1,8 @@
 package com.ride_share.config;
 
 
+import java.util.Properties;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,11 +25,25 @@ public class AppConfig {
     public String getGoogleMapsApiKey() {
         return googleMapsApiKey;
     }
-    
+
     @Bean
     public JavaMailSender javaMailSender() {
-        return new JavaMailSenderImpl();
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost("smtp.zoho.com");
+        mailSender.setPort(587);
+        mailSender.setUsername("info@mytufan.com");
+        mailSender.setPassword("KaQCieCKtdsG");
+
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.debug", "true");
+
+        return mailSender;
     }
+
+    
     //image upload garna ko lagi
     @Bean
     public MultipartResolver multipartResolver() {

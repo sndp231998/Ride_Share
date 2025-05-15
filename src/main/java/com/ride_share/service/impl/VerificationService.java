@@ -116,26 +116,3 @@ public class VerificationService {
 	  }
 
 }
-//public void getMobileOtp(String mobileNumber) {
-//// You may want to validate if the number is already used here
-//String otp = generateOtp();
-//Instant timestamp = Instant.now();
-//
-//VerificationDto dto = new VerificationDto();
-//dto.setEmail(mobileNumber);
-//dto.setOtp(otp);
-//dto.setTimestamp(timestamp);
-//
-//otpStore.put(mobileNumber, dto);
-//
-//String message = "Your OTP is: " + otp;
-//emailService.sendOtpMobile(mobileNumber, message); // Assuming EmailService is autowired
-//}
-//@Scheduled(fixedRate = 5000) // 5 second मा run हुन्छ
-//public void printOtpStore() {
-//    System.out.println("------- OTP Store Contents -------");
-//    otpStore.forEach((email, dto) -> {
-//        System.out.println("Email: " + email + ", OTP: " + dto.getOtp() + ", Time: " + dto.getTimestamp());
-//    });
-//    System.out.println("----------------------------------");
-//}
