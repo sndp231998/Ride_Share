@@ -127,8 +127,8 @@ public class RideRequestServiceImpl implements RideRequestService {
         
         
         // ✅ Notify WebSocket clients
-       // webSocketController.sendRideStatusUpdate(rejectedRide);
         webSocketController.sendRejectedRide(rejectedRide);
+
         return modelMapper.map(rejectedRide, RideRequestDto.class);
     }
 
@@ -178,6 +178,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         // Notify clients via websocket (optional)
         //webSocketController.sendRideStatusUpdate(rideRequest);
         webSocketController.sendPassengerApprovedRide(rideRequest);
+
         // Return updated RideRequestDto
         return modelMapper.map(rideRequest, RideRequestDto.class);
     }
@@ -234,8 +235,6 @@ public class RideRequestServiceImpl implements RideRequestService {
   	    RideRequest approvedRide = this.rideRequestRepo.save(ride);
 
         // Notify clients via websocket (optional)
-        //webSocketController.sendRideStatusUpdate(rideRequest);
-  	    //webSocketController.sendRideUpdates(ride);
   	  webSocketController.sendRiderApprovedRide(approvedRide);
   	    
   	    return this.modelMapper.map(approvedRide, RideRequestDto.class);
