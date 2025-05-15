@@ -35,6 +35,6 @@ public class BranchDto {
    private String email;
 
 
-   private String baseFare ;
-  private String perKmRate ;
+//   private String baseFare ;
+//  private String perKmRate ;
 }

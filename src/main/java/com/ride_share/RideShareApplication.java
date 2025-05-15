@@ -27,8 +27,8 @@ public class RideShareApplication implements CommandLineRunner{
 	@Autowired
 	private RoleRepo roleRepo;
 	
-	@Autowired
-	private BranchRepo branchRepo;
+//	@Autowired
+//	private BranchRepo branchRepo;
 
 	
 	public static void main(String[] args) {
@@ -78,31 +78,32 @@ public class RideShareApplication implements CommandLineRunner{
 	        result.forEach(r -> {
 	            System.out.println(r.getName());
 	        });
-	        
-	        
-	        if (this.branchRepo.count() == 0) {
-	        
-	        Branch branch1 = new Branch();
-	        branch1.setId(AppConstants.DAMAK_BRANCH);
-	        branch1.setName("Damak,Koshi province");
-	       
-	        Branch branch2 = new Branch();
-	        branch1.setId(AppConstants.KATHMANDU_BRANCH);
-	        branch2.setName("Kathmandu,Bagmati province");
-	      
-	        List<Branch>branchs=List.of(branch1,branch2);
-	        List<Branch>result2=this.branchRepo.saveAll(branchs);
-	        result2.forEach(r->{
-	        	
-	        System.out.printf(r.getName());
-	        });
-	        
-	        } else {
-	            System.out.println("Branches already exist, skipping initialization.");
-	        }
-	        
+		
+//	        
+//	        if (this.branchRepo.count() == 0) {
+//	        
+//	        Branch branch1 = new Branch();
+//	        branch1.setId(AppConstants.DAMAK_BRANCH);
+//	        branch1.setName("Damak,Koshi province");
+//	       
+//	        Branch branch2 = new Branch();
+//	        branch1.setId(AppConstants.KATHMANDU_BRANCH);
+//	        branch2.setName("Kathmandu,Bagmati province");
+//	      
+//	        List<Branch>branchs=List.of(branch1,branch2);
+//	        List<Branch>result2=this.branchRepo.saveAll(branchs);
+//	        result2.forEach(r->{
+//	        	
+//	        System.out.printf(r.getName());
+//	        });
+//	        
+//	        } else {
+//	            System.out.println("Branches already exist, skipping initialization.");
+//	        }
+//	        
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-}
+	}}
+		
+

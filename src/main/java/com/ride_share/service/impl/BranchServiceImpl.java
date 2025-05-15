@@ -32,8 +32,8 @@ public class BranchServiceImpl implements BranchService{
 		bra.setLocalLevel(branchDto.getLocalLevel());
 		bra.setPhoneNo(branchDto.getPhoneNo());
 		bra.setEmail(branchDto.getEmail());
-		bra.setBaseFare(branchDto.getBaseFare());
-		bra.setPerKmRate(branchDto.getPerKmRate());
+//		bra.setBaseFare(branchDto.getBaseFare());
+//		bra.setPerKmRate(branchDto.getPerKmRate());
 		
 		Branch savebranch=branchRepo.save(bra);
 		return modelMapper.map(savebranch,BranchDto.class);
@@ -50,8 +50,8 @@ public class BranchServiceImpl implements BranchService{
         branch.setLocalLevel(branchDto.getLocalLevel());
         branch.setPhoneNo(branchDto.getPhoneNo());
         branch.setEmail(branchDto.getEmail());
-        branch.setBaseFare(branchDto.getBaseFare());
-        branch.setPerKmRate(branchDto.getPerKmRate());
+//        branch.setBaseFare(branchDto.getBaseFare());
+//        branch.setPerKmRate(branchDto.getPerKmRate());
         
         Branch updatedBranch = this.branchRepo.save(branch);
         return this.modelMapper.map(updatedBranch, BranchDto.class);

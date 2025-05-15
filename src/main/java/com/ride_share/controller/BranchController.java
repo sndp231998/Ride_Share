@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.ride_share.playoads.ApiResponse;
 import com.ride_share.playoads.BranchDto;
 import com.ride_share.service.BranchService;
 
@@ -29,12 +30,13 @@ public class BranchController {
         BranchDto updatedBranch = this.branchService.updateBranch(branchDto, branchId);
         return new ResponseEntity<>(updatedBranch, HttpStatus.OK);
     }
-
     @DeleteMapping("/{branchId}")
-    public ResponseEntity<?> deleteBranch(@PathVariable Integer branchId) {
+    public ResponseEntity<ApiResponse> deleteBranch(@PathVariable Integer branchId) {
         this.branchService.deleteBranch(branchId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        ApiResponse response = new ApiResponse("Branch deleted successfully", true);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
     @GetMapping("/")
     public ResponseEntity<List<BranchDto>> getAllBranches() {

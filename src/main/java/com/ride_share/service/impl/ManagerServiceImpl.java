@@ -50,7 +50,7 @@ public class ManagerServiceImpl implements ManagerService {
         Manager ma = this.modelMapper.map(managerDto, Manager.class);
 
         User user = userRepo.findByMobileNo(managerDto.getMobileNo())
-        		.orElseThrow(()->new ApiException("Manager Should need to redistred as a user first"));
+        		.orElseThrow(()->new ApiException("Manager Should need to registred as a user first"));
         
         ma.setUser(user);
         ma.setBranch(branch);

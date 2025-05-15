@@ -28,8 +28,8 @@ public class Branch {
    private String phoneNo;
    private String email;
 
-   private String baseFare ;
-  private String perKmRate ;
+//   private String baseFare ;
+//  private String perKmRate ;
     
     
    // private String location; // Optional: Can include address details if needed.
