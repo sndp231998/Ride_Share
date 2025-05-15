@@ -43,4 +43,20 @@ public class RideRequestWebSocketController {
 	    messagingTemplate.convertAndSend("/topic/ride-riders/" + rideRequestId, riderList);
 	}
 
+	
+	public void sendRejectedRide(RideRequest rideRequest) {
+	    messagingTemplate.convertAndSend("/topic/ride-rejected", rideRequest);
+	}
+
+	public void sendPassengerApprovedRide(RideRequest rideRequest) {
+	    messagingTemplate.convertAndSend("/topic/ride-passenger-approved", rideRequest);
+	}
+
+	public void sendRiderApprovedRide(RideRequest rideRequest) {
+	    messagingTemplate.convertAndSend("/topic/ride-rider-approved", rideRequest);
+	}
+
+	
+	
+	
 }
