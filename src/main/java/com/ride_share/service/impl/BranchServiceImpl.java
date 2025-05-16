@@ -45,6 +45,8 @@ public class BranchServiceImpl implements BranchService{
                 .orElseThrow(() -> new ResourceNotFoundException("Branch", "Id", branchId));
         
         branch.setBranchCode(branchDto.getBranchCode());
+       branch.setName(branchDto.getName());
+       branch.setWardNumber(branchDto.getWardNumber());
         branch.setProvince(branchDto.getProvince());
         branch.setDistrict(branchDto.getDistrict());
         branch.setLocalLevel(branchDto.getLocalLevel());
