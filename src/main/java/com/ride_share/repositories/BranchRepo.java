@@ -15,7 +15,8 @@ public interface BranchRepo extends JpaRepository<Branch, Integer> {
 	Optional<Branch> findByName(String name);
 	// Custom query to find and sort by specific fields
     
-    
+	Optional<Branch> findByProvince(String province);
+
 	Optional<User> findById(Branch branch);
 
 }

@@ -34,10 +34,7 @@ public class UserDto {
 	@NotEmpty(message = "Email is required !!")
 	private String email;
 	
-	 
-//	  @Schema(hidden = true)
-//	 private ManagerAddress managerAddress;
-	 
+
 	@NotEmpty(message="Mobile num is required !!")
 	 private String mobileNo;
 	
@@ -49,7 +46,8 @@ public class UserDto {
 	  @Schema(hidden = true)
 	private String  otp;
 	
-	private String branch_Name;
+	  private Integer branchId;
+
 	 private String deviceToken;
 	 private UserMode modes;
 	    

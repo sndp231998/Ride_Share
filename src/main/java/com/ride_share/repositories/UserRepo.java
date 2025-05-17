@@ -19,4 +19,8 @@ Optional<User> findByEmail(String email);
 
 @Query("SELECT u.currentLocation FROM User u WHERE u.id = :userId")
 Location findLocationByUserId(Integer userId);
+
+List<User> findByBranch_ProvinceAndRoles_Name(String province, String roleName);
+
+
 }

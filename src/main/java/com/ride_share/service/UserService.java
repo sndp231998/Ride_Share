@@ -56,4 +56,6 @@ public interface UserService {
 
 		UserDto updateDeviceToken(UserDto userDto, Integer userId);
 
+		List<UserDto> getAllUsersByIdAndRole(Integer userId, String roleName);
+
 }

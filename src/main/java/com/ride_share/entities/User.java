@@ -20,6 +20,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -80,10 +81,13 @@ public class User implements UserDetails{
 	    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 		@JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role", referencedColumnName = "id"))
 		private Set<Role> roles = new HashSet<>();
-	    
-	    //user lai [http://localhost:8085/api/v1/auth/branch] yo dine ui side ma
-	    //let to choose branch
-	    private String branch_Name;
+	 
+	    @ManyToOne(fetch = FetchType.LAZY)
+	    @JoinColumn(name = "branch_id")
+	    private Branch branch;
+
+//	    @Column(name = "branch_Name")
+//	    private String branchName;
 	   
 //	   @Embedded
 //	    private ManagerAddress managerAddress;

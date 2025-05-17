@@ -19,17 +19,15 @@ public interface VehicleRepo extends JpaRepository<Vehicle, Integer> {
 	Optional<Vehicle> findByUserId(int userId);
 	
 
-	
 	@Query("SELECT v FROM Vehicle v WHERE " + 
-	"LOWER(v.vehicleNumber) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-			"LOWER(v.productionYear) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " + 
-	"LOWER(v.vehicleType) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " + 
-			"LOWER(v.user.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-	"v.user.mobileNo LIKE CONCAT('%', :keyword, '%') OR " + 
-	"LOWER(v.user.branch_Name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-	List<Vehicle> searchVehicles(@Param("keyword") String keyword);
-	
-	
+		    "LOWER(v.vehicleNumber) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+		    "LOWER(v.productionYear) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+		    "LOWER(v.vehicleType) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+		    "LOWER(v.user.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+		    "v.user.mobileNo LIKE CONCAT('%', :keyword, '%') OR " +
+		    "LOWER(v.user.branch.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+		List<Vehicle> searchVehicles(@Param("keyword") String keyword);
+
 	
 	// New method to fetch vehicle and user details by userId
     @Query("SELECT v, u FROM Vehicle v JOIN v.user u WHERE u.id = :userId")

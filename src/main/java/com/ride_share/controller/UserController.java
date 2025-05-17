@@ -49,6 +49,7 @@ public class UserController {
 	   @Autowired
  	    private FileService fileService;
 
+	  
 	   @Autowired
 	  private  RiderApprovalRequestService riderApprovalRequestService;
 		@Value("${project.image}")
@@ -57,7 +58,23 @@ public class UserController {
 		    private RateLimitingService rateLimitingService;
 		
 	
-	    
+		//@PreAuthorize("hasRole('ADMIN')")
+		@GetMapping("/")
+		public ResponseEntity<List<UserDto>> getAllUsers() {
+			 rateLimitingService.checkRateLimit("test-api-key");
+			return ResponseEntity.ok(this.userService.getAllUsers());
+		}
+		
+		@GetMapping("/manager-users")
+		public ResponseEntity<List<UserDto>> getUsersByManagerProvinceAndRole(
+		        @RequestParam Integer managerId,
+		        @RequestParam String roleName) {
+		    
+		    rateLimitingService.checkRateLimit("test-api-key");
+		    
+		    List<UserDto> users = userService.getAllUsersByIdAndRole(managerId, roleName);
+		    return ResponseEntity.ok(users);
+		}
 		
 	 @PutMapping("/{userId}/currentLocation")
 	    public ResponseEntity<UserDto> updateCurrentLocation(
@@ -103,12 +120,10 @@ public class UserController {
 
 		
 		
-		//@PreAuthorize("hasRole('ADMIN')")
-		@GetMapping("/")
-		public ResponseEntity<List<UserDto>> getAllUsers() {
-			 rateLimitingService.checkRateLimit("test-api-key");
-			return ResponseEntity.ok(this.userService.getAllUsers());
-		}
+
+		
+		
+		
 		@GetMapping("/{userId}")
 		public ResponseEntity<UserDto> getSingleUser(@PathVariable Integer userId) {
 			return ResponseEntity.ok(this.userService.getUserById(userId));

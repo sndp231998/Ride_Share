@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.ride_share.config.AppConstants;
 import com.ride_share.entities.Branch;
 import com.ride_share.entities.DeviceInfo;
+import com.ride_share.entities.Manager;
 import com.ride_share.entities.Rider;
 import com.ride_share.entities.RiderApprovalRequest;
 import com.ride_share.entities.Role;
@@ -27,16 +29,16 @@ import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
 import com.ride_share.playoads.ApiResponse;
 import com.ride_share.playoads.Location;
-
+import com.ride_share.playoads.NotificationDto;
 import com.ride_share.playoads.UserDto;
 import com.ride_share.playoads.VerificationDto;
 import com.ride_share.repositories.BranchRepo;
-
+import com.ride_share.repositories.ManagerRepo;
 import com.ride_share.repositories.RiderApprovalRequestRepo;
 
 import com.ride_share.repositories.RoleRepo;
 import com.ride_share.repositories.UserRepo;
-
+import com.ride_share.service.NotificationService;
 import com.ride_share.service.UserService;
 
 
@@ -65,6 +67,8 @@ public class UserServiceImpl implements UserService {
 		   private BranchRepo branchRepo;
 		   
 		   @Autowired
+		   private ManagerRepo managerRepo;
+		   @Autowired
 		   private RiderApprovalRequestRepo approvalRequestRepo;
 		   @Autowired
 			private VerificationService verificationService;
@@ -72,7 +76,8 @@ public class UserServiceImpl implements UserService {
 		   @Autowired
 		   private EmailService emailService;
 		   
-		   
+		   @Autowired
+			 NotificationService  notificationService;
 		   
 		   @Override
 			public UserDto registerNewUser(UserDto userDto) {
@@ -127,13 +132,20 @@ public class UserServiceImpl implements UserService {
 			    }
 			    
 		        User newUser = this.userRepo.save(user);
-		        
+		        String name = user.getName() != null ? user.getName() : "User";
 		        String welcomeMessage = String.format("Welcome, %s! We're excited to have you on our Ride-Share. Dive in and enjoy the journey ahead! "
-		        		+ "Thank you for choosing us, Tuffan", user.getName());
+		        		+ "Thank you for choosing us, Tuffan", name);
 		       
 		        emailService.sendOtpMobile(user.getMobileNo(), welcomeMessage);
-		     // Create in-app notification
-		     //   notificationService.createNotification(newUser.getId(), welcomeMessage);	   
+		        //--------------------------------------
+		        NotificationDto notificationDto = new NotificationDto();
+		        notificationDto.setMessage(welcomeMessage);
+		           notificationService.createNotification(notificationDto, user.getId());
+		           //----------------------------------------
+		           if(user.getEmail()!=null) {
+		               String subject = "Welcome";
+		               emailService.sendOtpEmail(user.getEmail(), subject, welcomeMessage);
+		               }
 			    return this.modelMapper.map(newUser, UserDto.class);
 			}
 		   
@@ -184,25 +196,27 @@ public class UserServiceImpl implements UserService {
 			    Location newLocation = userDto.getCurrentLocation(); // Get Location object
 			    newLocation.setTimestamp(LocalDateTime.now());
 			    user.setCurrentLocation(newLocation); // Update the entire Location object
-			    String province;
-			    if(user.getBranch_Name() == null || user.getBranch_Name().trim().isEmpty()) {
-			    	
-			         try {
-			             province = mapServiceImpl.getState(
-			                     userDto.getCurrentLocation().getLatitude(),
-			                     userDto.getCurrentLocation().getLongitude()
-			             );
-			         } catch (Exception e) {
-			             throw new ApiException("Error determining city.");
-			         }
-			         user.setBranch_Name(province);
-			    }
-			   
-			    // Save the updated user back to the repository
-			    User updatedUser = this.userRepo.save(user);
+			    // Only update branch if it's not already set
+			    if (user.getBranch() == null) {
+			        try {
+			            String province = mapServiceImpl.getState(
+			                    newLocation.getLatitude(),
+			                    newLocation.getLongitude()
+			            );
 
-			    // Convert the updated User to UserDto and return it
+			            // Try to find the branch by province
+			            Optional<Branch> optionalBranch = branchRepo.findByProvince(province);
+			            optionalBranch.ifPresent(user::setBranch); // only set if present
+
+			        } catch (Exception e) {
+			            // Log the error but continue
+			            System.out.println("Branch match failed: " + e.getMessage());
+			        }
+			    }
+
+			    User updatedUser = this.userRepo.save(user);
 			    return this.userToDto(updatedUser);
+			   
 			}
 
 
@@ -216,56 +230,6 @@ public class UserServiceImpl implements UserService {
 			    // Convert the updated User to UserDto and return it
 			    return this.userToDto(updatedUser);
 			}
-
-		   
-		   
-//		   @Override
-//		   public UserDto updateManager(UserDto userDto, Integer userId, Integer branchId) {
-//		       User user = this.userRepo.findById(userId)
-//		               .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
-//
-//		       Branch branch = this.branchRepo.findById(branchId)
-//		               .orElseThrow(() -> new ResourceNotFoundException("Branch", "Id", branchId));
-//
-//		       // Initialize or get existing managerAddress
-//		       ManagerAddress managerAddress = user.getManagerAddress();
-//		       if (managerAddress == null) {
-//		           managerAddress = new ManagerAddress();
-//		       }
-//
-//		       ManagerAddress managerAddressDto = userDto.getManagerAddress();
-//		       if (managerAddressDto != null) {
-//		           if (managerAddressDto.getManagerProvision() != null &&
-//		               !managerAddressDto.getManagerProvision().equals(managerAddress.getManagerProvision())) {
-//		               managerAddress.setManagerProvision(managerAddressDto.getManagerProvision());
-//		           }
-//
-//		           if (managerAddressDto.getManagerLocalLevel() != null &&
-//		               !managerAddressDto.getManagerLocalLevel().equals(managerAddress.getManagerLocalLevel())) {
-//		               managerAddress.setManagerLocalLevel(managerAddressDto.getManagerLocalLevel());
-//		           }
-//
-//		           if (managerAddressDto.getManagerDistrict() != null &&
-//		               !managerAddressDto.getManagerDistrict().equals(managerAddress.getManagerDistrict())) {
-//		               managerAddress.setManagerDistrict(managerAddressDto.getManagerDistrict());
-//		           }
-//
-//		           if (managerAddressDto.getManager_wardnumber() != null &&
-//		               !managerAddressDto.getManager_wardnumber().equals(managerAddress.getManager_wardnumber())) {
-//		               managerAddress.setManager_wardnumber(managerAddressDto.getManager_wardnumber());
-//		           }
-//
-//		           managerAddress.setBranch(branch);
-//		           user.setManagerAddress(managerAddress);
-//		       }
-//
-//		       User updatedUser = this.userRepo.save(user);
-//		       return this.userToDto(updatedUser);
-//		   }
-
-
-
-		   
 
 			public User dtoToUser(UserDto userDto) {
 				User user = this.modelMapper.map(userDto, User.class);
@@ -341,6 +305,20 @@ public class UserServiceImpl implements UserService {
 		 List<User> users = this.userRepo.findAll();
 	        return users.stream().map(this::userToDto).collect(Collectors.toList());
 	    }
+	
+	@Override
+	public List<UserDto> getAllUsersByIdAndRole(Integer managerId, String roleName) {
+	    Manager manager = this.managerRepo.findById(managerId)
+	            .orElseThrow(() -> new ResourceNotFoundException("Manager", "Id", managerId));
+
+	    String managerProvince = manager.getBranch().getProvince();
+
+	    List<User> users = this.userRepo.findByBranch_ProvinceAndRoles_Name(managerProvince, roleName);
+
+	    return users.stream().map(this::userToDto).collect(Collectors.toList());
+	}
+
+
 
 	@Override
 	public void deleteUser(Integer userId) {
