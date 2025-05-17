@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,11 +14,13 @@ import com.ride_share.entities.Branch;
 import com.ride_share.entities.Manager;
 import com.ride_share.entities.Role;
 import com.ride_share.entities.User;
+import com.ride_share.entities.Vehicle;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
 
 import com.ride_share.playoads.ManagerDto;
 import com.ride_share.playoads.NotificationDto;
+import com.ride_share.playoads.VehicleDto;
 import com.ride_share.repositories.BranchRepo;
 import com.ride_share.repositories.ManagerRepo;
 import com.ride_share.repositories.RoleRepo;
@@ -47,61 +51,72 @@ public class ManagerServiceImpl implements ManagerService {
     
     @Autowired
 	 NotificationService  notificationService;
+    
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    
+    
     @Override
-    public ManagerDto CreateManager(ManagerDto managerDto, Integer branchId) {
-        Branch branch = this.branchRepo.findById(branchId)
-                .orElseThrow(() -> new ResourceNotFoundException("Branch", "Id", branchId));
+	public ManagerDto CreateManager(ManagerDto managerDto, Integer branchId) {
+    	 Branch branch = branchRepo.findById(branchId)
+                 .orElseThrow(() -> new ResourceNotFoundException("Branch", "branchId", branchId));
+         
+     if (managerDto.getMobileNo() == null || managerDto.getMobileNo().isBlank()) {
+     throw new ApiException("Mobile number required of manager");
+ }
+ User user = userRepo.findByMobileNo(managerDto.getMobileNo())
+	.orElseThrow(()->new ApiException("Manager Should need to registred as a user first"));
 
-        if (managerDto.getMobileNo() == null || managerDto.getMobileNo().isBlank()) {
-            throw new ApiException("Mobile number required of manager");
-        }
-        Manager ma = this.modelMapper.map(managerDto, Manager.class);
+    	Manager manager = modelMapper.map(managerDto, Manager.class);
+    	manager.setDistrict(managerDto.getDistrict());
+    	manager.setProvision(managerDto.getProvision());
+    	manager.setWardnumber(managerDto.getWardnumber());
+    	manager.setLocalLevel(managerDto.getLocalLevel());
+    	
+    	 manager.setUser(user);
+    	manager.setBranch(branch);
 
-        User user = userRepo.findByMobileNo(managerDto.getMobileNo())
-        		.orElseThrow(()->new ApiException("Manager Should need to registred as a user first"));
-        
-        ma.setUser(user);
-        ma.setBranch(branch);
-        ma.setManager_wardnumber(managerDto.getManager_wardnumber());
-        ma.setManagerDistrict(managerDto.getManagerDistrict());
-        ma.setManagerLocalLevel(managerDto.getManagerLocalLevel());
-        ma.setManagerProvision(managerDto.getManagerProvision());
-        Role role = this.roleRepo.findById(AppConstants.BRANCH_MANAGER_USER).get();
-        user.getRoles().clear();
-	    user.getRoles().add(role);		   
-        Manager savedManager = managerRepo.save(ma);
-        String welcomeMessage = String.format(
-        	    "Welcome, %s! You have been appointed as the manager of %s. Thank you for joining us.",
-        	    user.getName(), branch.getName()
-        	);
+    	//manager.setUser();
+    	manager.setBranch(branch);
+    	
+      Role role = this.roleRepo.findById(AppConstants.BRANCH_MANAGER_USER).get();
+    user.getRoles().clear();
+    user.getRoles().add(role);		   
+    Manager savedManager = managerRepo.save(manager);
+    String welcomeMessage = String.format(
+    	    "Welcome, %s! You have been appointed as the manager of %s. Thank you for joining us.",
+    	    user.getName(), branch.getName()
+   	);
 
-        emailService.sendOtpMobile(user.getMobileNo(), welcomeMessage);
-        
-        if(user.getEmail()!=null) {
-        String subject = "Welcome as Branch Manager";
-        emailService.sendOtpEmail(user.getEmail(), subject, welcomeMessage);
-        }
-        NotificationDto notificationDto = new NotificationDto();
-        notificationDto.setMessage(
-        		String.format("Hello %s, you are now the manager of %s.", user.getName(), branch.getName())
-        		);
-          
-           notificationService.createNotification(notificationDto, user.getId());
-           
-        return modelMapper.map(savedManager, ManagerDto.class);
+    emailService.sendOtpMobile(user.getMobileNo(), welcomeMessage);
+    
+    if(user.getEmail()!=null) {
+    String subject = "Welcome as Branch Manager";
+    emailService.sendOtpEmail(user.getEmail(), subject, welcomeMessage);
     }
-
+    NotificationDto notificationDto = new NotificationDto();
+   notificationDto.setMessage(
+    		String.format("Hello %s, you are now the manager of %s.", user.getName(), branch.getName())
+    		);
+      
+       notificationService.createNotification(notificationDto, user.getId());
+   
+    	
+        return modelMapper.map(savedManager, ManagerDto.class);
+		
+	}
+    
+  
     @Override
     public ManagerDto UpdateManager(ManagerDto managerDto, Integer managerId) {
-        Manager manager = managerRepo.findById(managerId)
+        Manager ma = managerRepo.findById(managerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Manager", "Id", managerId));
 
-        manager.setManager_wardnumber(managerDto.getManager_wardnumber());
-        manager.setManagerDistrict(managerDto.getManagerDistrict());
-        manager.setManagerLocalLevel(managerDto.getManagerLocalLevel());
-        manager.setManagerProvision(managerDto.getManagerProvision());
+        ma.setWardnumber(managerDto.getWardnumber());
+        ma.setDistrict(managerDto.getDistrict());
+        ma.setLocalLevel(managerDto.getLocalLevel());
+        ma.setProvision(managerDto.getProvision());
 
-        Manager updated = managerRepo.save(manager);
+        Manager updated = managerRepo.save(ma);
         return modelMapper.map(updated, ManagerDto.class);
     }
 
@@ -130,6 +145,11 @@ public class ManagerServiceImpl implements ManagerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Manager", "Id", managerId));
         return modelMapper.map(manager, ManagerDto.class);
     }
+
+
+
+
+	
 
 	
 }
