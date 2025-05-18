@@ -9,6 +9,7 @@ import java.util.Set;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import com.ride_share.entities.RideRequest;
+import com.ride_share.entities.RiderApprovalRequest;
 import com.ride_share.playoads.RideRequestDto;
 import com.ride_share.playoads.RideRequestResponseDto;
 
@@ -43,9 +44,17 @@ public class RideRequestWebSocketController {
 	    messagingTemplate.convertAndSend("/topic/ride-riders/" + rideRequestId, riderList);
 	}
 
+	//approval reject by pessenger
+	public void sendPessengerRejectedApp(RiderApprovalRequest ride) {
+	    messagingTemplate.convertAndSend("/topic/ride-rejected-pess", ride);
+	}
 	
-	public void sendRejectedRide(RideRequest rideRequest) {
-	    messagingTemplate.convertAndSend("/topic/ride-rejected", rideRequest);
+	//main ride request reject by pessenger
+//	public void sendRejectedRide(RideRequest rideRequest) {
+//	    messagingTemplate.convertAndSend("/topic/ride-rejected", rideRequest);
+//	}
+	public void sendRejectedRide(RideRequestDto rideRequestDto) {
+	    messagingTemplate.convertAndSend("/topic/rejectedRide", rideRequestDto);
 	}
 
 	public void sendPassengerApprovedRide(RideRequest rideRequest) {

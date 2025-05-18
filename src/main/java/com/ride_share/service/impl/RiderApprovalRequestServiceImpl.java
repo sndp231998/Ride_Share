@@ -84,8 +84,8 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	      
 
 	        // ✅ Notify WebSocket clients
-	       // webSocketController.sendRideStatusUpdate(rejectedRide);
-
+	        webSocketController.sendPessengerRejectedApp(ride);
+	      
 	        return modelMapper.map(rejectedRide, RiderApprovalRequestDto.class);
 	    }
 	    
