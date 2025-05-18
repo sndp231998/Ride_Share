@@ -22,11 +22,11 @@ public class RideRequestWebSocketController {
         this.messagingTemplate = messagingTemplate;
     }
 
-    @MessageMapping("/ride-updates")
-    @SendTo("/topic/rides")
-    public RideRequest sendRideUpdates(RideRequest rideRequest) {
-        return rideRequest;
-    }
+//    @MessageMapping("/ride-updates")
+//    @SendTo("/topic/rides")
+//    public RideRequest sendRideUpdates(RideRequest rideRequest) {
+//        return rideRequest;
+//    }
 
     public void sendRideStatusUpdate(RideRequest rideRequest) {
         messagingTemplate.convertAndSend("/topic/rides", rideRequest);

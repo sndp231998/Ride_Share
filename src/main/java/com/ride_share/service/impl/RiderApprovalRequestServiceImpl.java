@@ -79,13 +79,13 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 
 	        // ✅ Set status to rejected
 	        ride.setStatus(RiderApprovalRequest.ApprovedStatus.REJECTED);
+	        
+	        
+	        
 	        RiderApprovalRequest rejectedRide = riderApprovalRepo.save(ride);
-
-	      
 
 	        // ✅ Notify WebSocket clients
 	        webSocketController.sendPessengerRejectedApp(ride);
-	      
 	        return modelMapper.map(rejectedRide, RiderApprovalRequestDto.class);
 	    }
 	    
