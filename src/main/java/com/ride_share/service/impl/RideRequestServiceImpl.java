@@ -395,7 +395,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         RideRequest savedRideReq = rideRequestRepo.save(rideRequest);
         
         // Send WebSocket notification
-       // webSocketController.sendRideStatusUpdate(savedRideReq);
+        webSocketController.sendRideStatusUpdate(savedRideReq);
 
         return modelMapper.map(savedRideReq, RideRequestDto.class);
     }

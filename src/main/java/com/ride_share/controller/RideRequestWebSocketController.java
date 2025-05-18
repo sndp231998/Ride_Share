@@ -49,11 +49,14 @@ public class RideRequestWebSocketController {
 	 //In frontend (JS or React or whatever), make sure the passenger is listening to:
 	// /topic/rider-approvals/{rideRequestId}
 
-
-	 
 	 
 	 //[ confuse ] no need to look right now****
 	 public void sendRiderApproved(RideRequestDto dto) {
 	        messagingTemplate.convertAndSend("/topic/rider-approved", dto);
 	    }
+
+	public void sendRideStatusUpdate(RideRequest savedRideReq) {
+		// TODO Auto-generated method stub
+		messagingTemplate.convertAndSend("/topic/ride-request",savedRideReq);
+	}
 }
