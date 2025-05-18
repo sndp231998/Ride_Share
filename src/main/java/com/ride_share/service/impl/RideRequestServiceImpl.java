@@ -392,17 +392,63 @@ public class RideRequestServiceImpl implements RideRequestService {
         rideRequest.setUser(user); // Link the ride request to the user
         rideRequest.setCategory(category);
         // Save the ride request
-        RideRequest savedRideReq = rideRequestRepo.save(rideRequest);
-        
-        // Send WebSocket notification
-        webSocketController.sendRideStatusUpdate(savedRideReq);
+        RideRequest newRiderequest = rideRequestRepo.save(rideRequest);
+     // ✅ Step 1: Get eligible rider userIds
+        List<Integer> eligibleRiderUserIds = getEligibleRidersForRequest(newRiderequest);
+        logger.info("✅ Eligible rider userIds: {}", eligibleRiderUserIds);
 
-        return modelMapper.map(savedRideReq, RideRequestDto.class);
+        // ✅ Step 2: Convert RideRequest entity to DTO
+        rideRequestDto = modelMapper.map(newRiderequest, RideRequestDto.class);
+        logger.info("✅ RideRequest DTO created: {}", rideRequestDto);
+
+        // ✅ Step 3: Send eligible riders to socket
+        webSocketController.sendEligibleRiders(eligibleRiderUserIds, rideRequestDto);
+        logger.info("✅ Sent eligible riders via WebSocket");
+
+        // ✅ Step 4: Return DTO
+        return rideRequestDto;
     }
-     
     
-    
-    
+    public List<Integer> getEligibleRidersForRequest(RideRequest request) {
+    	double reqLat = request.getS_latitude();
+        double reqLng = request.getS_longitude();
+        int requestCategoryId = request.getCategory().getCategoryId();
+        
+        List<Rider> approvedRiders = riderRepo.findByStatus(Rider.RiderStatus.APPROVED);
+        List<Integer> eligibleRiderIds = new ArrayList<>();
+
+        for (Rider rider : approvedRiders) {
+            User riderUser = rider.getUser();
+
+            // 2. Location null भए skip गर्ने
+            if (riderUser == null || riderUser.getCurrentLocation() == null) continue;
+
+            Location riderLocation = riderUser.getCurrentLocation();
+            // 3. Distance check गर्ने
+            try {
+                DistanceMatrixResponse distanceData = mapServiceImpl.getDistanceMatrixData(
+                        reqLat, reqLng,
+                        riderLocation.getLatitude(),
+                        riderLocation.getLongitude()
+                );
+
+                // 4. Category match + distance <= 10km
+                if (distanceData.getDistanceKm() <= 10.0 &&
+                    rider.getCategory() != null &&
+                    rider.getCategory().getCategoryId() == requestCategoryId) {
+
+                    eligibleRiderIds.add(riderUser.getId());
+                }
+
+            } catch (Exception e) {
+                System.err.println("Distance check failed for Rider ID " + rider.getId());
+            }
+        }
+
+        return eligibleRiderIds;
+    }
+        
+
     
     
     @Override

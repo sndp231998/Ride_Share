@@ -23,6 +23,15 @@ public class RideRequestWebSocketController {
 	@Autowired
     private SimpMessagingTemplate messagingTemplate;
 	
+	public void sendEligibleRiders(List<Integer> userIds, RideRequestDto rideRequestDto) {
+	    Map<String, Object> payload = new HashMap<>();
+	    payload.put("userIds", userIds);
+	    payload.put("rideRequest", rideRequestDto); // send the DTO, not whole entity
+
+	    messagingTemplate.convertAndSend("/topic/eligible-riders/" + rideRequestDto.getRideRequestId(), payload);
+	}
+
+
 	
 	//main riderequest reject// by pessenger
 	 public void sendRideRejected(RideRequestDto dto) {
@@ -55,8 +64,5 @@ public class RideRequestWebSocketController {
 	        messagingTemplate.convertAndSend("/topic/rider-approved", dto);
 	    }
 
-	public void sendRideStatusUpdate(RideRequest savedRideReq) {
-		// TODO Auto-generated method stub
-		messagingTemplate.convertAndSend("/topic/ride-request",savedRideReq);
-	}
+
 }

@@ -32,4 +32,6 @@ public interface VehicleRepo extends JpaRepository<Vehicle, Integer> {
 	// New method to fetch vehicle and user details by userId
     @Query("SELECT v, u FROM Vehicle v JOIN v.user u WHERE u.id = :userId")
     List<Object[]> findVehicleAndUserDetailsByUserId(@Param("userId") int userId);
+
+	//List<Vehicle> findByCategory_CategoryId(int categoryId);
 }

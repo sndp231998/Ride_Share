@@ -25,4 +25,6 @@ public interface RiderRepo extends JpaRepository<Rider, Integer>{
 	// Rider findByUserIdAndCategoryId(Integer userId, Integer categoryId);
 	 Rider findByUserIdAndCategoryCategoryId(Integer userId, Integer categoryId);
 
+	//List<Rider> findByCategory_CategoryId(int categoryId);
+
 }
