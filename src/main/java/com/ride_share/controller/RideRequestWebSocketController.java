@@ -3,69 +3,57 @@ package com.ride_share.controller;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import com.ride_share.entities.RideRequest;
 import com.ride_share.entities.RiderApprovalRequest;
 import com.ride_share.playoads.RideRequestDto;
 import com.ride_share.playoads.RideRequestResponseDto;
+import com.ride_share.playoads.RiderApprovalRequestDto;
 
 @Controller
 public class RideRequestWebSocketController {
 
-    private final SimpMessagingTemplate messagingTemplate;
-
-    public RideRequestWebSocketController(SimpMessagingTemplate messagingTemplate) {
-        this.messagingTemplate = messagingTemplate;
-    }
-
-//    @MessageMapping("/ride-updates")
-//    @SendTo("/topic/rides")
-//    public RideRequest sendRideUpdates(RideRequest rideRequest) {
-//        return rideRequest;
-//    }
-
-    public void sendRideStatusUpdate(RideRequest rideRequest) {
-        messagingTemplate.convertAndSend("/topic/rides", rideRequest);
-    }
-
-    //for rider all rides with in 10km around
-	public void sendSortedRideRequestListUpdate(int riderUserId, List<RideRequestDto>  rideRequests) {
-		messagingTemplate.convertAndSend("/topic/sorted-ride-requests/" + riderUserId, rideRequests);
-		///to access=topic/sorted-ride-requests/{riderUserId}
-		
-	}
-	// localhost:...api/v1/riderAppReq/{rideRequestId}/pending-riders
-	//rider le approved garne bitike harna milxa+ get all gar.r harda pn hunxa
-	public void sendRiderListForRideRequest(Integer rideRequestId, Set<RideRequestResponseDto> riderList) {
-	    messagingTemplate.convertAndSend("/topic/ride-riders/" + rideRequestId, riderList);
-	}
-
-	//approval reject by pessenger
-	public void sendPessengerRejectedApp(RiderApprovalRequest ride) {
-	    messagingTemplate.convertAndSend("/topic/ride-rejected-pess", ride);
-	}
-	
-	//main ride request reject by pessenger
-//	public void sendRejectedRide(RideRequest rideRequest) {
-//	    messagingTemplate.convertAndSend("/topic/ride-rejected", rideRequest);
-//	}
-	public void sendRejectedRide(RideRequestDto rideRequestDto) {
-	    messagingTemplate.convertAndSend("/topic/rejectedRide", rideRequestDto);
-	}
-
-	public void sendPassengerApprovedRide(RideRequest rideRequest) {
-	    messagingTemplate.convertAndSend("/topic/ride-passenger-approved", rideRequest);
-	}
-
-	public void sendRiderApprovedRide(RideRequest rideRequest) {
-	    messagingTemplate.convertAndSend("/topic/ride-rider-approved", rideRequest);
-	}
-
+	@Autowired
+    private SimpMessagingTemplate messagingTemplate;
 	
 	
+	//main riderequest reject// by pessenger
+	 public void sendRideRejected(RideRequestDto dto) {
+	        messagingTemplate.convertAndSend("/topic/ride-rejected", dto);
+	    }
+	 
+	 //final approved for ride......
+	 public void sendPassengerApproved(RideRequestDto dto) {
+	        messagingTemplate.convertAndSend("/topic/passenger-approved", dto);
+	    }
+	 
 	
+	 
+	 //-------------------------Approval reject-----pessenger le rider ko approval lai reject garako update-----------
+	 public void notifyPassengerRejectedRider(RiderApprovalRequestDto dto) {
+		    messagingTemplate.convertAndSend("/topic/passenger-rejected-rider", dto);
+		}
+
+	 ///api/v1/riderAppReq/43/user/34==> riderAppReq/riderequestId/user/userId->riderId
+	 //---------approval garxa rider le pessenger ko ride request ma--[show for pessenger side****
+	 public void notifyUpdatedRiderList(Set<RideRequestResponseDto> updatedRiders, Integer rideRequestId) {
+		    messagingTemplate.convertAndSend("/topic/rider-approvals/" + rideRequestId, updatedRiders);
+		}
+	 //In frontend (JS or React or whatever), make sure the passenger is listening to:
+	// /topic/rider-approvals/{rideRequestId}
+
+
+	 
+	 
+	 //[ confuse ] no need to look right now****
+	 public void sendRiderApproved(RideRequestDto dto) {
+	        messagingTemplate.convertAndSend("/topic/rider-approved", dto);
+	    }
 }

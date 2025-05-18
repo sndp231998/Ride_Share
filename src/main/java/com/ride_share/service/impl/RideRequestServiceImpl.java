@@ -127,8 +127,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         
         
         // ✅ Notify WebSocket clients
-        webSocketController.sendRideStatusUpdate(ride);
-        webSocketController.sendRejectedRide(modelMapper.map(rejectedRide, RideRequestDto.class));
+        webSocketController.sendRideRejected(modelMapper.map(rejectedRide, RideRequestDto.class));
 
         return modelMapper.map(rejectedRide, RideRequestDto.class);
     }
@@ -177,8 +176,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         riderApprovalRepo.save(riderApproval);
 
         // Notify clients via websocket (optional)
-        //webSocketController.sendRideStatusUpdate(rideRequest);
-        webSocketController.sendPassengerApprovedRide(rideRequest);
+        webSocketController.sendPassengerApproved(modelMapper.map(rideRequest, RideRequestDto.class));
 
         // Return updated RideRequestDto
         return modelMapper.map(rideRequest, RideRequestDto.class);
@@ -236,8 +234,8 @@ public class RideRequestServiceImpl implements RideRequestService {
   	    RideRequest approvedRide = this.rideRequestRepo.save(ride);
 
         // Notify clients via websocket (optional)
-  	  webSocketController.sendRiderApprovedRide(approvedRide);
-  	    
+  	  webSocketController.sendRiderApproved(modelMapper.map(approvedRide, RideRequestDto.class));
+  
   	    return this.modelMapper.map(approvedRide, RideRequestDto.class);
   	}
     
@@ -397,7 +395,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         RideRequest savedRideReq = rideRequestRepo.save(rideRequest);
         
         // Send WebSocket notification
-        webSocketController.sendRideStatusUpdate(savedRideReq);
+       // webSocketController.sendRideStatusUpdate(savedRideReq);
 
         return modelMapper.map(savedRideReq, RideRequestDto.class);
     }
@@ -567,7 +565,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         RideRequest updatedRide = rideRequestRepo.save(rideRequest);
 
         // Notify clients
-        webSocketController.sendRideStatusUpdate(updatedRide);
+       // webSocketController.sendRideStatusUpdate(updatedRide);
 
         return modelMapper.map(updatedRide, RideRequestDto.class);
     }
@@ -822,7 +820,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         RideRequest ride = rideRequestRepo.findById(rideRequestId)
             .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
         rideRequestRepo.delete(ride);
-        webSocketController.sendRideStatusUpdate(ride);
+       // webSocketController.sendRideStatusUpdate(ride);
     }
 
     @Override

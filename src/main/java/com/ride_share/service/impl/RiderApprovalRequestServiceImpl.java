@@ -82,19 +82,10 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	        // ✅ Set status to rejected
 	        ride.setStatus(RiderApprovalRequest.ApprovedStatus.REJECTED);
 	        
-	        
-	        
 	        RiderApprovalRequest rejectedRide = riderApprovalRepo.save(ride);
 
-	        // ✅ Notify WebSocket clients
-	        try {
-	            logger.info("📡 Sending WebSocket event for rejected rider approval ID: {}", riderAppId);
-	            webSocketController.sendPessengerRejectedApp(ride);
-	            logger.info("✅ WebSocket push successful for RiderApprovalRequest ID: {}", riderAppId);
-	        } catch (Exception e) {
-	            logger.error("❌ WebSocket push FAILED for RiderApprovalRequest ID: {}", riderAppId, e);
-	        }
-	      
+	        webSocketController.notifyPassengerRejectedRider(modelMapper.map(rejectedRide, RiderApprovalRequestDto.class));
+
 	        return modelMapper.map(rejectedRide, RiderApprovalRequestDto.class);
 	    }
 	    
@@ -167,7 +158,8 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	        RiderApprovalRequest saved = this.riderApprovalRepo.save(ab);
 	       
 	        Set<RideRequestResponseDto> updatedRiders = getRidersForRideRequest(rideRequestId);
-	        webSocketController.sendRiderListForRideRequest(rideRequestId, updatedRiders);
+	        webSocketController.notifyUpdatedRiderList(updatedRiders, rideRequestId);
+
 	        return this.RiderApprovalToDto(saved);
 	    }
 	    

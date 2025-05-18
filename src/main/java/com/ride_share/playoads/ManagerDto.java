@@ -20,7 +20,7 @@ public class ManagerDto {
 		    private String localLevel;
 		    private String district;
 		    private String wardnumber;
-    @JsonIgnore
+    //@JsonIgnore
 	    private String mobileNo;
 	   private UserDto user;
 	    private BranchDto branch;
