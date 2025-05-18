@@ -127,6 +127,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         
         
         // ✅ Notify WebSocket clients
+        webSocketController.sendRideStatusUpdate(ride);
         webSocketController.sendRejectedRide(modelMapper.map(rejectedRide, RideRequestDto.class));
 
         return modelMapper.map(rejectedRide, RideRequestDto.class);

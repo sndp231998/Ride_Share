@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -63,7 +65,7 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 
 	    
 	    
-	    
+	    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 	    
 	    
 	    
@@ -85,7 +87,14 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	        RiderApprovalRequest rejectedRide = riderApprovalRepo.save(ride);
 
 	        // ✅ Notify WebSocket clients
-	        webSocketController.sendPessengerRejectedApp(ride);
+	        try {
+	            logger.info("📡 Sending WebSocket event for rejected rider approval ID: {}", riderAppId);
+	            webSocketController.sendPessengerRejectedApp(ride);
+	            logger.info("✅ WebSocket push successful for RiderApprovalRequest ID: {}", riderAppId);
+	        } catch (Exception e) {
+	            logger.error("❌ WebSocket push FAILED for RiderApprovalRequest ID: {}", riderAppId, e);
+	        }
+	      
 	        return modelMapper.map(rejectedRide, RiderApprovalRequestDto.class);
 	    }
 	    
