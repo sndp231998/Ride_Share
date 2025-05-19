@@ -23,14 +23,20 @@ public class RideRequestWebSocketController {
 	@Autowired
     private SimpMessagingTemplate messagingTemplate;
 	
-	public void sendEligibleRiders(List<Integer> userIds, RideRequestDto rideRequestDto) {
-	    Map<String, Object> payload = new HashMap<>();
-	    payload.put("userIds", userIds);
-	    payload.put("rideRequest", rideRequestDto); // send the DTO, not whole entity
+	 public void sendEligibleRiders(List<Integer> userIds, RideRequestDto rideRequestDto) {
+	        Map<String, Object> payload = new HashMap<>();
+	        payload.put("userIds", userIds);
+	        payload.put("rideRequest", rideRequestDto);
 
-	    messagingTemplate.convertAndSend("/topic/eligible-riders/" + rideRequestDto.getRideRequestId(), payload);
-	}
+	        // Send to a **common topic**
+	        messagingTemplate.convertAndSend("/topic/eligible-riders", payload);
+	    }
 
+	 @MessageMapping("/send/message")
+	 @SendTo("/topic/messages")
+	 public String send(String message) {
+	     return message;
+	 }
 
 	
 	//main riderequest reject// by pessenger

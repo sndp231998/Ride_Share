@@ -42,8 +42,8 @@ public class SecurityConfig {
             "/swagger-ui/**", 
             "/swagger-ui.html",
             "/webjars/**",
-             "/api/v1/auth/register"
-  
+             "/api/v1/auth/register",
+            "/ride-websocket/**"
             
 
     };
