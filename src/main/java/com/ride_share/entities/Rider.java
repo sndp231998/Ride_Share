@@ -36,7 +36,7 @@ public class Rider {
     private String driver_License;
 
     @NotBlank(message = "NID number is required")
-    private String Nid_No;
+    private String nid_No;
 
     @NotBlank(message = "Citizenship number is required")
     private String citizen_No;

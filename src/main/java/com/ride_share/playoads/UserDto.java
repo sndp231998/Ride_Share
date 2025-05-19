@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -55,6 +56,7 @@ public class UserDto {
 	        RIDER,PESSENGER
 	    }
 	   // @JsonIgnore 
+	    @ToString.Exclude
 	    private DeviceInfoDto deviceInfo;
 	//--------------------------
 

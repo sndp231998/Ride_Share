@@ -5,6 +5,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FilenameUtils;
 import org.hibernate.engine.jdbc.StreamUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -29,6 +31,7 @@ import com.ride_share.playoads.RiderDto;
 import com.ride_share.repositories.RiderTransactionRepo;
 import com.ride_share.service.FileService;
 import com.ride_share.service.RiderService;
+import com.ride_share.service.impl.UserServiceImpl;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -46,7 +49,8 @@ public class RiderController {
 	@Value("${project.image}")
 	private String path;
 	
-    
+	 private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+	 
 	@GetMapping("/rider/{riderId}/statement")
 	public List<RiderTransaction> getStatement(@PathVariable Integer riderId) {
 	    return riderTransactionRepo.findByRiderIdOrderByDateTimeDesc(riderId);
@@ -155,6 +159,10 @@ public class RiderController {
 	@PostMapping("/user/{userId}/category/{categoryId}/riders")
 	public ResponseEntity<RiderDto> createRider(@RequestBody RiderDto riderDto,
 			@PathVariable Integer userId, @PathVariable Integer categoryId) {
+		logger.info(riderDto.getDriver_License());
+		logger.info(riderDto.getNid_No());
+		logger.info(riderDto.getCitizen_No());
+		logger.info(riderDto.getCitizen_No());
 		RiderDto createRiderDto = this.riderService.createRider(riderDto, userId,categoryId);
 		return new ResponseEntity<>(createRiderDto, HttpStatus.CREATED);
 	}

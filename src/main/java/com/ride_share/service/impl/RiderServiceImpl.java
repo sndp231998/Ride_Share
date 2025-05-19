@@ -76,6 +76,7 @@ public class RiderServiceImpl implements RiderService{
         Rider rider = this.modelMapper.map(riderDto, Rider.class);
         rider.setDriver_License(riderDto.getDriver_License());
         rider.setDate_Of_Birth(riderDto.getDate_Of_Birth());
+       
         rider.setAddedDate(LocalDateTime.now());
         rider.setSelfieWithIdCard("");
         rider.setLicense_Image("");

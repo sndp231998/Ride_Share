@@ -23,7 +23,7 @@ public class RiderDto {
 	 
 
 	    private String driver_License; // Driver License No
-	    private String Nid_No;
+	    private String nid_No;
 	    private String citizen_No;
 	    private String date_Of_Birth;
 	    
