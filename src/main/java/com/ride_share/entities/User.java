@@ -86,8 +86,6 @@ public class User implements UserDetails{
 	    @JoinColumn(name = "branch_id")
 	    private Branch branch;
 
-//	    @Column(name = "branch_Name")
-//	    private String branchName;
 	   
 //	   @Embedded
 //	    private ManagerAddress managerAddress;

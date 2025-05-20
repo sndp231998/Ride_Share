@@ -680,30 +680,30 @@ public class RideRequestServiceImpl implements RideRequestService {
     @Override
     public RideInfoDto detailrideViewByRider(RideRequestDto rideRequestDto, Integer rideRequestId,Integer userId) {
     	
-    	RideRequest rideRequest = rideRequestRepo.findById(rideRequestId)
+    	RideRequest pessenger = rideRequestRepo.findById(rideRequestId)
                 .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
           
     	
-   	 User user = userRepo.findById(userId)
+   	 User rider = userRepo.findById(userId)
    	            .orElseThrow(() -> new ResourceNotFoundException("User", "User ID", userId));
       
    	 // Ensure user is in PASSENGER mode
-     if (user.getModes() != User.UserMode.RIDER) {
+     if (rider.getModes() != User.UserMode.RIDER) {
          throw new ApiException("must be in Rider mode .");
      }
    	 
 	    // Check if the ride has already been approved by another rider [arko rider le approved gari sakyako raixa vane
-	    if (rideRequest.getStatus() == RideRequest.RideStatus.PESSENGER_APPROVED ||
-	    		rideRequest.getStatus() == RideRequest.RideStatus.REJECTED
+	    if (pessenger.getStatus() == RideRequest.RideStatus.PESSENGER_APPROVED ||
+	    		pessenger.getStatus() == RideRequest.RideStatus.REJECTED
 	    		) {
 	        throw new ApiException("This ride request has already been approved/rejected.");
 	    }
    	
-    if (user.getCurrentLocation() == null) {
+    if (rider.getCurrentLocation() == null) {
         throw new ApiException("Update Your current location.");
     }
 
-    LocalDateTime locationTime = user.getCurrentLocation().getTimestamp();
+    LocalDateTime locationTime = rider.getCurrentLocation().getTimestamp();
     if (locationTime == null || locationTime.isBefore(LocalDateTime.now().minusMinutes(59))) {
         throw new ApiException("Please update your current location.");
     }
@@ -714,15 +714,15 @@ public class RideRequestServiceImpl implements RideRequestService {
 
     try {
         DistanceMatrixResponse response = mapService.getDistanceMatrixData(
-        		user.getCurrentLocation().getLatitude(),
-                user.getCurrentLocation().getLongitude(),
-                rideRequest.getD_latitude(),
-                rideRequest.getD_longitude()
+        		rider.getCurrentLocation().getLatitude(),
+                rider.getCurrentLocation().getLongitude(),
+                pessenger.getS_latitude(),//pessenger cu
+                pessenger.getS_longitude()
         );
 
-        pickupDistance= response.getDistanceKm();
-        //distance = response.getDistance(); // already in km
-        pickupDistance = response.getDurationMin(); // already in minutes
+        pickupDistance = response.getDistanceKm(); // distance km मा
+        pickupDuration = response.getDurationMin(); // duration min मा
+ // already in minutes
 
         System.out.println("Distance: " + pickupDistance + " km");
         System.out.println("Duration: " + pickupDuration + " mins");
@@ -736,10 +736,10 @@ public class RideRequestServiceImpl implements RideRequestService {
 
     try {
         DistanceMatrixResponse response = mapService.getDistanceMatrixData(
-        		rideRequest.getS_latitude(),
-        		rideRequest.getS_longitude(), 
-        		rideRequest.getD_latitude(),
-        		rideRequest.getD_longitude()
+        		pessenger.getS_latitude(),
+        		pessenger.getS_longitude(), 
+        		pessenger.getD_latitude(),
+        		pessenger.getD_longitude()
         );
 
         dropDistance= response.getDistanceKm();
