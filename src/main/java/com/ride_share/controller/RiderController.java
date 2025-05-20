@@ -219,7 +219,7 @@ public class RiderController {
 	        		
 	        return ResponseEntity.ok(rejectedRequest);
 	    }
-	    @PutMapping("/{riderId}/rider")
+	    @PutMapping("/{riderId}/approved")
 	    public ResponseEntity<RiderDto> approvedRider(@PathVariable Integer riderId) {
 	        RiderDto approvedRequest = riderService.approveRider(riderId); 		
 	        return ResponseEntity.ok(approvedRequest);

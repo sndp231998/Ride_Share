@@ -215,7 +215,9 @@ public class RiderServiceImpl implements RiderService{
         
         // Update the RiderDto with the new balance
         riderDto.setBalance(newBalance);
-        
+        NotificationDto notificationDto = new NotificationDto();
+        notificationDto.setMessage("Balance is added in your account");
+        notificationService.createNotification(notificationDto, rider.getUser().getId());
         return riderDto;
     }
 

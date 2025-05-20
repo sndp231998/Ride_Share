@@ -85,9 +85,12 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	        
 	        RiderApprovalRequest rejectedRide = riderApprovalRepo.save(ride);
 
-	        webSocketController.notifyPassengerRejectedRider(modelMapper.map(rejectedRide, RiderApprovalRequestDto.class));
+	        RiderApprovalRequestDto dto = modelMapper.map(rejectedRide, RiderApprovalRequestDto.class);
 
-	        return modelMapper.map(rejectedRide, RiderApprovalRequestDto.class);
+	        // Send to dynamic topic
+	        webSocketController.notifyPassengerRejectedRider(dto, riderAppId);
+
+	        return dto;
 	    }
 	    
 	    @Override
@@ -135,10 +138,10 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 		        
 		        try {
 		            DistanceMatrixResponse response = map.getDistanceMatrixData(
-		                user.getCurrentLocation().getLatitude(),
-		                user.getCurrentLocation().getLongitude(),
-		                ride.getD_latitude(),
-		                ride.getD_longitude()
+		                user.getCurrentLocation().getLatitude(),//rider
+		                user.getCurrentLocation().getLongitude(),//rider
+		                ride.getS_latitude(),//gessenger
+		                ride.getS_longitude()
 		            );
 		            min=response.getDurationMin();
 		        } catch (Exception e) {
@@ -157,16 +160,15 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	        }
 
 	        RiderApprovalRequest saved = this.riderApprovalRepo.save(ab);
-	       
-	       RiderApprovalRequestDto dto = modelMapper.map(saved, RiderApprovalRequestDto.class);
-	        webSocketController.notifyUpdatedRiderList(dto, rideRequestId);
-
-	        return this.RiderApprovalToDto(saved);
+	        
+	        RiderApprovalRequestDto dto = modelMapper.map(saved, RiderApprovalRequestDto.class);
+	     // 3. Fetch updated list of riders
+	        Set<RideRequestResponseDto> updatedRiders = getRidersForRideRequest(rideRequestId);
+	    
+	        webSocketController.notifyUpdatedRiderList(updatedRiders, rideRequestId);
+	        return dto;
 	    }
-	    
-	    
-	  
-
+	 
 	    @Override
 		public Set<RideRequestResponseDto> getRidersForRideRequest(Integer rideRequestId) {
 		    List<RiderApprovalRequest> pendingApprovals = riderApprovalRepo.findByRideRequest_RideRequestIdAndStatus(
@@ -264,47 +266,14 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	            riderApprovalRepo.saveAll(pendingRequests);
 	            logger.info("Auto-rejected {} pending ride approvals older than 2 minutes", pendingRequests.size());
 
-	            // ✅ One by one socket ma pathaune
 	            for (RiderApprovalRequest request : pendingRequests) {
 	                RiderApprovalRequestDto dto = modelMapper.map(request, RiderApprovalRequestDto.class);
-	                webSocketController.notifyPassengerRejectedRider(dto);
+	                webSocketController.notifyPassengerRejectedRider(dto, request.getId()); // 👈 Send to dynamic topic
 	            }
 	        }
 	    }
 
 
-
-	
-//	@Override
-//	public RideRequestDto approveRideRequestByPassenger(RiderApprovalRequestDto riderApprovalRequestDto, 
-//			Integer Id, Integer rideRequestId) {
-//		
-//		 RiderApprovalRequest riderApproval = riderApprovalRepo.findById(Id)
-//			        .orElseThrow(() -> new ResourceNotFoundException("RideApprovalRequest", "Id", Id));
-//
-//	    // Fetch the ride request using the rideRequestId
-//	    RideRequest rideRequest = rideRequestRepo.findById(rideRequestId)
-//	        .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
-//	    if (rideRequest.getStatus() == RideRequest.RideStatus.PESSENGER_APPROVED) {
-//	        throw new ApiException("Already approved");
-//	    }
-//
-//	    rideRequest.setStatus(RideRequest.RideStatus.PESSENGER_APPROVED);
-//	    // ✅ Ensures that the selected rider is actually in the list of users who requested this ride
-//	    riderApproval.setStatus(RiderApprovalRequest.ApprovedStatus.PESSENGER_APPROVED);
-//	    rideRequest.setActualPrice(riderApproval.getProposed_price());
-//	    // ✅ Updates the ride request with the approved rider's ID and changes status to PESSENGER_APPROVED
-//	    rideRequest.setRidebookedId(riderApproval.getUser().getId());
-//	    // Save the updated ride request and return it as a DTO
-//	    RideRequest ridereq = rideRequestRepo.save(rideRequest);
-//	    RiderApprovalRequest approvedreq= riderApprovalRepo.save(riderApproval);
-//	// Notify WebSocket clients
-//	  webSocketController.sendRideStatusUpdate(rideRequest);
-//	  // ✅ Return DTO
-//	  // ✅ ModelMapper बाट map गरेर return
-//	    return modelMapper.map(ridereq, RideRequestDto.class);
-//	}
-//	
 	
 	
 	
