@@ -1,5 +1,6 @@
 package com.ride_share.repositories;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +19,8 @@ public interface RiderApprovalRequestRepo extends JpaRepository<RiderApprovalReq
 	Optional<RiderApprovalRequest> findByRideRequest_RideRequestId(Integer rideRequestId);
 	
 	
+	List<RiderApprovalRequest> findByStatusAndAddedDateBefore(
+		    RiderApprovalRequest.ApprovedStatus status, LocalDateTime dateTime);
 }
 
 

@@ -56,11 +56,13 @@ public class RideRequestWebSocketController {
 		    messagingTemplate.convertAndSend("/topic/passenger-rejected-rider", dto);
 		}
 
+	 
 	 ///api/v1/riderAppReq/43/user/34==> riderAppReq/riderequestId/user/userId->riderId
 	 //---------approval garxa rider le pessenger ko ride request ma--[show for pessenger side****
-	 public void notifyUpdatedRiderList(Set<RideRequestResponseDto> updatedRiders, Integer rideRequestId) {
-		    messagingTemplate.convertAndSend("/topic/rider-approvals/" + rideRequestId, updatedRiders);
+	 public void notifyUpdatedRiderList(RiderApprovalRequestDto updatedRider, Integer rideRequestId) {
+		    messagingTemplate.convertAndSend("/topic/rider-approvals/" + rideRequestId, updatedRider);
 		}
+
 	 //In frontend (JS or React or whatever), make sure the passenger is listening to:
 	// /topic/rider-approvals/{rideRequestId}
 

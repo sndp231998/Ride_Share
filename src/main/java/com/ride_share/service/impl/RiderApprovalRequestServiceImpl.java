@@ -11,6 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.ride_share.controller.RideRequestWebSocketController;
@@ -157,8 +158,8 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 
 	        RiderApprovalRequest saved = this.riderApprovalRepo.save(ab);
 	       
-	        Set<RideRequestResponseDto> updatedRiders = getRidersForRideRequest(rideRequestId);
-	        webSocketController.notifyUpdatedRiderList(updatedRiders, rideRequestId);
+	       // RiderApprovalRequestDto dto = modelMapper.map(saved, RiderApprovalRequestDto.class);
+	        //webSocketController.notifyUpdatedRiderList(dto, rideRequestId);
 
 	        return this.RiderApprovalToDto(saved);
 	    }
@@ -247,6 +248,31 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	        
 	        return entity;
 	    }
+
+	    @Scheduled(fixedRate = 2 * 60 * 1000) // हर 2 मिनेटमा run गर्छ
+	    public void autoRejectPendingApprovals() {
+	        LocalDateTime twoMinutesAgo = LocalDateTime.now().minusMinutes(2);
+
+	        List<RiderApprovalRequest> pendingRequests = riderApprovalRepo
+	            .findByStatusAndAddedDateBefore(RiderApprovalRequest.ApprovedStatus.PENDING, twoMinutesAgo);
+
+	        for (RiderApprovalRequest request : pendingRequests) {
+	            request.setStatus(RiderApprovalRequest.ApprovedStatus.REJECTED);
+	        }
+
+	        if (!pendingRequests.isEmpty()) {
+	            riderApprovalRepo.saveAll(pendingRequests);
+	            logger.info("Auto-rejected {} pending ride approvals older than 2 minutes", pendingRequests.size());
+
+	            // ✅ One by one socket ma pathaune
+	            for (RiderApprovalRequest request : pendingRequests) {
+	                RiderApprovalRequestDto dto = modelMapper.map(request, RiderApprovalRequestDto.class);
+	                webSocketController.notifyPassengerRejectedRider(dto);
+	            }
+	        }
+	    }
+
+
 
 	
 //	@Override

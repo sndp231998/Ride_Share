@@ -125,7 +125,6 @@ public class RideRequestServiceImpl implements RideRequestService {
             notificationService.createNotification(notificationDto, userId);
         }
         
-        
         // ✅ Notify WebSocket clients
         webSocketController.sendRideRejected(modelMapper.map(rejectedRide, RideRequestDto.class));
 
@@ -170,7 +169,7 @@ public class RideRequestServiceImpl implements RideRequestService {
             rideCountRepo.save(rideCount);
            
         }
-        
+   
         // Save
         rideRequestRepo.save(rideRequest);
         riderApprovalRepo.save(riderApproval);
@@ -239,7 +238,7 @@ public class RideRequestServiceImpl implements RideRequestService {
   	    return this.modelMapper.map(approvedRide, RideRequestDto.class);
   	}
     
-    
+    //----kam xina yo method ko delete garda hunxa
     @Override
     public List<RideRequestDto> getRideRequestsByUserCategory(int userId) {
     
@@ -448,8 +447,95 @@ public class RideRequestServiceImpl implements RideRequestService {
         return eligibleRiderIds;
     }
         
+    @Override
+    public RideRequestDto updateRideRequest(RideRequestDto rideRequestDto, Integer rideRequestId) {
+        RideRequest rideRequest = rideRequestRepo.findById(rideRequestId)
+            .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
 
-    
+        // Only allow updates if the ride status is PENDING
+        if (rideRequest.getStatus() != RideRequest.RideStatus.PENDING) {
+            throw new ApiException("Ride request can only be updated when the status is PENDING.");
+        }
+
+        User user = rideRequest.getUser();
+
+        // Ensure user has current location
+        if (user.getCurrentLocation() == null) {
+            throw new ApiException("User's current location is not set.");
+        }
+
+        LocalDateTime locationTime = user.getCurrentLocation().getTimestamp();
+        LocalDateTime currentTime = LocalDateTime.now();
+
+        if (locationTime == null || locationTime.isBefore(currentTime.minusMinutes(59))) {
+            throw new ApiException("Please update your current location.");
+        }
+
+        double distancekm;
+        String destinationAdd;
+        String sourceAdd;
+
+        try {
+            DistanceMatrixResponse response = mapService.getDistanceMatrixData(
+                user.getCurrentLocation().getLatitude(),
+                user.getCurrentLocation().getLongitude(),
+                rideRequestDto.getD_latitude(),
+                rideRequestDto.getD_longitude()
+            );
+
+            distancekm = response.getDistanceKm();
+            sourceAdd = response.getOriginAddress();
+            destinationAdd = response.getDestinationAddress();
+
+        } catch (Exception e) {
+            throw new ApiException("Failed to calculate distance: " + e.getMessage());
+        }
+
+        String province;
+        try {
+            province = mapServiceImpl.getState(
+                user.getCurrentLocation().getLatitude(),
+                user.getCurrentLocation().getLongitude()
+            );
+        } catch (Exception e) {
+            throw new ApiException("Error determining city.");
+        }
+
+        Pricing pricing = pricingRepo.findByProvinceAndCategory_CategoryId(province, rideRequest.getCategory().getCategoryId())
+            .orElseThrow(() -> new ApiException("Pricing not available for the given province and category."));
+
+        double generatedPrice = pricing.getBaseFare() + (pricing.getPerKmRate() * distancekm);
+        double givenPrice = rideRequestDto.getActualPrice();
+
+        if (givenPrice == 0.0) {
+            rideRequest.setActualPrice(generatedPrice);
+        } else if (givenPrice < generatedPrice || givenPrice > generatedPrice + 50) {
+            throw new ApiException("Recommended price: " + generatedPrice);
+        } else {
+            rideRequest.setActualPrice(givenPrice);
+        }
+
+        // Update location and address details
+        rideRequest.setS_latitude(user.getCurrentLocation().getLatitude());
+        rideRequest.setS_longitude(user.getCurrentLocation().getLongitude());
+        rideRequest.setD_latitude(rideRequestDto.getD_latitude());
+        rideRequest.setD_longitude(rideRequestDto.getD_longitude());
+        rideRequest.setS_Name(sourceAdd);
+        rideRequest.setD_Name(destinationAdd);
+        rideRequest.setTotal_Km(distancekm);
+        rideRequest.setStatus(RideRequest.RideStatus.PENDING); // still pending
+
+        RideRequest updatedRide = rideRequestRepo.save(rideRequest);
+        List<Integer> eligibleRiderUserIds = getEligibleRidersForRequest(updatedRide);
+        logger.info("✅ Eligible rider userIds: {}", eligibleRiderUserIds);
+        rideRequestDto = modelMapper.map(updatedRide, RideRequestDto.class);
+        logger.info("✅ RideRequest DTO created: {}", rideRequestDto);
+        webSocketController.sendEligibleRiders(eligibleRiderUserIds, rideRequestDto);
+        logger.info("✅ Sent eligible riders via WebSocket");
+        return  rideRequestDto;
+    }
+
+
     
     @Override
     public List<RideRequestDto> getSortedPendingRideRequests(int riderUserId) {
@@ -530,91 +616,7 @@ public class RideRequestServiceImpl implements RideRequestService {
     
 //    
   
-    @Override
-    public RideRequestDto updateRideRequest(RideRequestDto rideRequestDto, Integer rideRequestId) {
-        RideRequest rideRequest = rideRequestRepo.findById(rideRequestId)
-            .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
 
-        // Only allow updates if the ride status is PENDING
-        if (rideRequest.getStatus() != RideRequest.RideStatus.PENDING) {
-            throw new ApiException("Ride request can only be updated when the status is PENDING.");
-        }
-
-        User user = rideRequest.getUser();
-
-        // Ensure user has current location
-        if (user.getCurrentLocation() == null) {
-            throw new ApiException("User's current location is not set.");
-        }
-
-        LocalDateTime locationTime = user.getCurrentLocation().getTimestamp();
-        LocalDateTime currentTime = LocalDateTime.now();
-
-        if (locationTime == null || locationTime.isBefore(currentTime.minusMinutes(59))) {
-            throw new ApiException("Please update your current location.");
-        }
-
-        double distancekm;
-        String destinationAdd;
-        String sourceAdd;
-
-        try {
-            DistanceMatrixResponse response = mapService.getDistanceMatrixData(
-                user.getCurrentLocation().getLatitude(),
-                user.getCurrentLocation().getLongitude(),
-                rideRequestDto.getD_latitude(),
-                rideRequestDto.getD_longitude()
-            );
-
-            distancekm = response.getDistanceKm();
-            sourceAdd = response.getOriginAddress();
-            destinationAdd = response.getDestinationAddress();
-
-        } catch (Exception e) {
-            throw new ApiException("Failed to calculate distance: " + e.getMessage());
-        }
-
-        String province;
-        try {
-            province = mapServiceImpl.getState(
-                user.getCurrentLocation().getLatitude(),
-                user.getCurrentLocation().getLongitude()
-            );
-        } catch (Exception e) {
-            throw new ApiException("Error determining city.");
-        }
-
-        Pricing pricing = pricingRepo.findByProvinceAndCategory_CategoryId(province, rideRequest.getCategory().getCategoryId())
-            .orElseThrow(() -> new ApiException("Pricing not available for the given province and category."));
-
-        double generatedPrice = pricing.getBaseFare() + (pricing.getPerKmRate() * distancekm);
-        double givenPrice = rideRequestDto.getActualPrice();
-
-        if (givenPrice == 0.0) {
-            rideRequest.setActualPrice(generatedPrice);
-        } else if (givenPrice < generatedPrice || givenPrice > generatedPrice + 50) {
-            throw new ApiException("Recommended price: " + generatedPrice);
-        } else {
-            rideRequest.setActualPrice(givenPrice);
-        }
-
-        // Update location and address details
-        rideRequest.setS_latitude(user.getCurrentLocation().getLatitude());
-        rideRequest.setS_longitude(user.getCurrentLocation().getLongitude());
-        rideRequest.setD_latitude(rideRequestDto.getD_latitude());
-        rideRequest.setD_longitude(rideRequestDto.getD_longitude());
-        rideRequest.setS_Name(sourceAdd);
-        rideRequest.setD_Name(destinationAdd);
-        rideRequest.setTotal_Km(distancekm);
-        rideRequest.setStatus(RideRequest.RideStatus.PENDING); // still pending
-
-        RideRequest updatedRide = rideRequestRepo.save(rideRequest);
-
-        // Notify clients
-       // webSocketController.sendRideStatusUpdate(updatedRide);
-
-        return modelMapper.map(updatedRide, RideRequestDto.class);
-    }
 
     
     @Override
