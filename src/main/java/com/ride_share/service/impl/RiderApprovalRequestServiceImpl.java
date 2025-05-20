@@ -158,8 +158,8 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 
 	        RiderApprovalRequest saved = this.riderApprovalRepo.save(ab);
 	       
-	       // RiderApprovalRequestDto dto = modelMapper.map(saved, RiderApprovalRequestDto.class);
-	        //webSocketController.notifyUpdatedRiderList(dto, rideRequestId);
+	       RiderApprovalRequestDto dto = modelMapper.map(saved, RiderApprovalRequestDto.class);
+	        webSocketController.notifyUpdatedRiderList(dto, rideRequestId);
 
 	        return this.RiderApprovalToDto(saved);
 	    }
