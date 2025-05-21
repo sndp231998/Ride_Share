@@ -140,7 +140,7 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 		            DistanceMatrixResponse response = map.getDistanceMatrixData(
 		                user.getCurrentLocation().getLatitude(),//rider
 		                user.getCurrentLocation().getLongitude(),//rider
-		                ride.getS_latitude(),//gessenger
+		                ride.getS_latitude(),//passenger
 		                ride.getS_longitude()
 		            );
 		            min=response.getDurationMin();
