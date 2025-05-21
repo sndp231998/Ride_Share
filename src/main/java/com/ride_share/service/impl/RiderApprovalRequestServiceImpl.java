@@ -18,6 +18,7 @@ import com.ride_share.controller.RideRequestWebSocketController;
 import com.ride_share.entities.Category;
 import com.ride_share.entities.RideCount;
 import com.ride_share.entities.RideRequest;
+import com.ride_share.entities.Rider;
 import com.ride_share.entities.RiderApprovalRequest;
 import com.ride_share.entities.User;
 import com.ride_share.entities.Vehicle;
@@ -34,10 +35,12 @@ import com.ride_share.repositories.CategoryRepo;
 import com.ride_share.repositories.PricingRepo;
 import com.ride_share.repositories.RideRequestRepo;
 import com.ride_share.repositories.RiderApprovalRequestRepo;
+import com.ride_share.repositories.RiderRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.repositories.VehicleRepo;
 import com.ride_share.service.MapService;
 import com.ride_share.service.RiderApprovalRequestService;
+import com.ride_share.service.RiderRatingService;
 
 @Service
 public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestService{
@@ -59,12 +62,14 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	    @Autowired
 	    RiderApprovalRequestRepo riderApprovalRepo;
 
-	    
+	    @Autowired
+	    private RiderRepo riderRepo;
 //	    
 	    @Autowired
 	    private RideRequestWebSocketController webSocketController;
 
-	    
+	    @Autowired
+	    private RiderRatingService riderRatingService;
 	    
 	    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 	    
@@ -174,12 +179,13 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 		    List<RiderApprovalRequest> pendingApprovals = riderApprovalRepo.findByRideRequest_RideRequestIdAndStatus(
 		            rideRequestId, RiderApprovalRequest.ApprovedStatus.PENDING
 		    );
-		    
+		   
 		    return pendingApprovals.stream()
 		            .map(req -> {
 		                User user = req.getUser();
 		                RideRequestResponseDto dto = new RideRequestResponseDto();
 		                dto.setName(user.getName());
+		                dto.setRiderImage(user.getImageName());
 		                dto.setUserId(user.getId());  // Set userId
 		                dto.setMobileNo(user.getMobileNo());
 		                List<Vehicle> vehicles = vehicleRepo.findByUser(user);
@@ -203,6 +209,15 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 		                dto.setMinToReach(req.getMinToReach());
 		                dto.setId(req.getId());
 		                dto.setRideRequestId(req.getRideRequest().getRideRequestId());
+		                
+		                List<Rider>riders = riderRepo.findByUser(user);
+		                if (riders != null && !riders.isEmpty()) {
+		                    Rider rider = riders.get(0); // pick first rider for simplicity
+		                    Double averageRating = riderRatingService.getAverageRatingByRiderId(rider.getId());
+		                    dto.setAverageRating(averageRating);
+		                } else {
+		                    dto.setAverageRating(0.0);
+		                }
 		                return dto;
 		            })
 		            .collect(Collectors.toSet());

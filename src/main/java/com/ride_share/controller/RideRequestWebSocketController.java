@@ -13,6 +13,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import com.ride_share.entities.RideRequest;
 import com.ride_share.entities.RiderApprovalRequest;
+import com.ride_share.playoads.RideMessageDto;
 import com.ride_share.playoads.RideRequestDto;
 import com.ride_share.playoads.RideRequestResponseDto;
 import com.ride_share.playoads.RiderApprovalRequestDto;
@@ -23,6 +24,19 @@ public class RideRequestWebSocketController {
 	@Autowired
     private SimpMessagingTemplate messagingTemplate;
 	
+	
+	
+	
+	@MessageMapping("/send/message")
+    @SendTo("/topic/messages")
+    public RideMessageDto sendRideMessage(RideMessageDto rideMessageDto) {
+        // You can add logic here, such as validation or storing in DB
+        return rideMessageDto;
+    }
+	
+	
+
+	
 	 public void sendEligibleRiders(List<Integer> userIds, RideRequestDto rideRequestDto) {
 	        Map<String, Object> payload = new HashMap<>();
 	        payload.put("userIds", userIds);
@@ -32,11 +46,7 @@ public class RideRequestWebSocketController {
 	        messagingTemplate.convertAndSend("/topic/eligible-riders", payload);
 	    }
 
-	 @MessageMapping("/send/message")
-	 @SendTo("/topic/messages")
-	 public String send(String message) {
-	     return message;
-	 }
+
 
 	
 	//main riderequest reject// by pessenger

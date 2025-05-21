@@ -27,6 +27,12 @@ public class RideRequestController {
     @Autowired
     private RideRequestService rideRequestService;
     
+  //  /api/v1/ride-requests/ride/complete/{rideRequestId}
+    @PutMapping("/ride/complete/{rideRequestId}")
+    public ResponseEntity<RideRequestDto> completeRide(@PathVariable Integer rideRequestId) {
+        RideRequestDto updatedRide = rideRequestService.rideComplete(rideRequestId);		
+        return ResponseEntity.ok(updatedRide);
+    }
     
     //for rider pending riders
     @GetMapping("/user/{userId}")

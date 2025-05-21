@@ -47,7 +47,7 @@ public class RideRequestDto {
     private RideStatus status;
     
     public enum RideStatus {
-    	PENDING,PESSENGER_APPROVED, REJECTED
+    	PENDING,PESSENGER_APPROVED, REJECTED,RIDE_COMPLETE
     }
 
   	

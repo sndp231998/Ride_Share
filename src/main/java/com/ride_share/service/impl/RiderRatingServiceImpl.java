@@ -33,6 +33,20 @@ public class RiderRatingServiceImpl implements RiderRatingService {
     @Autowired
     private RiderRatingRepo riderRatingRepo;
 
+    
+    @Override
+    public Double getAverageRatingByRiderId(Integer riderId) {
+        Rider rider = riderRepo.findById(riderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Rider", "Rider ID", riderId));
+        
+        List<RiderRating> ratings = riderRatingRepo.findByRider(rider);
+
+        if (ratings.isEmpty()) return 0.0;
+
+        double avg = ratings.stream().mapToDouble(RiderRating::getStar).average().orElse(0.0);
+        return avg;
+    }
+    
     @Override
     public RiderRatingDto createRiderRating(RiderRatingDto riderRatingDto, Integer userId, Integer riderId) {
         Rider rider = riderRepo.findById(riderId)
@@ -65,18 +79,7 @@ public class RiderRatingServiceImpl implements RiderRatingService {
                 .map(rat -> this.modelMapper.map(rat, RiderRatingDto.class))
                 .collect(Collectors.toList());
     }
-    @Override
-    public Double getAverageRatingByRiderId(Integer riderId) {
-        Rider rider = riderRepo.findById(riderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Rider", "Rider ID", riderId));
-        
-        List<RiderRating> ratings = riderRatingRepo.findByRider(rider);
-
-        if (ratings.isEmpty()) return 0.0;
-
-        double avg = ratings.stream().mapToDouble(RiderRating::getStar).average().orElse(0.0);
-        return avg;
-    }
+ 
 
 }
 

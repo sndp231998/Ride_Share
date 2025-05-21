@@ -21,6 +21,9 @@ public class RideRequestResponseDto {
 	    private int rideRequestId;
 	    private int Id;//RiderApprovalRequestId
 	    private String vehicleNumber;
-	    
+	    private String riderImage;
+	    private Double averageRating;
+
+
 	
 }

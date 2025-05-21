@@ -94,6 +94,24 @@ public class RideRequestServiceImpl implements RideRequestService {
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     // Existing methods (create, update, delete, get, etc.)
     
+    
+    @Override
+    public RideRequestDto rideComplete(Integer rideRequestId) {
+        RideRequest ride = rideRequestRepo.findById(rideRequestId)
+            .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
+
+        ride.setStatus(RideRequest.RideStatus.RIDE_COMPLETE);
+        rideRequestRepo.save(ride);
+
+        RideRequestDto dto = modelMapper.map(ride, RideRequestDto.class);
+        return dto;
+    }
+
+
+    
+    
+    
+    
     @Override
     public RideRequestDto rejectRideRequest(Integer rideRequestId) {
         RideRequest ride = rideRequestRepo.findById(rideRequestId)

@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ride_share.entities.RiderTransaction;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.playoads.ApiResponse;
+import com.ride_share.playoads.RideRequestDto;
 import com.ride_share.playoads.RiderDto;
 import com.ride_share.repositories.RiderTransactionRepo;
 import com.ride_share.service.FileService;
@@ -50,6 +51,9 @@ public class RiderController {
 	private String path;
 	
 	 private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+	 
+	 
+	
 	 
 	@GetMapping("/rider/{riderId}/statement")
 	public List<RiderTransaction> getStatement(@PathVariable Integer riderId) {
