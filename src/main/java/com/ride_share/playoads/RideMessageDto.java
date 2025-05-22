@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RideMessageDto {
 
+	Integer userId;
+	Integer rideRequestId;
 	private double longitude;
     private double latitude;
     private String type;
