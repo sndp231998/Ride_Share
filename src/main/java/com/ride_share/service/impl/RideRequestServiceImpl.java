@@ -104,12 +104,11 @@ public class RideRequestServiceImpl implements RideRequestService {
         rideRequestRepo.save(ride);
 
         RideRequestDto dto = modelMapper.map(ride, RideRequestDto.class);
+        webSocketController.rideComplete(dto, rideRequestId);
         return dto;
     }
 
 
-    
-    
     
     
     @Override

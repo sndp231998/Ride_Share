@@ -46,7 +46,9 @@ public class RideRequestWebSocketController {
 	        messagingTemplate.convertAndSend("/topic/eligible-riders", payload);
 	    }
 
-
+public void rideComplete(RideRequestDto dto, Integer rideRequestId) {
+	messagingTemplate.convertAndSend("/topic/ride-completed/"+rideRequestId,dto);
+}
 
 	
 	//main riderequest reject// by pessenger
