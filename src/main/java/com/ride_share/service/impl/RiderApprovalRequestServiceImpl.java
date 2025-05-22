@@ -25,6 +25,7 @@ import com.ride_share.entities.Vehicle;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
 import com.ride_share.playoads.DistanceMatrixResponse;
+import com.ride_share.playoads.Location;
 import com.ride_share.playoads.RideRequestDto;
 import com.ride_share.playoads.RideRequestResponseDto;
 import com.ride_share.playoads.RiderApprovalRequestDto;
@@ -188,6 +189,12 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 		                dto.setRiderImage(user.getImageName());
 		                dto.setUserId(user.getId());  // Set userId
 		                dto.setMobileNo(user.getMobileNo());
+		                Location loc = user.getCurrentLocation();
+		                if (loc != null) {
+		                    dto.setRiderLati(loc.getLatitude());
+		                    dto.setRiderLong(loc.getLongitude());
+		                }
+
 		                List<Vehicle> vehicles = vehicleRepo.findByUser(user);
 		                if (vehicles != null && !vehicles.isEmpty()) {
 		                    // For example, pick the first vehicle's attributes

@@ -23,6 +23,8 @@ public class RideRequestResponseDto {
 	    private String vehicleNumber;
 	    private String riderImage;
 	    private Double averageRating;
+	    private Double riderLati;
+	    private Double riderLong;
 
 
 	
