@@ -50,7 +50,9 @@ public void rideComplete(RideRequestDto dto, Integer rideRequestId) {
 	messagingTemplate.convertAndSend("/topic/ride-completed/"+rideRequestId,dto);
 }
 
-	
+public void ridePickup(RideRequestDto dto, Integer rideRequestId) {
+	messagingTemplate.convertAndSend("/topic/ride-pickup/"+rideRequestId,dto);
+}
 	//main riderequest reject// by pessenger
 	 public void sendRideRejected(RideRequestDto dto, Integer rideRequestId) {
 		    messagingTemplate.convertAndSend("/topic/ride-rejected/" + rideRequestId, dto);

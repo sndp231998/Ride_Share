@@ -108,6 +108,19 @@ public class RideRequestServiceImpl implements RideRequestService {
         return dto;
     }
 
+    @Override
+    public RideRequestDto ridePickup(Integer rideRequestId) {
+        RideRequest ride = rideRequestRepo.findById(rideRequestId)
+            .orElseThrow(() -> new ResourceNotFoundException("RideRequest", "RideRequest ID", rideRequestId));
+
+        ride.setStatus(RideRequest.RideStatus.PICKUP);
+        rideRequestRepo.save(ride);
+
+        RideRequestDto dto = modelMapper.map(ride, RideRequestDto.class);
+        webSocketController.ridePickup(dto, rideRequestId);
+        return dto;
+    }
+
 
     
     

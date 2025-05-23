@@ -34,6 +34,12 @@ public class RideRequestController {
         return ResponseEntity.ok(updatedRide);
     }
     
+    @PutMapping("/ride/pickup/{rideRequestId}")
+    public ResponseEntity<RideRequestDto> ridePickup(@PathVariable Integer rideRequestId) {
+        RideRequestDto updatedRide = rideRequestService.ridePickup(rideRequestId);		
+        return ResponseEntity.ok(updatedRide);
+    }
+    
     //for rider pending riders
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<RideRequestDto>> getRideRequestsByUserCategory(@PathVariable int userId) {

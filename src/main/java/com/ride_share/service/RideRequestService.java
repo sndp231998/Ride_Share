@@ -49,5 +49,7 @@ public interface RideRequestService {
 
 	RideRequestDto rideComplete(Integer rideRequestId);
 
+	RideRequestDto ridePickup(Integer rideRequestId);
+
 
 }
