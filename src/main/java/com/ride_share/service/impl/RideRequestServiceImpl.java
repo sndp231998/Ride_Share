@@ -447,15 +447,25 @@ public class RideRequestServiceImpl implements RideRequestService {
         int requestCategoryId = request.getCategory().getCategoryId();
         
         List<Rider> approvedRiders = riderRepo.findByStatus(Rider.RiderStatus.APPROVED);
+        List<Integer> riderIds = approvedRiders.stream()
+                .map(Rider::getId)
+                .collect(Collectors.toList());
+        logger.info("✅ Approved Riders fetched: {}", riderIds);
         List<Integer> eligibleRiderIds = new ArrayList<>();
 
         for (Rider rider : approvedRiders) {
             User riderUser = rider.getUser();
 
             // 2. Location null भए skip गर्ने
-            if (riderUser == null || riderUser.getCurrentLocation() == null) continue;
-
+            if (riderUser == null || riderUser.getCurrentLocation().getLatitude() == null) {
+            	
+            logger.debug("❌ Rider ID {} skipped: No user or location.", rider.getId());
+            continue;
+            }
             Location riderLocation = riderUser.getCurrentLocation();
+            logger.debug("🔍 Checking rider ID {} at location: {}, {}", 
+                    riderUser.getId(), riderLocation.getLatitude(), riderLocation.getLongitude());
+
             // 3. Distance check गर्ने
             try {
                 DistanceMatrixResponse distanceData = mapServiceImpl.getDistanceMatrixData(
@@ -463,15 +473,16 @@ public class RideRequestServiceImpl implements RideRequestService {
                         riderLocation.getLatitude(),
                         riderLocation.getLongitude()
                 );
-
+                logger.debug("📏 Distance to rider {} is {} km", riderUser.getId(), distanceData.getDistanceKm());
                 // 4. Category match + distance <= 10km
                 if (distanceData.getDistanceKm() <= 10.0 &&
                     rider.getCategory() != null &&
                     rider.getCategory().getCategoryId() == requestCategoryId) {
-
+                	 logger.debug("✅ Rider ID {} is eligible", riderUser.getId());
                     eligibleRiderIds.add(riderUser.getId());
+                } else {
+                    logger.debug("❌ Rider ID {} is NOT eligible", riderUser.getId());
                 }
-
             } catch (Exception e) {
                 System.err.println("Distance check failed for Rider ID " + rider.getId());
             }
@@ -561,6 +572,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         RideRequest updatedRide = rideRequestRepo.save(rideRequest);
         List<Integer> eligibleRiderUserIds = getEligibleRidersForRequest(updatedRide);
         logger.info("✅ Eligible rider userIds: {}", eligibleRiderUserIds);
+        
         rideRequestDto = modelMapper.map(updatedRide, RideRequestDto.class);
         logger.info("✅ RideRequest DTO created: {}", rideRequestDto);
         webSocketController.sendEligibleRiders(eligibleRiderUserIds, rideRequestDto);
