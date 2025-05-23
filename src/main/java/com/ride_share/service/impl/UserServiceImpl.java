@@ -171,7 +171,7 @@ public class UserServiceImpl implements UserService {
 			    }
 
 			    if (Duration.between(dto.getTimestamp(), Instant.now()).getSeconds() > OTP_VALID_DURATION) {
-			        verificationService.removeOtp(emailOrMobile);
+			        //verificationService.removeOtp(emailOrMobile);
 			        return new ApiResponse("OTP expired", false);
 			    }
 
@@ -419,17 +419,7 @@ public class UserServiceImpl implements UserService {
 //		
 //	}
 
-//	@Override
-//	public UserDto GetOtp(UserDto userDto, Integer userId) {
-//		  User user = this.userRepo.findById(userId)
-//	                .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
-//
-//	        // Saving OTP to User table (optional step)
-//	        user.setOtp(userDto.getOtp());
-//	        
-//	        // Save and return updated user with OTP
-//	        return modelMapper.map(userRepo.save(user), UserDto.class);
-//	}
+
 	
 	@Override
 	 public Location getLocationByUserId(Integer userId) {
@@ -483,18 +473,4 @@ public class UserServiceImpl implements UserService {
 	}
 
 
-
-	
-//	public UserDto UserBlanceUpdate(UserDto userDto,Integer userId) {
-//		User user = userRepo.findById(userId)
-//                .orElseThrow(() -> new ResourceNotFoundException("User", "User id", userId));
-//		Rider.RiderStatus existingStatus = this.riderRepo.findRiderStatusByUserId(userId);
-//        if (existingStatus == Rider.RiderStatus.PENDING || existingStatus == Rider.RiderStatus.REJECTED) {
-//            throw new IllegalStateException("Cannot create rider. User already has a rider application in PENDING status.");
-//        }
-//        
-//        user.setBalance(userDto.getBalance());
-//
-//	}
-	
 }

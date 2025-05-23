@@ -83,11 +83,14 @@ public class RiderServiceImpl implements RiderService{
         //---------------------------
         rider.setCitizen_Back(""); 
         rider.setCitizen_Front("");
+       
         rider.setCitizen_No(riderDto.getCitizen_No());
         //-------------------------------
        
         rider.setNid_Img("");
+        if(riderDto.getNid_No()!=null) {
         rider.setNid_No(riderDto.getNid_No());
+        }
         //----------------------------------
         rider.setUser(user);
         rider.setCategory(category);
@@ -114,6 +117,7 @@ public class RiderServiceImpl implements RiderService{
         // Normal fields
         rider.setDate_Of_Birth(riderDto.getDate_Of_Birth());
         rider.setDriver_License(riderDto.getDriver_License());
+        
         rider.setNid_No(riderDto.getNid_No());
         rider.setCitizen_No(riderDto.getCitizen_No());
         rider.setUpdatedDate(LocalDateTime.now());
