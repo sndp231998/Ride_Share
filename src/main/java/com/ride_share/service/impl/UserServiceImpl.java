@@ -139,9 +139,9 @@ public class UserServiceImpl implements UserService {
 		       
 		        emailService.sendOtpMobile(user.getMobileNo(), welcomeMessage);
 		        //--------------------------------------
-		        NotificationDto notificationDto = new NotificationDto();
-		        notificationDto.setMessage(welcomeMessage);
-		           notificationService.createNotification(notificationDto, user.getId());
+//		        NotificationDto notificationDto = new NotificationDto();
+//		        notificationDto.setMessage(welcomeMessage);
+//		           notificationService.createNotification(notificationDto, user.getId());
 		           //----------------------------------------
 		           if(user.getEmail()!=null) {
 		               String subject = "Welcome";
@@ -152,34 +152,34 @@ public class UserServiceImpl implements UserService {
 		   
 		   
 		   
-		   
-		   
-		   
-		   
-		   
 		    @Override
-		   public ApiResponse verifyUser(String emailOrMobile, String otp) {
-			    VerificationDto dto = verificationService.getOtpDetails(
-			        emailOrMobile.contains("@") ? "email:" + emailOrMobile : "mobile:" + emailOrMobile
-			    );
+			   public ApiResponse verifyUser(String emailOrMobile, String otp) {
+				    VerificationDto dto = verificationService.getOtpDetails(
+				        emailOrMobile.contains("@") ? "email:" + emailOrMobile : "mobile:" + emailOrMobile
+				    );
 
-			    if (dto == null) {
-			        return new ApiResponse("No OTP found for this user", false);
-			    }
+				    if (dto == null) {
+				        return new ApiResponse("No OTP found for this user", false);
+				    }
 
-			    if (!dto.getOtp().equals(otp)) {
-			        return new ApiResponse("Invalid OTP", false);
-			    }
+				    if (!dto.getOtp().equals(otp)) {
+				        return new ApiResponse("Invalid OTP", false);
+				    }
 
-			    if (Duration.between(dto.getTimestamp(), Instant.now()).getSeconds() > OTP_VALID_DURATION) {
-			        //verificationService.removeOtp(emailOrMobile);
-			        return new ApiResponse("OTP expired", false);
-			    }
+				    if (Duration.between(dto.getTimestamp(), Instant.now()).getSeconds() > OTP_VALID_DURATION) {
+				        //verificationService.removeOtp(emailOrMobile);
+				        return new ApiResponse("OTP expired", false);
+				    }
 
-			    // verified => remove OTP
-			    //verificationService.removeOtp(emailOrMobile);
-			    return new ApiResponse("User verified successfully", true);
-			}
+				    // verified => remove OTP
+				    //verificationService.removeOtp(emailOrMobile);
+				    return new ApiResponse("User verified successfully", true);
+				}   
+		   
+		   
+		   
+		   
+		
 
 		   
 		   
