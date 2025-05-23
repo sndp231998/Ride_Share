@@ -68,8 +68,7 @@ public class UserServiceImpl implements UserService {
 		   
 		   @Autowired
 		   private ManagerRepo managerRepo;
-		   @Autowired
-		   private RiderApprovalRequestRepo approvalRequestRepo;
+		 
 		   @Autowired
 			private VerificationService verificationService;
 		   
@@ -117,7 +116,9 @@ public class UserServiceImpl implements UserService {
                
 	           // String otp = userDto.getOtp();
 	            user.setMobileNo(userDto.getMobileNo());
+	            if(userDto.getEmail()!=null) {
 	            user.setEmail(userDto.getEmail());
+	            }
 	            user.setDateOfRegistration(LocalDateTime.now());
 			    // roles
 			    Role role = this.roleRepo.findById(AppConstants.NORMAL_USER).get();
