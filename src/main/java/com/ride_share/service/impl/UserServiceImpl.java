@@ -110,7 +110,7 @@ public class UserServiceImpl implements UserService {
 			    // OTP valid => remove it
 			    verificationService.removeOtp(validKey);
 
-	            user.setImageName("");
+	            user.setImageName("default.jpeg");
 			    // encoded the password
 			    user.setPassword(this.passwordEncoder.encode(user.getPassword()));
                

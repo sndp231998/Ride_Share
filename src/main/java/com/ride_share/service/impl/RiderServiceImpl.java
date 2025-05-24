@@ -299,6 +299,7 @@ public class RiderServiceImpl implements RiderService{
 	public List<RiderDto> getAllRiders() {
 
 		List<Rider> riders = this.riderRepo.findAll();
+		
 		List<RiderDto> riderDtos = riders.stream().map(rider -> this.riderToDto(rider)).collect(Collectors.toList());
 
 		return riderDtos;
@@ -321,13 +322,13 @@ public class RiderServiceImpl implements RiderService{
 	    return pendingRiders.stream()
 	            .map(rider -> {
 	                RiderDto riderDto = riderToDto(rider); // Rider लाई RiderDto मा बदल
-	                
+	                if (rider.getUser() != null) {
 	                vehicleRepo.findByUserId(rider.getUser().getId()).ifPresent(vehicle -> {
 	                	VehicleDto vehicleDto = vehicleToDto(vehicle);
 	                    riderDto.setVehicle(vehicleDto);
 	                });
 	                
-	               
+	                }
 	                return riderDto;
 	            })
 	            .collect(Collectors.toList());
