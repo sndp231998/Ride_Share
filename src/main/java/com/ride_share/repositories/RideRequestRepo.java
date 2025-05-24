@@ -13,4 +13,8 @@ public interface RideRequestRepo extends JpaRepository<RideRequest, Integer>{
 
 	List<RideRequest> findByUser(User user);
 	List<RideRequest> findByCategory_CategoryId(int categoryId);
+	
+	List<RideRequest> findByRidebookedId(int ridebookedId);
+
 }
+

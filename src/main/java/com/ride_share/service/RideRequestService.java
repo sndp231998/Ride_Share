@@ -3,6 +3,7 @@ package com.ride_share.service;
 import java.util.List;
 import java.util.Set;
 
+import com.ride_share.entities.RideRequest;
 import com.ride_share.playoads.PriceInfoDto;
 import com.ride_share.playoads.RideInfoDto;
 import com.ride_share.playoads.RideRequestDto;
@@ -50,6 +51,10 @@ public interface RideRequestService {
 	RideRequestDto rideComplete(Integer rideRequestId);
 
 	RideRequestDto ridePickup(Integer rideRequestId);
+
+	List<RideRequestDto> getRequestsByUserId(Integer userId);
+
+	List<RideRequestDto> getRequestsByRiderId(Integer userId);
 
 
 }

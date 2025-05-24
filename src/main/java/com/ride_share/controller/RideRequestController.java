@@ -2,6 +2,7 @@ package com.ride_share.controller;
 
 
 
+import com.ride_share.entities.RideRequest;
 import com.ride_share.playoads.PriceInfoDto;
 import com.ride_share.playoads.RideInfoDto;
 import com.ride_share.playoads.RideRequestDto;
@@ -26,6 +27,18 @@ public class RideRequestController {
 	  private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     @Autowired
     private RideRequestService rideRequestService;
+    
+    @GetMapping("/passenger/{userId}")
+    public ResponseEntity<List<RideRequestDto>> getRequestsByUser(@PathVariable Integer userId) {
+        List<RideRequestDto> requests = rideRequestService.getRequestsByUserId(userId);
+        return ResponseEntity.ok(requests);
+    }
+
+    @GetMapping("/rider/{userId}/requests")
+    public ResponseEntity<List<RideRequestDto>> getRequestsByRiderId(@PathVariable Integer userId) {
+        List<RideRequestDto> requests = rideRequestService.getRequestsByRiderId(userId);
+        return ResponseEntity.ok(requests);
+    }
     
   //  /api/v1/ride-requests/ride/complete/{rideRequestId}
     @PutMapping("/ride/complete/{rideRequestId}")

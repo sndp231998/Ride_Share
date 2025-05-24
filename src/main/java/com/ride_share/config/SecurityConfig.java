@@ -22,7 +22,9 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.ride_share.security.CustomUserDetailService;
 import com.ride_share.security.JwtAuthenticationEntryPoint;
@@ -43,9 +45,8 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/webjars/**",
              "/api/v1/auth/register",
-            "/ride-websocket/**",
-            "tufanadmin.netlify.app/**",
-            "https://tufanadmin.netlify.app/**"
+            "/ride-websocket/**"
+           
             
 
     };
@@ -88,6 +89,18 @@ public class SecurityConfig {
         return defaultSecurityFilterChain;
 
 
+    }
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOrigins("https://tufanadmin.netlify.app")
+                        .allowedMethods("*")
+                        .allowedHeaders("*");
+            }
+        };
     }
 
 	/*

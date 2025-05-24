@@ -121,9 +121,33 @@ public class RideRequestServiceImpl implements RideRequestService {
         return dto;
     }
 
+    public RideRequestDto convertToDto(RideRequest rideRequest) {
+        return modelMapper.map(rideRequest, RideRequestDto.class);
+    }
+    @Override
+    public List<RideRequestDto> getRequestsByUserId(Integer userId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new ApiException("User not found"));
 
-    
-    
+        List<RideRequest> requests = rideRequestRepo.findByUser(user);
+
+        return requests.stream()
+                .map(rideRequest -> modelMapper.map(rideRequest, RideRequestDto.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RideRequestDto> getRequestsByRiderId(Integer userId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new ApiException("User not found"));
+
+        List<RideRequest> requests = rideRequestRepo.findByRidebookedId(user.getId()); // Pass userId here
+
+        return requests.stream()
+                .map(rideRequest -> modelMapper.map(rideRequest, RideRequestDto.class))
+                .collect(Collectors.toList());
+    }
+
     @Override
     public RideRequestDto rejectRideRequest(Integer rideRequestId) {
         RideRequest ride = rideRequestRepo.findById(rideRequestId)
