@@ -482,12 +482,13 @@ public class RideRequestServiceImpl implements RideRequestService {
                 	 logger.debug("✅ Rider ID {} is eligible", riderUser.getId());
                     eligibleRiderIds.add(riderUser.getId());
                     
-                }else {
-                    logger.debug("❌ Rider ID {} is NOT eligible (distance: {} km, category match: {})",
-                            riderUser.getId(),
-                            distanceData.getDistanceKm(),
-                            (rider.getCategory() != null && rider.getCategory().getCategoryId() == requestCategoryId)
-                        );
+                } else {
+                	logger.debug("❌ Rider ID {} is NOT eligible (distance: {} km, category match: {})",
+                	        riderUser.getId(),
+                	        distanceData.getDistanceKm(),
+                	        (rider.getCategory() != null && rider.getCategory().getCategoryId() == requestCategoryId)
+                	    );
+                }
             } catch (Exception e) {
                 System.err.println("Distance check failed for Rider ID " + rider.getId());
             }
