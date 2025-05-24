@@ -475,14 +475,19 @@ public class RideRequestServiceImpl implements RideRequestService {
                 );
                 logger.debug("📏 Distance to rider {} is {} km", riderUser.getId(), distanceData.getDistanceKm());
                 // 4. Category match + distance <= 10km
-                if (distanceData.getDistanceKm() <= 10.0 &&
+                if (distanceData.getDistanceKm() <= 10 &&
                     rider.getCategory() != null &&
                     rider.getCategory().getCategoryId() == requestCategoryId) {
+                	
                 	 logger.debug("✅ Rider ID {} is eligible", riderUser.getId());
                     eligibleRiderIds.add(riderUser.getId());
-                } else {
-                    logger.debug("❌ Rider ID {} is NOT eligible", riderUser.getId());
-                }
+                    
+                }else {
+                    logger.debug("❌ Rider ID {} is NOT eligible (distance: {} km, category match: {})",
+                            riderUser.getId(),
+                            distanceData.getDistanceKm(),
+                            (rider.getCategory() != null && rider.getCategory().getCategoryId() == requestCategoryId)
+                        );
             } catch (Exception e) {
                 System.err.println("Distance check failed for Rider ID " + rider.getId());
             }
