@@ -435,6 +435,13 @@ public class UserServiceImpl implements UserService {
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "User id", userId));
 
+//        Role riderRole = this.roleRepo.findById(AppConstants.RIDER_USER)
+//	            .orElseThrow(() -> new ResourceNotFoundException("Role", "ID", AppConstants.RIDER_USER));
+//
+//        Role passengerRole = this.roleRepo.findById(AppConstants.NORMAL_USER)
+//	            .orElseThrow(() -> new ResourceNotFoundException("Role", "ID", AppConstants.NORMAL_USER));
+
+        
         if (user.getModes() == UserMode.RIDER || user.getModes()==null) {
             
 	user.setModes(UserMode.PESSENGER);

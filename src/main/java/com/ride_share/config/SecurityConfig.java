@@ -43,7 +43,9 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/webjars/**",
              "/api/v1/auth/register",
-            "/ride-websocket/**"
+            "/ride-websocket/**",
+            "tufanadmin.netlify.app/**",
+            "https://tufanadmin.netlify.app/**"
             
 
     };
