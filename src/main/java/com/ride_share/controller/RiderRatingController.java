@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ride_share.playoads.ApiResponse;
 import com.ride_share.playoads.RiderRatingDto;
 import com.ride_share.service.RiderRatingService;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,10 +41,12 @@ public class RiderRatingController {
     }
     
     @GetMapping("/rider/{riderId}/average-rating")
-    public ResponseEntity<Double> getAverageRating(@PathVariable Integer riderId) {
+    public ResponseEntity<ApiResponse> getAverageRating(@PathVariable Integer riderId) {
         Double avg = riderRatingService.getAverageRatingByRiderId(riderId);
-        return ResponseEntity.ok(avg);
+        return ResponseEntity.ok(new ApiResponse("Average Rating: " + avg, true));
     }
+
+
 
 }
 
