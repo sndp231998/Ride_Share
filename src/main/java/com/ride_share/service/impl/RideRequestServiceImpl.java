@@ -601,7 +601,11 @@ public class RideRequestServiceImpl implements RideRequestService {
         rideRequest.setD_latitude(rideRequestDto.getD_latitude());
         rideRequest.setD_longitude(rideRequestDto.getD_longitude());
         rideRequest.setS_Name(sourceAdd);
-        rideRequest.setD_Name(destinationAdd);
+        if (rideRequestDto.getD_Name() != null) {
+    	    rideRequest.setD_Name(rideRequestDto.getD_Name());
+    	} else {
+    	    rideRequest.setD_Name(destinationAdd);
+    	}
         rideRequest.setTotal_Km(distancekm);
         rideRequest.setStatus(RideRequest.RideStatus.PENDING); // still pending
 
