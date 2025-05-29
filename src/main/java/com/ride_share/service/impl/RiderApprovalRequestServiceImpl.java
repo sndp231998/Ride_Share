@@ -90,9 +90,9 @@ public class RiderApprovalRequestServiceImpl implements RiderApprovalRequestServ
 	        ride.setStatus(RiderApprovalRequest.ApprovedStatus.REJECTED);
 	        
 	        RiderApprovalRequest rejectedRide = riderApprovalRepo.save(ride);
-
+                   
 	        RiderApprovalRequestDto dto = modelMapper.map(rejectedRide, RiderApprovalRequestDto.class);
-
+	        dto.setRideRequestId(ride.getRideRequest().getRideRequestId()); // fix
 	        // Send to dynamic topic
 	        webSocketController.notifyPassengerRejectedRider(dto, riderAppId);
 
