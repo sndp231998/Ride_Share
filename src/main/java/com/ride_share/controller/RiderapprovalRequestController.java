@@ -35,7 +35,7 @@ public class RiderapprovalRequestController {
 	    }
 	
 	    // Reject a ride request
-	    @PutMapping("/{rideAppId}/reject")
+	    @PutMapping("/{riderAppId}/reject")
 	    public ResponseEntity<RiderApprovalRequestDto> rejectRideApproval(@PathVariable Integer riderAppId) {
 	    	RiderApprovalRequestDto rejectedRequest = riderApprovalService.rejectRideApproval(riderAppId);
 	        		
