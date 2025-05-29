@@ -8,6 +8,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import com.ride_share.entities.Category;
+import com.ride_share.entities.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,4 +34,6 @@ public class PricingDto {
     private double perKmRate;
     
     private boolean isActive = true;
+    
+    private UserDto user;
 }
