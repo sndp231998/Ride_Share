@@ -1,6 +1,9 @@
 package com.ride_share;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,23 +16,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.ride_share.config.AppConstants;
 import com.ride_share.entities.Branch;
 import com.ride_share.entities.Role;
+import com.ride_share.entities.User;
 import com.ride_share.repositories.BranchRepo;
 import com.ride_share.repositories.RoleRepo;
+import com.ride_share.repositories.UserRepo;
 import com.ride_share.service.impl.PricingServiceImpl;
 
 @SpringBootApplication
 //@SpringBootTest(classes = RideShareApplication.class)
 public class RideShareApplication implements CommandLineRunner{
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
 	
 	@Autowired
 	private RoleRepo roleRepo;
 	
-//	@Autowired
-//	private BranchRepo branchRepo;
-
 	
 	public static void main(String[] args) {
 		SpringApplication.run(RideShareApplication.class, args);
@@ -45,7 +45,6 @@ public class RideShareApplication implements CommandLineRunner{
 
 	@Override
 	public void run(String... args) throws Exception {
-		System.out.println(this.passwordEncoder.encode("xyz"));
 
 		try {
 			
@@ -78,6 +77,8 @@ public class RideShareApplication implements CommandLineRunner{
 	        result.forEach(r -> {
 	            System.out.println(r.getName());
 	        });
+	        
+	     
 	        
 		} catch (Exception e) {
 			e.printStackTrace();

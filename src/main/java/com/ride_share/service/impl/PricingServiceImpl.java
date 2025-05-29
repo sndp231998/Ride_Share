@@ -156,7 +156,7 @@ public class PricingServiceImpl implements PricingService {
         p.setBaseFare(pricingDto.getBaseFare());
         p.setPerKmRate(pricingDto.getPerKmRate());
         //p.setProvince(pricingDto.getProvince());
-        p.setUser(user);
+       
      // Normalize and Validate Province
         String userProvince = pricingDto.getProvince().trim().toLowerCase();
         Optional<String> validProvince = AppConstants.VALID_PROVINCES.stream()
@@ -169,6 +169,7 @@ public class PricingServiceImpl implements PricingService {
 
         p.setProvince(validProvince.get());  // Save the valid province
         p.setCategory(category);
+        p.setUser(user);
         Pricing savedp = pricingRepo.save(p);
         return modelMapper.map(savedp, PricingDto.class);
         }
