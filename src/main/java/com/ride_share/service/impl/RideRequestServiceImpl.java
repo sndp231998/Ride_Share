@@ -420,7 +420,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         	    // If user did not give price, set actualPrice = generatedPrice
         	    //rideRequestDto.setActualPrice(generatedPrice);
         		rideRequestDto.setActualPrice(generatedPrice); 
-        	}else if (givenPrice < generatedPrice || givenPrice > generatedPrice + 50) {
+        	}else if (givenPrice < generatedPrice || givenPrice > generatedPrice + 200) {
                 throw new ApiException("Recommend price:"+generatedPrice);
             } else {
                 rideRequestDto.setActualPrice(givenPrice); // use user-given price
@@ -595,7 +595,7 @@ public class RideRequestServiceImpl implements RideRequestService {
 
         if (givenPrice == 0.0) {
             rideRequest.setActualPrice(generatedPrice);
-        } else if (givenPrice < generatedPrice || givenPrice > generatedPrice + 50) {
+        } else if (givenPrice < generatedPrice || givenPrice > generatedPrice + 200) {
             throw new ApiException("Recommended price: " + generatedPrice);
         } else {
             rideRequest.setActualPrice(givenPrice);
