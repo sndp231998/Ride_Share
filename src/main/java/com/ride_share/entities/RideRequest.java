@@ -51,6 +51,7 @@ public class RideRequest {
 	private String s_Name;
 	private double replacePessengerPrice=0.0;
 	private double total_Km;
+	private int total_min;
 	private LocalDateTime addedDate;
 	@ManyToOne
     @JoinColumn(name = "user_id")// The passenger who created the request pessenger Id

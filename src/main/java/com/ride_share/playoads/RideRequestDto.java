@@ -35,7 +35,7 @@ public class RideRequestDto {
     private double s_longitude;
     private String s_Name;
     private double total_Km;
-    
+    private int total_min;
 	private LocalDateTime addedDate;
     private UserDto user;
     @Builder.Default

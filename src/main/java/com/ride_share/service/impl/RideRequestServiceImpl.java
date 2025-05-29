@@ -368,6 +368,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         double distancekm = 0.0;
         String destinationAdd;
         String sourceAdd;
+        Double durationMin;
         
         try {
             DistanceMatrixResponse response = mapService.getDistanceMatrixData(
@@ -380,7 +381,8 @@ public class RideRequestServiceImpl implements RideRequestService {
             distancekm = response.getDistanceKm();
            sourceAdd= response.getOriginAddress();
             destinationAdd=response.getDestinationAddress();
-    
+            durationMin=response.getDurationMin();
+            		
         } catch (Exception e) {
             throw new ApiException("Failed to calculate distance: " + e.getMessage());
         }
@@ -443,6 +445,9 @@ public class RideRequestServiceImpl implements RideRequestService {
     rideRequest.setTotal_Km(distancekm);
     //rideRequest.setD_Name(destinationAdd);
     rideRequest.setS_Name(sourceAdd);
+    rideRequest.setTotal_min(durationMin.intValue()); // or (int)(double)durationMin
+    
+
         //------------yo source-saved----------------------
        
         rideRequest.setS_latitude(user.getCurrentLocation().getLatitude());
@@ -554,6 +559,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         double distancekm;
         String destinationAdd;
         String sourceAdd;
+        Double durationMin;
 
         try {
             DistanceMatrixResponse response = mapService.getDistanceMatrixData(
@@ -566,7 +572,7 @@ public class RideRequestServiceImpl implements RideRequestService {
             distancekm = response.getDistanceKm();
             sourceAdd = response.getOriginAddress();
             destinationAdd = response.getDestinationAddress();
-
+               durationMin=response.getDurationMin();
         } catch (Exception e) {
             throw new ApiException("Failed to calculate distance: " + e.getMessage());
         }
@@ -607,6 +613,7 @@ public class RideRequestServiceImpl implements RideRequestService {
     	    rideRequest.setD_Name(destinationAdd);
     	}
         rideRequest.setTotal_Km(distancekm);
+        rideRequest.setTotal_min(durationMin.intValue());
         rideRequest.setStatus(RideRequest.RideStatus.PENDING); // still pending
 
         RideRequest updatedRide = rideRequestRepo.save(rideRequest);
