@@ -32,9 +32,7 @@ public class BranchServiceImpl implements BranchService{
 		bra.setLocalLevel(branchDto.getLocalLevel());
 		bra.setPhoneNo(branchDto.getPhoneNo());
 		bra.setEmail(branchDto.getEmail());
-//		bra.setBaseFare(branchDto.getBaseFare());
-//		bra.setPerKmRate(branchDto.getPerKmRate());
-		
+
 		Branch savebranch=branchRepo.save(bra);
 		return modelMapper.map(savebranch,BranchDto.class);
 	}

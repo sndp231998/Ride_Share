@@ -16,10 +16,6 @@ public class AppConstants {
 	public static final Integer BRANCH_MANAGER_USER=503;
 	public static final Integer RIDER_USER = 504;
 	
-	public static final Integer DAMAK_BRANCH=601;
-	public static final Integer KATHMANDU_BRANCH=602;
-	
-	
 	public static final List<String> VALID_PROVINCES = Collections.unmodifiableList(Arrays.asList(
 		    "Koshi Province",
 		    "Madhesh Province",

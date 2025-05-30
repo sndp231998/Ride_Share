@@ -40,7 +40,7 @@ public class Branch {
     private int wardNumber;
 
     // Contact details of branch
-    @Pattern(regexp = "^98[0-9]{8}$", message = "Invalid Nepali phone number")
+    //@Pattern(regexp = "^98[0-9]{8}$", message = "Invalid Nepali phone number")
     private String phoneNo;
 
     @Email(message = "Invalid email address")

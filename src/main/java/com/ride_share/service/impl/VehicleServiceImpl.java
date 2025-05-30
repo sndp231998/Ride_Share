@@ -1,6 +1,7 @@
 package com.ride_share.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -37,7 +38,11 @@ public class VehicleServiceImpl implements VehicleService {
         // Fetch User
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "userId", userId));
-        
+        // Check if user already has a vehicle
+        Optional<Vehicle> existingVehicle = vehicleRepo.findByUserId(userId);
+        if (existingVehicle.isPresent()) {
+            throw new RuntimeException("This user already has a vehicle registered.");
+        }
         // Fetch Category
         Category category = categoryRepo.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));

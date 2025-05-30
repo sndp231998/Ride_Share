@@ -34,7 +34,4 @@ public class BranchDto {
    private String phoneNo;
    private String email;
 
-
-//   private String baseFare ;
-//  private String perKmRate ;
 }
