@@ -356,7 +356,6 @@ public class UserServiceImpl implements UserService {
 	            .orElseThrow(() -> new ResourceNotFoundException("Role", "name", roleName));
 
 	    // Clear existing roles and assign new role
-	    user.getRoles().clear();
 	    user.getRoles().add(role);
 	    user.setDate_Of_Role_Changed(LocalDateTime.now());
 
