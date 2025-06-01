@@ -11,6 +11,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.ride_share.config.AppConstants;
@@ -21,7 +22,7 @@ import com.ride_share.repositories.BranchRepo;
 import com.ride_share.repositories.RoleRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.service.impl.PricingServiceImpl;
-
+@EnableScheduling
 @SpringBootApplication
 //@SpringBootTest(classes = RideShareApplication.class)
 public class RideShareApplication implements CommandLineRunner{
