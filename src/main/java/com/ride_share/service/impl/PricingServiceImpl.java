@@ -64,8 +64,9 @@ public class PricingServiceImpl implements PricingService {
     
     
     // @Transactional
-     //@Scheduled(cron = "57 23 * * *") // Runs daily at 11:57 PM
-    @Scheduled(cron = "0 51 0 * * *") 
+     //
+   // @Scheduled(cron = "0 51 0 * * *") 
+    @Scheduled(cron = "57 23 * * *") // Runs daily at 11:57 PM
      public void deductBalanceBasedOnRides() {
          LocalDate today = LocalDate.now();
          StringBuilder logMessage = new StringBuilder();
