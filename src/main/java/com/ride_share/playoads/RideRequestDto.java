@@ -36,6 +36,7 @@ public class RideRequestDto {
     private String s_Name;
     private double total_Km;
     private String token;
+    private String channel;
     private int total_min;
 	private LocalDateTime addedDate;
     private UserDto user;

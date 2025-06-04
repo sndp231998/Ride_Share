@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.json.JSONObject;
@@ -349,8 +350,10 @@ public class RideRequestServiceImpl implements RideRequestService {
         Category category = this.categoryRepo.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "category id ", categoryId));
 
+        // Generate a random channel name
+        String randomChannelName = "rideChannel_" + UUID.randomUUID().toString().replace("-", "");
         // Generate Agora token using the static method
-        String agoraToken = AgoraTokenGenerator.generateAgoraToken("rideChannel_" + userId, userId);
+        String agoraToken = AgoraTokenGenerator.generateAgoraToken(randomChannelName, userId);
         
         // Ensure user is in PASSENGER mode
         if (user.getModes() != User.UserMode.PESSENGER) {
@@ -432,7 +435,7 @@ public class RideRequestServiceImpl implements RideRequestService {
              // Create a new RideRequest
          RideRequest rideRequest = new RideRequest();
          rideRequest.setToken(agoraToken);
-        
+        rideRequest.setChannel(randomChannelName);
          logger.debug("Setting Destination Coordinates: Latitude={}, Longitude={}", 
                  rideRequestDto.getD_latitude(), 
                  rideRequestDto.getD_longitude());

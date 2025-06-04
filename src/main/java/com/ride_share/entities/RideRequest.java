@@ -54,6 +54,7 @@ public class RideRequest {
 	private int total_min;
 	private LocalDateTime addedDate;
 	private String token;
+	private String channel;
 	@ManyToOne
     @JoinColumn(name = "user_id")// The passenger who created the request pessenger Id
     private User user;
