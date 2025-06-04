@@ -53,6 +53,7 @@ public class RideRequest {
 	private double total_Km;
 	private int total_min;
 	private LocalDateTime addedDate;
+	private String token;
 	@ManyToOne
     @JoinColumn(name = "user_id")// The passenger who created the request pessenger Id
     private User user;

@@ -48,6 +48,7 @@ import com.ride_share.repositories.RiderApprovalRequestRepo;
 import com.ride_share.repositories.RiderRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.repositories.VehicleRepo;
+import com.ride_share.security.AgoraTokenGenerator;
 import com.ride_share.service.MapService;
 import com.ride_share.service.NotificationService;
 import com.ride_share.service.RideRequestService;
@@ -89,7 +90,8 @@ public class RideRequestServiceImpl implements RideRequestService {
     RideCountRepo rideCountRepo;   
     @Autowired
     private RideRequestWebSocketController webSocketController;
-
+ 
+   
     
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     // Existing methods (create, update, delete, get, etc.)
@@ -347,6 +349,8 @@ public class RideRequestServiceImpl implements RideRequestService {
         Category category = this.categoryRepo.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "category id ", categoryId));
 
+        // Generate Agora token using the static method
+        String agoraToken = AgoraTokenGenerator.generateAgoraToken("rideChannel_" + userId, userId);
         
         // Ensure user is in PASSENGER mode
         if (user.getModes() != User.UserMode.PESSENGER) {
@@ -427,7 +431,8 @@ public class RideRequestServiceImpl implements RideRequestService {
             }
              // Create a new RideRequest
          RideRequest rideRequest = new RideRequest();
-
+         rideRequest.setToken(agoraToken);
+        
          logger.debug("Setting Destination Coordinates: Latitude={}, Longitude={}", 
                  rideRequestDto.getD_latitude(), 
                  rideRequestDto.getD_longitude());
