@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,23 +36,19 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Autowired
     private FirebaseNotification firebaseNotification;
-
+    private static final Logger logger = LoggerFactory.getLogger(NotificationServiceImpl.class);
     
   //call from other class
     //create notification for specific user
     @Override
     public NotificationDto createNotification(NotificationDto notificationDto, Integer userId) {
-        // Check if message is empty or null
         if (notificationDto.getMessage() == null || notificationDto.getMessage().trim().isEmpty()) {
             throw new ApiException("Message cannot be empty");
         }
 
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
-//
-//        if(user.getDeviceToken()==null) {
-//        	throw new ApiException("DeviceToken is empty");
-//        }
+
         Notification notification = new Notification();
         notification.setUser(user);
         notification.setMessage(notificationDto.getMessage());
@@ -58,15 +56,15 @@ public class NotificationServiceImpl implements NotificationService {
         try {
             firebaseNotification.notifyUser(user, notificationDto.getMessage());
         } catch (RuntimeException e) {
-        	System.out.println("Push failed: " + e.getMessage());
-           // throw new ApiException("Push failed: " + e.getMessage());
+            logger.warn("Push failed for user {}: {}", user.getId(), e.getMessage(), e);
+            // Uncomment below if push failure should prevent saving
+            // throw new ApiException("Push failed: " + e.getMessage());
         }
 
         Notification savedNotification = notificationRepo.save(notification);
         return modelMapper.map(savedNotification, NotificationDto.class);
     }
 
-    
     // create notification for all user 
 //    @Override
 //    public NotificationDto createNotification(Integer userId, NotificationDto notificationDto) {
