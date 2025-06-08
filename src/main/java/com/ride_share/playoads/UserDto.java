@@ -32,7 +32,6 @@ public class UserDto {
 	private String name;
 
 	@Email(message = "Email address is not valid !!")
-	@NotEmpty(message = "Email is required !!")
 	private String email;
 	
 
@@ -44,7 +43,8 @@ public class UserDto {
 	private String password;
 
 	private String imageName;
-	  @Schema(hidden = true)
+	
+	@Schema(hidden = true)
 	private String  otp;
 	
 	  private Integer branchId;
