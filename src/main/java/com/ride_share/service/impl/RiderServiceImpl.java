@@ -234,14 +234,20 @@ public class RiderServiceImpl implements RiderService{
         User user = this.userRepo.findById(rider.getUser().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "User Id", rider.getUser().getId()));
         // Only allow rejection if status is PENDING
-        if (rider.getStatus() != Rider.RiderStatus.PENDING) {
-            throw new ApiException("Cannot reject rider. The application is not in PENDING status.");
-        }
-        Role role = this.roleRepo.findById(AppConstants.NORMAL_USER)
+//        if (rider.getStatus() != Rider.RiderStatus.PENDING) {
+//            throw new ApiException("Cannot reject rider. The application is not in PENDING status.");
+//        }
+//        Role role = this.roleRepo.findById(AppConstants.NORMAL_USER)
+//                .orElseThrow(() -> new ResourceNotFoundException("Role", "ID", AppConstants.NORMAL_USER));
+
+        Role rolerider = this.roleRepo.findById(AppConstants.RIDER_USER)
                 .orElseThrow(() -> new ResourceNotFoundException("Role", "ID", AppConstants.RIDER_USER));
 
-        rider.getUser().getRoles().clear();
-        rider.getUser().getRoles().add(role);
+        //rider.getUser().getRoles().clear();
+        //rider.getUser().getRoles().add(role);
+        if(rider.getUser().getRoles()==rolerider) {
+        rider.getUser().getRoles().remove(rolerider);
+        }
         rider.setStatus(Rider.RiderStatus.REJECTED);
         if (riderDto.getStatusMessage() == null) {
             throw new ApiException("Reason for rejection is required.");
@@ -258,8 +264,14 @@ public class RiderServiceImpl implements RiderService{
         );
 
         emailService.sendOtpMobile(user.getMobileNo(), msg);
-
+     
         Rider rejectedRider = this.riderRepo.save(rider);
+        
+        NotificationDto notificationDto = new NotificationDto();
+        notificationDto.setMessage(msg);
+           int user_Id=rider.getUser().getId();
+           notificationService.createNotification(notificationDto, user_Id);
+           
         return this.modelMapper.map(rejectedRider, RiderDto.class);
     }
 
