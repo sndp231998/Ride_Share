@@ -29,9 +29,11 @@ import com.ride_share.exceptions.ApiException;
 import com.ride_share.playoads.ApiResponse;
 import com.ride_share.playoads.RideRequestDto;
 import com.ride_share.playoads.RiderDto;
+import com.ride_share.playoads.RiderTransactionDto;
 import com.ride_share.repositories.RiderTransactionRepo;
 import com.ride_share.service.FileService;
 import com.ride_share.service.RiderService;
+import com.ride_share.service.impl.RiderTransactionServiceImpl;
 import com.ride_share.service.impl.UserServiceImpl;
 
 @RestController
@@ -45,8 +47,7 @@ public class RiderController {
 	private FileService fileService;
 
 	@Autowired
-	private RiderTransactionRepo riderTransactionRepo;
-	
+	private  RiderTransactionServiceImpl riderTransactionService;
 	@Value("${project.image}")
 	private String path;
 	
@@ -55,10 +56,10 @@ public class RiderController {
 	 
 	
 	 
-	@GetMapping("/rider/{riderId}/statement")
-	public List<RiderTransaction> getStatement(@PathVariable Integer riderId) {
-	    return riderTransactionRepo.findByRider_IdOrderByDateTimeDesc(riderId);
-	}
+	 @GetMapping("/rider/{riderId}/statement")
+	    public List<RiderTransactionDto> getStatement(@PathVariable Integer riderId) {
+	        return riderTransactionService.getStatementForRider(riderId);
+	    }
 
 
 	@PostMapping("/rider/file/upload/{riderId}")
