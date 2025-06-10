@@ -69,8 +69,8 @@ public class RiderServiceImpl implements RiderService{
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "category id ", categoryId));
 
         Rider.RiderStatus existingStatus = this.riderRepo.findRiderStatusByUserId(userId);
-        if (existingStatus == Rider.RiderStatus.PENDING) {
-            throw new ApiException("Cannot create rider. User already has a rider application in PENDING status.");
+        if (existingStatus == Rider.RiderStatus.PENDING || existingStatus==Rider.RiderStatus.REJECTED ||existingStatus==Rider.RiderStatus.APPROVED) {
+            throw new ApiException("Cannot create rider. User already has a rider application in PENDING/reject/approved status.");
         }
 
         Rider rider = this.modelMapper.map(riderDto, Rider.class);
@@ -280,6 +280,8 @@ public class RiderServiceImpl implements RiderService{
 	@Override
 	public void deleteRider(Integer riderId) {
 		 Rider rider = this.riderRepo.findById(riderId)
+				 
+				 
 	                .orElseThrow(() -> new ResourceNotFoundException("Rider ", "rider id", riderId));
 
 	        this.riderRepo.delete(rider);

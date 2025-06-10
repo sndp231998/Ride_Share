@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.ride_share.entities.Category;
 import com.ride_share.entities.User;
 import com.ride_share.entities.Vehicle;
+import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
 import com.ride_share.playoads.VehicleDto;
 import com.ride_share.repositories.CategoryRepo;
@@ -41,7 +42,7 @@ public class VehicleServiceImpl implements VehicleService {
         // Check if user already has a vehicle
         Optional<Vehicle> existingVehicle = vehicleRepo.findByUserId(userId);
         if (existingVehicle.isPresent()) {
-            throw new RuntimeException("This user already has a vehicle registered.");
+            throw new ApiException("This user already has a vehicle registered.");
         }
         // Fetch Category
         Category category = categoryRepo.findById(categoryId)
