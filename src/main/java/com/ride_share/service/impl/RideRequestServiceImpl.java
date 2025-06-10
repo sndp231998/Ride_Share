@@ -413,7 +413,7 @@ public class RideRequestServiceImpl implements RideRequestService {
                 .orElseThrow(() -> new ApiException("Pricing not available for the given province and category."));
 
         //logger.info("Pricing data fetched successfully: {}", pricing);
-        double perkm=pricing.getPerKmRate();
+        double perkm=pricing.getPerKmRate(); 
         double basefare=pricing.getBaseFare();
         
         double generatedPrice = basefare + (perkm * distancekm);

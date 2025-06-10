@@ -57,7 +57,7 @@ public class RiderController {
 	 
 	@GetMapping("/rider/{riderId}/statement")
 	public List<RiderTransaction> getStatement(@PathVariable Integer riderId) {
-	    return riderTransactionRepo.findByRiderIdOrderByDateTimeDesc(riderId);
+	    return riderTransactionRepo.findByRider_IdOrderByDateTimeDesc(riderId);
 	}
 
 

@@ -8,5 +8,8 @@ import com.ride_share.entities.RiderTransaction;
 
 public interface RiderTransactionRepo  extends JpaRepository<RiderTransaction, Integer>{
 
-	List<RiderTransaction> findByRiderIdOrderByDateTimeDesc(Integer riderId);
+	
+	List<RiderTransaction> findByRider_IdOrderByDateTimeDesc(Integer riderId);
+
+	//List<RiderTransaction> findByRiderIdOrderByDateTimeDesc(Integer riderId);
 }

@@ -79,7 +79,7 @@ public class ManagerServiceImpl implements ManagerService {
     	manager.setBranch(branch);
     	
       Role role = this.roleRepo.findById(AppConstants.BRANCH_MANAGER_USER).get();
-    user.getRoles().clear();
+   // user.getRoles().clear();
     user.getRoles().add(role);		   
     Manager savedManager = managerRepo.save(manager);
     String welcomeMessage = String.format(
