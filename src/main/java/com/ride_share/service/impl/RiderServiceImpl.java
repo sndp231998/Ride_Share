@@ -134,8 +134,7 @@ public class RiderServiceImpl implements RiderService{
 
         Rider updatedRider = this.riderRepo.save(rider);
         NotificationDto notificationDto = new NotificationDto();
-        notificationDto.setMessage("Your rider application is under review."
-        		+ " You will be notified once it's approved or if further details are needed.");
+        notificationDto.setMessage("Your Rider application submitted");
            int user_Id=rider.getUser().getId();
            notificationService.createNotification(notificationDto, user_Id);
         return this.modelMapper.map(updatedRider, RiderDto.class);
@@ -294,6 +293,8 @@ public class RiderServiceImpl implements RiderService{
                 .orElseThrow(() -> new ResourceNotFoundException("Rider", "rider id", riderId));
         return this.modelMapper.map(rider, RiderDto.class);
 	}
+	
+	
 
 	@Override
 	public List<RiderDto> getRidersByUser(Integer userId) {

@@ -14,10 +14,12 @@ import com.ride_share.entities.User;
 import com.ride_share.entities.Vehicle;
 import com.ride_share.exceptions.ApiException;
 import com.ride_share.exceptions.ResourceNotFoundException;
+import com.ride_share.playoads.NotificationDto;
 import com.ride_share.playoads.VehicleDto;
 import com.ride_share.repositories.CategoryRepo;
 import com.ride_share.repositories.UserRepo;
 import com.ride_share.repositories.VehicleRepo;
+import com.ride_share.service.NotificationService;
 import com.ride_share.service.VehicleService;
 
 @Service
@@ -34,6 +36,8 @@ public class VehicleServiceImpl implements VehicleService {
     @Autowired
     private CategoryRepo categoryRepo;
 
+    @Autowired
+    NotificationService notificationService;
     @Override
     public VehicleDto createVehicle(VehicleDto vehicleDto, Integer userId, Integer categoryId) {
         // Fetch User
@@ -76,7 +80,11 @@ public class VehicleServiceImpl implements VehicleService {
 		vehicle.setBillBook2(vehicleDto.getBillBook2());
 		vehicle.setVechicleImg(vehicleDto.getVechicleImg());
 		vehicle.setCategory(category);
-		Vehicle updatedVehicle = vehicleRepo.save(vehicle); 
+		Vehicle updatedVehicle = vehicleRepo.save(vehicle);
+		NotificationDto notificationDto = new NotificationDto();
+        notificationDto.setMessage("Your Vehicle application Submitted");
+           int user_Id=vehicle.getUser().getId();
+           notificationService.createNotification(notificationDto, user_Id);
 		return modelMapper.map(updatedVehicle, VehicleDto.class);
 	}
 
