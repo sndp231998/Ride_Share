@@ -215,13 +215,13 @@ public class RiderServiceImpl implements RiderService{
         // Update the rider's balance
         rider.setBalance(newBalance);
         riderRepo.save(rider);
-        
+        RiderDto updatedDto = modelMapper.map(rider, RiderDto.class);
         // Update the RiderDto with the new balance
         riderDto.setBalance(newBalance);
         NotificationDto notificationDto = new NotificationDto();
         notificationDto.setMessage("Balance is added in your account");
         notificationService.createNotification(notificationDto, rider.getUser().getId());
-        return riderDto;
+        return updatedDto;
     }
 
 
