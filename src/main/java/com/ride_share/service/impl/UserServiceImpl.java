@@ -88,15 +88,16 @@ public class UserServiceImpl implements UserService {
 			            throw new ApiException("Already registered with this email!");
 			        }
 			    }
-
+			  // if( verificationService.verifyOtp(userDto.getMobileNo(), userDto.getOtp())) {
+			    
 			    ApiResponse response = verifyUser(userDto.getMobileNo(), userDto.getOtp());
 			    if (!response.isSuccess()) {
 			        throw new ApiException(response.getMessage());
 			    }
 
 			    // OTP verified ⇒ now remove it
-			    verificationService.removeOtp(userDto.getMobileNo());
-
+			  //  verificationService.removeOtp(userDto.getMobileNo());
+                verificationService.removeAl(userDto.getMobileNo());
 	            user.setImageName("default.jpeg");
 			    // encoded the password
 			    user.setPassword(this.passwordEncoder.encode(user.getPassword()));

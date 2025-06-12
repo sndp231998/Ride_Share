@@ -32,6 +32,7 @@ public class VerificationService {
 
 	 
 	 
+	 
 	 public void sendOtp(String emailOrMobile) {
 	        boolean isEmail = emailOrMobile.contains("@");
 
@@ -101,8 +102,8 @@ public class VerificationService {
 	        return String.valueOf(otp);
 	    }
 	  
-	  public VerificationDto getOtpDetails(String email) {
-		    return otpStore.get(email);
+	  public VerificationDto getOtpDetails(String mobile) {
+		    return otpStore.get(mobile);
 		}
 	  public void removeOtp(String email) {
 		    otpStore.remove(email);
