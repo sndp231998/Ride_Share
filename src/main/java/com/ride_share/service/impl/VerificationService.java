@@ -86,7 +86,7 @@ public class VerificationService {
 
 	  public boolean verifyOtp(String emailOrMobile, String enteredOtp) {
 	        VerificationDto dto = otpStore.get(key(emailOrMobile));
-	        if (dto == null || Instant.now().isAfter(dto.getTimestamp().plus(Duration.ofMinutes(5)))) {
+	        if (dto == null || Instant.now().isAfter(dto.getTimestamp().plus(Duration.ofMinutes(10)))) {
 	            return false;
 	        }
 	        return dto.getOtp().equals(enteredOtp);
@@ -100,12 +100,17 @@ public class VerificationService {
 	        int otp = 100000 + random.nextInt(900000);
 	        return String.valueOf(otp);
 	    }
+	  
 	  public VerificationDto getOtpDetails(String email) {
 		    return otpStore.get(email);
 		}
 	  public void removeOtp(String email) {
 		    otpStore.remove(email);
 		}
+	  
+	  public void removeAl(String Mobile) {
+		  otpStore.remove(Mobile);
+	  }
 
 
 

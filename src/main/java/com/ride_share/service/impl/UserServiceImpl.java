@@ -82,33 +82,20 @@ public class UserServiceImpl implements UserService {
 			public UserDto registerNewUser(UserDto userDto) {
 			    User user = this.modelMapper.map(userDto, User.class);
 	    
-			    String emailKey = "email:" + userDto.getEmail();
-			    String mobileKey = "mobile:" + userDto.getMobileNo();
-
-			    VerificationDto emailOtp = verificationService.getOtpDetails(emailKey);
-			    VerificationDto mobileOtp = verificationService.getOtpDetails(mobileKey);
-
-			    VerificationDto validOtp = null;
-			    String validKey = null;
-
-			    if (emailOtp != null && emailOtp.getOtp().equals(userDto.getOtp())) {
-			        validOtp = emailOtp;
-			        validKey = emailKey;
-			    } else if (mobileOtp != null && mobileOtp.getOtp().equals(userDto.getOtp())) {
-			        validOtp = mobileOtp;
-			        validKey = mobileKey;
-			    } else {
-			        throw new ApiException("Invalid OTP!");
+			    if (userDto.getEmail() != null) {
+			        Optional<User> existingUser = userRepo.findByEmail(userDto.getEmail());
+			        if (existingUser.isPresent()) {
+			            throw new ApiException("Already registered with this email!");
+			        }
 			    }
 
-			    // Time validation
-			    if (Duration.between(validOtp.getTimestamp(), Instant.now()).getSeconds() > OTP_VALID_DURATION) {
-			        verificationService.removeOtp(validKey);
-			        throw new ApiException("OTP expired! Please request a new one.");
+			    ApiResponse response = verifyUser(userDto.getMobileNo(), userDto.getOtp());
+			    if (!response.isSuccess()) {
+			        throw new ApiException(response.getMessage());
 			    }
 
-			    // OTP valid => remove it
-			    verificationService.removeOtp(validKey);
+			    // OTP verified ⇒ now remove it
+			    verificationService.removeOtp(userDto.getMobileNo());
 
 	            user.setImageName("default.jpeg");
 			    // encoded the password
