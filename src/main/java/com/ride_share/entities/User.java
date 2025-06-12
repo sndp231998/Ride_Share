@@ -49,7 +49,7 @@ public class User implements UserDetails{
 	    private String name;
 
 	   
-	    @Column(unique = false)
+	    @Column(unique = false,nullable=true)
 	    private String email;
        
 	    @Column(nullable=false,length=100)
