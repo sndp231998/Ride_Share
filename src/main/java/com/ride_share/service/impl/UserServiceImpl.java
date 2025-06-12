@@ -82,12 +82,13 @@ public class UserServiceImpl implements UserService {
 			public UserDto registerNewUser(UserDto userDto) {
 			    User user = this.modelMapper.map(userDto, User.class);
 	    
-			    if (userDto.getEmail() != null ) {
+			    if (userDto.getEmail() != null && !userDto.getEmail().trim().isEmpty()) {
 			        Optional<User> existingUser = userRepo.findByEmail(userDto.getEmail());
 			        if (existingUser.isPresent()) {
 			            throw new ApiException("Already registered with this email!..");
 			        }
 			    }
+
 			  // if( verificationService.verifyOtp(userDto.getMobileNo(), userDto.getOtp())) {
 			    
 			    ApiResponse response = verifyUser(userDto.getMobileNo(), userDto.getOtp());
