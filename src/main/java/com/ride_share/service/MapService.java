@@ -13,6 +13,9 @@ public interface MapService {
 	DistanceMatrixResponse getDistanceMatrixData(double sourceLat, double sourceLng, double destLat, double destLng)
 			throws Exception;
 
+	DistanceMatrixResponse getDistanceMatrixDataa(double sourceLat, double sourceLng, double destLat, double destLng)
+			throws Exception;
+
 	
 	//String getCityName(double latitude, double longitude) throws Exception;
 

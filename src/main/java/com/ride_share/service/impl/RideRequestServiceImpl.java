@@ -378,7 +378,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         Double durationMin;
         
         try {
-            DistanceMatrixResponse response = mapService.getDistanceMatrixData(
+            DistanceMatrixResponse response = mapService.getDistanceMatrixDataa(
                 user.getCurrentLocation().getLatitude(),
                 user.getCurrentLocation().getLongitude(),
                 rideRequestDto.getD_latitude(),
@@ -511,7 +511,7 @@ public class RideRequestServiceImpl implements RideRequestService {
 
             // 3. Distance check गर्ने
             try {
-                DistanceMatrixResponse distanceData = mapServiceImpl.getDistanceMatrixData(
+                DistanceMatrixResponse distanceData = mapServiceImpl.getDistanceMatrixDataa(
                         reqLat, reqLng,
                         riderLocation.getLatitude(),
                         riderLocation.getLongitude()
@@ -570,7 +570,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         Double durationMin;
 
         try {
-            DistanceMatrixResponse response = mapService.getDistanceMatrixData(
+            DistanceMatrixResponse response = mapService.getDistanceMatrixDataa(
                 user.getCurrentLocation().getLatitude(),
                 user.getCurrentLocation().getLongitude(),
                 rideRequestDto.getD_latitude(),
@@ -674,7 +674,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         
         for (RideRequest ride : rideRequests) {
             try {
-                DistanceMatrixResponse distanceData = mapServiceImpl.getDistanceMatrixData(
+                DistanceMatrixResponse distanceData = mapServiceImpl.getDistanceMatrixDataa(
                         riderLocation.getLatitude(),
                         riderLocation.getLongitude(),
                         ride.getS_latitude(),
@@ -728,7 +728,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         double duration = 0.0;
 
         try {
-            DistanceMatrixResponse response = mapService.getDistanceMatrixData(
+            DistanceMatrixResponse response = mapService.getDistanceMatrixDataa(
                 user.getCurrentLocation().getLatitude(),
                 user.getCurrentLocation().getLongitude(),
                 rideRequestDto.getD_latitude(),
@@ -801,7 +801,7 @@ public class RideRequestServiceImpl implements RideRequestService {
     }
 
     LocalDateTime locationTime = rider.getCurrentLocation().getTimestamp();
-    if (locationTime == null || locationTime.isBefore(LocalDateTime.now().minusMinutes(59))) {
+    if (locationTime == null || locationTime.isBefore(LocalDateTime.now().minusMinutes(10))) {
         throw new ApiException("Please update your current location.");
     }
 
@@ -810,7 +810,7 @@ public class RideRequestServiceImpl implements RideRequestService {
     double pickupDuration = 0.0;
 
     try {
-        DistanceMatrixResponse response = mapService.getDistanceMatrixData(
+        DistanceMatrixResponse response = mapService.getDistanceMatrixDataa(
         		rider.getCurrentLocation().getLatitude(),
                 rider.getCurrentLocation().getLongitude(),
                 pessenger.getS_latitude(),//pessenger cu
