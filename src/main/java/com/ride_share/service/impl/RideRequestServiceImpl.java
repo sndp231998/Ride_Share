@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -473,31 +474,40 @@ public class RideRequestServiceImpl implements RideRequestService {
         // Save the ride request
         RideRequest newRiderequest = rideRequestRepo.save(rideRequest);
      // ✅ Step 1: Get eligible rider userIds
+        
+        
         List<Integer> eligibleRiderUserIds = getEligibleRidersForRequest(newRiderequest);
-        if (!eligibleRiderUserIds.isEmpty()) {
-        for (Integer usersId : eligibleRiderUserIds) {
-            NotificationDto notificationDto = new NotificationDto();
-            
-            // Create message using String.format
-            String message = String.format("New Ride is Available of Rs: %s for Destination: %s - Tuffan Ride-Share!",
-                newRiderequest.getActualPrice(),
-                newRiderequest.getS_Name()
-            );
 
-            notificationDto.setMessage(message);
-            
-            // Send notification to single userId
-            notificationService.createNotification(notificationDto, usersId);
-        }}
+        if (!eligibleRiderUserIds.isEmpty()) {
+            CompletableFuture.runAsync(() -> {
+                for (Integer usersId : eligibleRiderUserIds) {
+                    NotificationDto notificationDto = new NotificationDto();
+
+                    // Create message using String.format
+                    String message = String.format(
+                        "New Ride is Available of Rs: %s for Destination: %s - Tuffan Ride-Share!",
+                        newRiderequest.getActualPrice(),
+                        newRiderequest.getS_Name()
+                    );
+
+                    notificationDto.setMessage(message);
+
+                    // Send notification to single userId
+                    notificationService.createNotification(notificationDto, usersId);
+                }
+            });
+        }
+
         logger.info("✅ Eligible rider userIds: {}", eligibleRiderUserIds);
 
         // ✅ Step 2: Convert RideRequest entity to DTO
         rideRequestDto = modelMapper.map(newRiderequest, RideRequestDto.class);
-        RideRequestDto finalRideRequestDto = rideRequestDto; 
+        RideRequestDto finalRideRequestDto = rideRequestDto;
         logger.info("✅ RideRequest DTO created: {}", rideRequestDto);
-        
+
+        // ✅ Step 3: Schedule WebSocket push
         scheduler.schedule(() -> {
-        	 webSocketController.sendEligibleRiders(eligibleRiderUserIds, finalRideRequestDto);
+            webSocketController.sendEligibleRiders(eligibleRiderUserIds, finalRideRequestDto);
         }, 10, TimeUnit.SECONDS);
         logger.info("✅ Sent eligible riders via WebSocket");
 
@@ -539,7 +549,7 @@ public class RideRequestServiceImpl implements RideRequestService {
                 );
                 logger.debug("📏 Distance to rider {} is {} km", riderUser.getId(), distanceData.getDistanceKm());
                 // 4. Category match + distance <= 10km
-                if (distanceData.getDistanceKm() <= 10 &&
+                if (distanceData.getDistanceKm() <= 3 &&
                     rider.getCategory() != null &&
                     rider.getCategory().getCategoryId() == requestCategoryId) {
                 	
