@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.json.JSONObject;
@@ -93,6 +96,7 @@ public class RideRequestServiceImpl implements RideRequestService {
     private RideRequestWebSocketController webSocketController;
  
    
+    ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     // Existing methods (create, update, delete, get, etc.)
@@ -368,7 +372,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         LocalDateTime currentTime = LocalDateTime.now();
 
         // Check if the location is stale
-        if (locationTime == null || locationTime.isBefore(currentTime.minusMinutes(59))) {
+        if (locationTime == null || locationTime.isBefore(currentTime.minusMinutes(5))) {
             throw new ApiException(" Please update your current location.");
         }
 
@@ -470,14 +474,31 @@ public class RideRequestServiceImpl implements RideRequestService {
         RideRequest newRiderequest = rideRequestRepo.save(rideRequest);
      // ✅ Step 1: Get eligible rider userIds
         List<Integer> eligibleRiderUserIds = getEligibleRidersForRequest(newRiderequest);
+        if (!eligibleRiderUserIds.isEmpty()) {
+        for (Integer usersId : eligibleRiderUserIds) {
+            NotificationDto notificationDto = new NotificationDto();
+            
+            // Create message using String.format
+            String message = String.format("New Ride is Available of Rs: %s for Destination: %s - Tuffan Ride-Share!",
+                newRiderequest.getActualPrice(),
+                newRiderequest.getS_Name()
+            );
+
+            notificationDto.setMessage(message);
+            
+            // Send notification to single userId
+            notificationService.createNotification(notificationDto, usersId);
+        }}
         logger.info("✅ Eligible rider userIds: {}", eligibleRiderUserIds);
 
         // ✅ Step 2: Convert RideRequest entity to DTO
         rideRequestDto = modelMapper.map(newRiderequest, RideRequestDto.class);
+        RideRequestDto finalRideRequestDto = rideRequestDto; 
         logger.info("✅ RideRequest DTO created: {}", rideRequestDto);
-
-        // ✅ Step 3: Send eligible riders to socket
-        webSocketController.sendEligibleRiders(eligibleRiderUserIds, rideRequestDto);
+        
+        scheduler.schedule(() -> {
+        	 webSocketController.sendEligibleRiders(eligibleRiderUserIds, finalRideRequestDto);
+        }, 5, TimeUnit.SECONDS);
         logger.info("✅ Sent eligible riders via WebSocket");
 
         // ✅ Step 4: Return DTO
