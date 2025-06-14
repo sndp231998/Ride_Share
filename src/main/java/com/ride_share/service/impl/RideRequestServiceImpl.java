@@ -498,7 +498,7 @@ public class RideRequestServiceImpl implements RideRequestService {
         
         scheduler.schedule(() -> {
         	 webSocketController.sendEligibleRiders(eligibleRiderUserIds, finalRideRequestDto);
-        }, 5, TimeUnit.SECONDS);
+        }, 10, TimeUnit.SECONDS);
         logger.info("✅ Sent eligible riders via WebSocket");
 
         // ✅ Step 4: Return DTO
