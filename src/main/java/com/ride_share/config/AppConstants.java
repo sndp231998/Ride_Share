@@ -23,7 +23,13 @@ public class AppConstants {
 		    "Gandaki Province",
 		    "Lumbini Province",
 		    "Karnali Province",
-		    "Sudurpashchim Province"
+		    "Sudurpashchim Province",
+		    "Al Rayyan",
+		    "Doha",
+		    "Umm Salal",
+		    "Al Khor & Al Thakira",
+		    "Al Wakrah"
+		    
 		));
 
 
